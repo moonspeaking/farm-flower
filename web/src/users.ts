@@ -1,4 +1,4 @@
-// Экраны игроков оригинала: «Выберите игрока» (select_user, 349×450) и «Введите ваше имя.» (new_user, 444×143).
+// Экраны игроков «Цветка Стихий»: «Выберите игрока» (select_user, 349×450) и «Введите ваше имя.» (new_user, 503×215).
 import { Container, Graphics, Rectangle } from "pixi.js";
 import { rgb } from "./popfont";
 import { createProfile, currentProfile, deleteProfile, NAME_MAX, profiles, selectProfile } from "./profiles";
@@ -14,17 +14,18 @@ function shade() {
 
 /**
  * Ввод имени нового игрока. Поле — HTML-input поверх холста (на телефоне так открывается клавиатура),
- * в рамке edit (81; 51) 240 × 24. true — игрок создан и стал текущим; false — «Отмена» (при cancelable = false отменить нельзя).
+ * в рамке edit_x/edit_y (150; 90) 240 × 24. true — игрок создан и стал текущим; false — «Отмена» (при cancelable = false отменить нельзя).
  */
 export function newUserDialog(parent: Container, rules: Rules, cancelable = true): Promise<boolean> {
   return new Promise((resolve) => {
     const layer = new Container();
     layer.addChild(shade());
     const box = new Container();
-    box.position.set((W - 444) / 2, (H - 143) / 2);
+    box.position.set(Math.round((W - 503) / 2), Math.round((H - 215) / 2));
     box.addChild(image("new_user_bg"));
-    const header = pop(rules.texts.headers.enter_new_user_name ?? "Введите ваше имя.", "TC4_16_en", COLOR.white, { align: "center" });
-    header.position.set(222, 20); // header_pos 140; 20 — по центру окна
+    // title: stat_control_fonts_menu_normal белым по центру окна, y = 48
+    const header = pop(rules.texts.headers.enter_new_user_name ?? "Введите ваше имя.", "stat_control_fonts_menu_normal", COLOR.white, { align: "center" });
+    header.position.set(251, 48);
     box.addChild(header);
 
     const input = document.createElement("input");
@@ -34,15 +35,15 @@ export function newUserDialog(parent: Container, rules: Rules, cancelable = true
     input.enterKeyHint = "done";
     Object.assign(input.style, {
       position: "fixed", zIndex: "20", border: "0", outline: "none", background: "transparent",
-      color: "#3c2410", fontFamily: '"Comic Sans MS", "Comic Neue", cursive', fontWeight: "bold", padding: "0 4px", boxSizing: "border-box",
+      color: "#b4b4b4", // text_color 180; 180; 180 fontFamily: '"Comic Sans MS", "Comic Neue", cursive', fontWeight: "bold", padding: "0 4px", boxSizing: "border-box",
     });
     // поле следует за холстом: координаты окна → экранные (масштаб и поля вокруг 800×600)
     const place = () => {
       const canvas = document.querySelector<HTMLCanvasElement>("#game canvas");
       if (!canvas || box.destroyed) return;
       const r = canvas.getBoundingClientRect();
-      const a = box.toGlobal({ x: 81, y: 51 });
-      const b = box.toGlobal({ x: 81 + 282, y: 51 + 28 });
+      const a = box.toGlobal({ x: 150, y: 90 });
+      const b = box.toGlobal({ x: 150 + 240, y: 90 + 24 });
       const k = r.width / canvas.clientWidth || 1;
       Object.assign(input.style, {
         left: `${r.left + a.x * k}px`, top: `${r.top + a.y * k}px`,
@@ -73,11 +74,11 @@ export function newUserDialog(parent: Container, rules: Rules, cancelable = true
       e.stopPropagation(); // F и пробел в поле — это буквы, а не полный экран и пауза
     });
     const ok = textButton(rules.texts.buttons.ok ?? "OK", submit);
-    ok.position.set(64 + 18, 78 + 17);
+    ok.position.set(71 + 12, 117 + 12); // ok (71; 117) 25×24 — на левом листе
     box.addChild(ok);
     if (cancelable) {
       const cancel = textButton(rules.texts.buttons.cancel ?? "Отмена", () => finish(false));
-      cancel.position.set(275 + 51, 75 + 17);
+      cancel.position.set(325 + 36, 127 + 12); // cancel (325; 127) 73×24 — на правом листе
       box.addChild(cancel);
     }
     layer.addChild(box);
@@ -90,18 +91,22 @@ export function selectUserScreen(parent: Container, rules: Rules, onClose: () =>
   const layer = new Container();
   layer.addChild(shade());
   const box = new Container();
-  box.position.set((W - 349) / 2, (H - 450) / 2);
-  box.addChild(image("select_user_bg"));
-  const header = pop(rules.texts.headers.select_user ?? "Выберите игрока", "TC4_16_en", COLOR.white, { align: "center" });
-  header.position.set(175, 35); // header_pos 100; 35 — по центру окна
+  box.position.set(Math.round((W - 349) / 2), Math.round((H - 450) / 2));
+  // фон 417×497 игра растягивает до размеров окна 349×450 (как в опциях)
+  const bg = image("select_user_bg");
+  bg.width = 349;
+  bg.height = 450;
+  box.addChild(bg);
+  const header = pop(rules.texts.headers.select_user ?? "Выберите игрока", "stat_control_fonts_menu_normal", COLOR.white, { align: "center" });
+  header.position.set(5 + 174.5, 64); // title (5; 64) 349 по центру
   box.addChild(header);
 
-  // list_box (97; 80) 160 × 228, шрифт comic_18; выбранная строка — заливка 0; 0; 128 и белый текст
+  // list_box_x/y (90; 105) 170 × 190, шрифт stat_control_1 цвета 180; выбранная строка — заливка 245; 215; 109
   const ROW = 25;
-  const VISIBLE = Math.floor(228 / ROW);
+  const VISIBLE = Math.floor(190 / ROW);
   const list = new Container();
-  list.position.set(97, 80);
-  list.hitArea = new Rectangle(0, 0, 160, 228);
+  list.position.set(90, 105);
+  list.hitArea = new Rectangle(0, 0, 170, 190);
   list.eventMode = "static";
   box.addChild(list);
   let selected = currentProfile()?.id ?? profiles()[0]?.id ?? null;
@@ -114,8 +119,8 @@ export function selectUserScreen(parent: Container, rules: Rules, onClose: () =>
       const row = new Container();
       row.y = i * ROW;
       const on = u.id === selected;
-      row.addChild(new Graphics().rect(0, 0, 160, ROW - 1).fill({ color: 0x000080, alpha: on ? 1 : 0.001 }));
-      const l = pop(u.name, "comic_18", on ? COLOR.white : rgb(60, 36, 12), { scale: 0.9 });
+      row.addChild(new Graphics().rect(0, 0, 170, ROW - 1).fill({ color: rgb(245, 215, 109), alpha: on ? 1 : 0.001 }));
+      const l = pop(u.name, "stat_control_fonts_1", rgb(180, 180, 180));
       l.position.set(6, 2);
       row.addChild(l);
       row.eventMode = "static";
@@ -157,14 +162,15 @@ export function selectUserScreen(parent: Container, rules: Rules, onClose: () =>
     selectProfile(selected);
     close();
   };
+  // new (136; 322) 78×24, delete (132; 344) 87×24, ok (161; 367) 25×24 — текст по центру рамок
   const button = (text: string, x: number, y: number, w: number, fn: () => void) => {
     const b = textButton(text, fn);
-    b.position.set(x + w / 2, y + 17);
+    b.position.set(x + w / 2, y + 12);
     box.addChild(b);
   };
-  button(rules.texts.buttons.new_user ?? "Создать", 122, 319, 111, () => void create());
-  button(rules.texts.buttons.delete ?? "Удалить", 116, 349, 120, () => void remove());
-  button(rules.texts.buttons.ok ?? "OK", 158, 379, 36, ok);
+  button(rules.texts.buttons.new_user ?? "Создать", 136, 322, 78, () => void create());
+  button(rules.texts.buttons.delete ?? "Удалить", 132, 344, 87, () => void remove());
+  button(rules.texts.buttons.ok ?? "OK", 161, 367, 25, ok);
   render();
   layer.addChild(box);
   parent.addChild(layer);

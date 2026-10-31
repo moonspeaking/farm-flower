@@ -21,8 +21,16 @@ FONTS = [
     "comic_stroke_white_14", "comic_stroke_white_18", "comic_stroke_white_24",
     "float_points", "bonus_events_white", "time",
 ]
+# шрифты интерфейса «Цветка Стихий» (resource.xml): пункты меню, кнопки, панель слева, диалоги
+FONTS_FLOWER = [
+    "Main-normal", "Main-normal-active", "button-normal", "button-normal-active",
+    "stat_control_fonts_1", "stat_control_fonts_2", "stat_control_fonts_menu_normal",
+    "stat_control_fonts_menu-normal-active", "stat_control_fonts_menu_deactive",
+    "palatino_15", "Dialog", "Dialog2", "logoff", "logoff-active",
+]
 
-STR = re.compile(r"'(.)'|\"(.)\"", re.S)
+# символ в кавычках; обратная косая записана как '\\\\' (шрифты интерфейса «Цветка Стихий»)
+STR = re.compile(r"'(\\\\|.)'|\"(\\\\|.)\"", re.S)
 
 
 def section(text, name):
@@ -34,7 +42,7 @@ def parse(path):
     raw = path.read_bytes()
     # в «Цветке Стихий» файлы шрифтов в UTF-16 (BOM FF FE), в первой игре — cp1251
     text = raw.decode("utf-16") if raw[:2] in (b"\xff\xfe", b"\xfe\xff") else raw.decode("cp1251")
-    chars = [a or b for a, b in STR.findall(section(text, "CharList"))]
+    chars = [(a or b).replace("\\\\", "\\") for a, b in STR.findall(section(text, "CharList"))]
     widths = [int(x) for x in re.findall(r"-?\d+", section(text, "WidthList"))]
     rects = [tuple(int(v) for v in t) for t in re.findall(r"\(\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*\)", section(text, "RectList"))]
     offs = [tuple(int(v) for v in t) for t in re.findall(r"\(\s*(-?\d+)\s*,\s*(-?\d+)\s*\)", section(text, "OffsetList"))]
@@ -74,38 +82,48 @@ def repack(img, fonts):
     return out
 
 
+def load_font_image(folder, image):
+    """Картинка шрифта: X.jpg / X.png + маска X_.png / X_.gif (альфа в яркости), либо X.png / _X.png / _X.jpg."""
+    color = next((c for c in (folder / f"{image}.jpg", folder / f"{image}.png") if c.exists()), None)
+    mask = next((m for m in (folder / f"{image}_.png", folder / f"{image}_.gif") if m.exists()), None)
+    if color and mask:
+        # цветная картинка + маска (stat_control_fonts_1.png + _.gif): буквы своего цвета, белым не перекрашиваются
+        img = Image.open(color).convert("RGBA")
+        img.putalpha(Image.open(mask).convert("L").resize(img.size))
+        return img
+    src = next(p for p in (folder / f"{image}.png", folder / f"_{image}.png", folder / f"_{image}.jpg") if p.exists())
+    img = Image.open(src).convert("RGBA")
+    if img.getchannel("A").getextrema()[0] == 255:
+        # картинка без альфы: яркость — это маска глифа (чёрное — прозрачно), буквы белые
+        lum = img.convert("L")
+        img = Image.merge("RGBA", (*(Image.new("L", img.size, 255),) * 3, lum))
+    return img
+
+
 def main():
     game, web = Path(sys.argv[1]), Path(sys.argv[2])
-    # русские шрифты «Цветка Стихий» лежат отдельно (data/ru/fonts, с кириллицей и своими картинками)
-    fonts_dir = game / "data" / "ru" / "fonts" if (game / "data" / "ru" / "fonts").exists() else game / "data" / "fonts"
+    # русские шрифты «Цветка Стихий» лежат отдельно (data/ru/fonts, с кириллицей и своими картинками);
+    # шрифтов интерфейса там нет — они в data/fonts (и уже с кириллицей)
+    dirs = [d for d in (game / "data" / "ru" / "fonts", game / "data" / "fonts") if d.exists()]
+    names = FONTS + [f for f in FONTS_FLOWER if (dirs[-1] / f"{f}.txt").exists()]
     out = web / "public" / "fonts"
     out.mkdir(parents=True, exist_ok=True)
-    result = {}
-    parsed = {name: parse(fonts_dir / f"{name}.txt") for name in FONTS}
+    parsed, folder = {}, {}
+    for name in names:
+        d = next(d for d in dirs if (d / f"{name}.txt").exists())
+        parsed[name], folder[name] = parse(d / f"{name}.txt"), d
     by_image = {}
     for name, f in parsed.items():
-        by_image.setdefault(f["image"], []).append(f)
-    for image, fonts in by_image.items():
-        jpg, mask = fonts_dir / f"{image}.jpg", fonts_dir / f"{image}_.png"
-        if jpg.exists() and mask.exists():
-            # X.jpg — цвет, X_.png — альфа в яркости (float_points и time в «Цветке Стихий»)
-            img = Image.open(jpg).convert("RGBA")
-            img.putalpha(Image.open(mask).convert("L").resize(img.size))
-        else:
-            src = next(p for p in (fonts_dir / f"{image}.png", fonts_dir / f"_{image}.png", fonts_dir / f"_{image}.jpg") if p.exists())
-            img = Image.open(src).convert("RGBA")
-        if img.getchannel("A").getextrema()[0] == 255:
-            # картинка без альфы: яркость — это маска глифа (чёрное — прозрачно), буквы белые
-            lum = img.convert("L")
-            img = Image.merge("RGBA", (*(Image.new("L", img.size, 255),) * 3, lum))
+        by_image.setdefault((folder[name], f["image"]), []).append(f)
+    for (d, image), fonts in by_image.items():
+        img = load_font_image(d, image)
         for f in fonts:
             f["height"] = img.height  # высота строки — по исходной полосе, а не по переупакованной картинке
         img = repack(img, fonts)
         img.save(out / f"{image}.webp", lossless=True)
     for name, f in parsed.items():
-        result[name] = f
-        print(f"{name:26} {len(f['glyphs']):3} глифов, картинка {f['image']}")
-    (out / "fonts.json").write_text(json.dumps(result, ensure_ascii=False, separators=(",", ":")))
+        print(f"{name:38} {len(f['glyphs']):3} глифов, картинка {f['image']}")
+    (out / "fonts.json").write_text(json.dumps(parsed, ensure_ascii=False, separators=(",", ":")))
 
 
 if __name__ == "__main__":

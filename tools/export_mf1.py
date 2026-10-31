@@ -56,6 +56,7 @@ IMAGES = {
     "waterpot": "game/waterpot",
     "cursor_pour": "cursors/pour",
     "menu_bg": "main_menu/main_menu_background",
+    "menu_title": "main_menu/title",
     "comics": "main_menu/first_comics",
     "town_bg": "game/towns/location_1",
     "dialog_next": "buttons/dialog_next_normal",
@@ -65,6 +66,13 @@ IMAGES = {
     "quest_info": "buttons/quest_info_normal",
     "bq_back": "game/bouquets/bouquets_back",
     "lu_back": "game/level_up/level_up_back",
+    # «Цветок Стихий»: стручки-полоски умений (10 кадров анимации), рамки выбранного / наведённого умения
+    "lu_bob": "game/level_up/bob_prog",
+    "lu_bob_inv": "game/level_up/bob_prog_inv",
+    "lu_bob_sel": "game/level_up/bob_prog_sel",
+    "lu_bob_sel_inv": "game/level_up/bob_prog_sel_inv",
+    "lu_selected": "game/level_up/selected",
+    "lu_overed": "game/level_up/overed",
     "lu_progress": "game/level_up/progress",
     "lu_glass": "game/level_up/glass",
     "lu_girl": "game/level_up/girl",
@@ -118,11 +126,17 @@ def load_image(path):
     jpg, png = path.with_suffix(".jpg"), path.with_suffix(".png")
     if jpg.exists():
         img = Image.open(jpg).convert("RGBA")
-        mask = path.with_name(path.name + "_.png")
-        if mask.exists():
+        # маска X_.png, в «Цветке Стихий» бывает и X_.gif
+        mask = next((m for m in (path.with_name(path.name + "_.png"), path.with_name(path.name + "_.gif")) if m.exists()), None)
+        if mask:
             img.putalpha(Image.open(mask).convert("L").resize(img.size))
         return img
-    return Image.open(png).convert("RGBA")
+    img = Image.open(png).convert("RGBA")
+    # PNG без своей альфы + маска X_.png (в «Цветке Стихий»: портреты и рамки окна умений)
+    mask = path.with_name(path.name + "_.png")
+    if mask.exists() and img.getchannel("A").getextrema()[0] == 255:
+        img.putalpha(Image.open(mask).convert("L").resize(img.size))
+    return img
 
 
 def read_xml(path):
@@ -717,7 +731,9 @@ def main():
     for icon in ("attack_icon", "pour_icon", "product_icon"):
         names[f"helper_{icon}"] = f"bugs/helper/{icon}"
     for name, src in names.items():
-        img = load_image(data_dir / src)
+        # русские варианты картинок «Цветка Стихий» (логотип, фон меню) лежат в data/ru/ — они главнее
+        ru_src = data_dir / "ru" / src
+        img = load_image(ru_src if ru_src.with_suffix(".jpg").exists() or ru_src.with_suffix(".png").exists() else data_dir / src)
         img.save(out_img / f"{name}.webp", lossless=True)
     # комикс без нарисованной «лужи» кнопки (кадр с фермой, пока кнопка не появилась)
     subprocess.run([sys.executable, str(Path(__file__).with_name("make_comics_clean.py")),
@@ -726,7 +742,11 @@ def main():
     rules["core_images"], rules["location_images"] = split_images(rules, bugs, names)
     rules["audio"] = export_audio(data_dir, web)
     # таблица рекордов по умолчанию: файл объявлен как windows-1251, но записан в cp866
-    scores = (xml_dir / "ru" / "default_scores_ru.xml").read_bytes().decode("cp866")
+    # в «Цветке Стихий» — UTF-8 с BOM и отдельные таблицы adventure_casual / adventure_hardcore: берём обычную сложность
+    raw_scores = (xml_dir / "ru" / "default_scores_ru.xml").read_bytes()
+    scores = raw_scores[3:].decode("utf-8") if raw_scores.startswith(b"\xef\xbb\xbf") else raw_scores.decode("cp866")
+    casual = re.search(r"<adventure_casual>(.*?)</adventure_casual>", scores, re.S)
+    scores = casual.group(1) if casual else scores
     rules["default_scores"] = [{"name": n, "days": int(d), "money": int(m)}
                                for n, d, m in re.findall(r'<place name="([^"]*)" days="(\d+)" money="(\d+)"', scores)]
     out = web / "public" / "data" / "rules.json"

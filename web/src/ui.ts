@@ -147,26 +147,56 @@ export function roundButton(text: string, onTap: () => void, labelY = 32) {
   return c;
 }
 
-const STYLES = {
-  normal: { font: "rubius_24" as FontName, color: COLOR.normal, active: COLOR.normalActive },
-  small: { font: "arial_narrow_bold_24" as FontName, color: COLOR.small, active: COLOR.smallActive },
-  menu: { font: "rubius_30" as FontName, color: COLOR.menu, active: COLOR.menuActive },
-  shop: { font: "palatino_14" as FontName, color: COLOR.shop, active: COLOR.shopActive },
+/**
+ * Стили кнопок (button_styles в properties_ru.xml, шрифты — resource.xml «Цветка Стихий»). Шрифты меню и кнопок цветные,
+ * поэтому цвет покоя/наведения у них белый или близкий к нему, а при наведении меняется сам шрифт (activeFont).
+ */
+const STYLES: Record<string, { font: FontName; activeFont?: FontName; color: number; active: number }> = {
+  // normal: button-normal, 200;200;200 → 255;255;255
+  normal: { font: "button-normal", activeFont: "button-normal-active", color: rgb(200, 200, 200), active: COLOR.white },
+  // normal_small: stat_control_fonts_menu-normal-active, 170;170;255 → 255;255;255
+  small: { font: "stat_control_fonts_menu-normal-active", color: COLOR.small, active: COLOR.smallActive },
+  // menu: Main-normal / Main-normal-active, белым
+  menu: { font: "Main-normal", activeFont: "Main-normal-active", color: COLOR.white, active: COLOR.white },
+  // menu_small: stat_control_fonts_menu_normal 255;255;0 → stat_control_fonts_menu-normal-active белым
+  menuSmall: { font: "stat_control_fonts_menu_normal", activeFont: "stat_control_fonts_menu-normal-active", color: rgb(255, 255, 0), active: COLOR.white },
+  // shop: palatino_15
+  shop: { font: "palatino_15", color: COLOR.shop, active: COLOR.shopActive },
 };
+export type ButtonKind = "normal" | "small" | "menu" | "menuSmall" | "shop";
 
 /** Текстовая кнопка оригинала без подложки (button_styles: цвет в покое и при наведении). */
-export function textButton(text: string, onTap: () => void, kind: keyof typeof STYLES = "normal", maxWidth = 0): PopLabel {
+export function textButton(text: string, onTap: () => void, kind: ButtonKind = "normal", maxWidth = 0): PopLabel {
   const s = STYLES[kind];
   let t = pop(text, s.font, s.color, { align: "center" });
   // надпись шире отведённого места — уменьшаем шрифт, чтобы она влезла в рамку
-  if (maxWidth > 0 && t.textWidth > maxWidth) {
-    const k = maxWidth / t.textWidth;
+  const k = maxWidth > 0 && t.textWidth > maxWidth ? maxWidth / t.textWidth : 1;
+  if (k < 1) {
     t.destroy();
     t = pop(text, s.font, s.color, { align: "center", scale: k });
   }
   t.anchor.set(0.5, 0.5);
-  t.on("pointerover", () => t.setColor(s.active));
-  t.on("pointerout", () => t.setColor(s.color));
+  // шрифт наведения — отдельная надпись поверх (в оригинале кнопка рисуется другим растровым шрифтом)
+  const hover = s.activeFont ? pop(text, s.activeFont, s.active, { align: "center", scale: k }) : null;
+  if (hover) {
+    hover.position.set((t.textWidth - hover.textWidth) / 2, (t.textHeight - hover.textHeight) / 2);
+    hover.visible = false;
+    hover.eventMode = "none";
+    t.addChild(hover);
+  }
+  const glyphs = () => t.children.filter((c) => c !== hover);
+  t.on("pointerover", () => {
+    if (hover) {
+      hover.visible = true;
+      for (const c of glyphs()) c.visible = false;
+    } else t.setColor(s.active);
+  });
+  t.on("pointerout", () => {
+    if (hover) {
+      hover.visible = false;
+      for (const c of glyphs()) c.visible = true;
+    } else t.setColor(s.color);
+  });
   press(t, 0.95, onTap);
   return t;
 }
@@ -194,6 +224,8 @@ export function dialog(
     bodyAlign?: "left" | "center";
     /** Получает функцию закрытия окна — для кнопок внутри content. */
     bind?: (close: (value: string) => void) => void;
+    /** Раскладка new_or_continue_game: кнопки столбиком посередине свитка. */
+    stack?: boolean;
   },
 ): Promise<string> {
   return new Promise((resolve) => {
@@ -202,48 +234,49 @@ export function dialog(
     shade.eventMode = "static";
     layer.addChild(shade);
 
+    // «Цветок Стихий»: свиток dialog_roll 798×531 в натуральную величину по центру экрана (message_screen);
+    // текст Dialog2 чёрным с (84; 97) в рамке 630×200, кнопки на двух нарисованных листьях:
+    // yes (210; 342) 29×24 — левый лист, no (596; 349) 37×24 / ok (601; 345) 25×24 — правый.
+    // stack — окно new_or_continue_game: текст Dialog по центру рамки (177; 107) 400, кнопки столбиком в рамках 130×24 с (310; 140), шаг 35
     const box = new Container();
-    const width = opts.width ?? 520;
-    let y = 50;
+    box.position.set(Math.round((W - 798) / 2), Math.round((H - 531) / 2));
+    box.addChild(image("dialog"));
     const items: Container[] = [];
+    let y = opts.stack ? 107 : 97;
     if (opts.title) {
-      const t = pop(opts.title, "TC4_16_en", COLOR.black, { align: "center", scale: 1.15 });
-      t.y = y;
-      y += t.textHeight + 6;
+      const t = pop(opts.title, "stat_control_fonts_menu_normal", COLOR.white, { align: "center" });
+      t.position.set(399, y - 34);
       items.push(t);
     }
     if (opts.body) {
-      const left = opts.bodyAlign === "left";
-      const t = pop(opts.body, "Verdana14", COLOR.black, { align: left ? "left" : "center", wrap: width - 110, lineOffset: -2 });
-      if (left) t.x = -(width - 110) / 2;
-      t.y = y;
+      const center = opts.stack || opts.bodyAlign === "center";
+      const wrap = opts.stack ? 400 : 630;
+      const t = pop(opts.body, opts.stack ? "Dialog" : "Dialog2", COLOR.black, { align: center ? "center" : "left", wrap });
+      t.position.set(center ? 399 : 84, y);
       y += t.textHeight + 10;
       items.push(t);
     }
     if (opts.content) {
-      opts.content.y = y;
+      opts.content.position.set(399, y);
       y += opts.content.height + 10;
       items.push(opts.content);
     }
-    const height = Math.max(210, y + 112); // кнопки внутри рамки свитка, над нижней рваной кромкой
-    const roll = image("dialog");
-    roll.width = width;
-    roll.height = height;
-    roll.x = -width / 2;
-    box.addChild(roll, ...items);
+    box.addChild(...items);
 
     const finish = (v: string) => {
       layer.destroy({ children: true });
       resolve(v);
     };
     opts.bind?.(finish);
-    const step = Math.min(180, (width - 80) / opts.buttons.length);
+    const n = opts.buttons.length;
     opts.buttons.forEach((b, i) => {
       const btn = textButton(b.text, () => finish(b.value));
-      btn.position.set((i - (opts.buttons.length - 1) / 2) * step, height - 92);
+      if (opts.stack) btn.position.set(310 + 65, 140 + 12 + i * 35);
+      else if (n === 1) btn.position.set(601 + 12, 345 + 12);
+      else if (n === 2) btn.position.set(i === 0 ? 210 + 14 : 596 + 18, i === 0 ? 342 + 12 : 349 + 12);
+      else btn.position.set(224 + (i * (614 - 224)) / (n - 1), 357);
       box.addChild(btn);
     });
-    box.position.set(W / 2 + (opts.offsetX ?? 0), Math.max(10, (H - height) / 2));
     shade.on("pointertap", () => finish("cancel"));
     layer.addChild(box);
     parent.addChild(layer);

@@ -4,7 +4,7 @@ import type { PopLabel } from "./popfont";
 import { rgb } from "./popfont";
 import type { Rules } from "./rules";
 import { fmt } from "./rules";
-import { dialog, H, image, pop, roundButton, textButton, W } from "./ui";
+import { COLOR, dialog, H, image, pop, roundButton, textButton, W } from "./ui";
 
 export interface MenuEvents {
   play(fresh: boolean): void;
@@ -45,37 +45,48 @@ export class Menu extends Container {
     const t = rules.texts;
     const b = t.buttons_menu;
     this.addChild(image("menu_bg"));
-    // пункты main_menu на деревянной табличке: шрифт rubius_30, цвет 255;255;100, при наведении 255;255;175
-    // fit: подгонять шрифт под ширину таблички (нужно только «Результатам»; остальные пункты — шрифтом оригинала без уменьшения)
-    const item = (text: string, x: number, y: number, w: number, onTap: () => void, fit = false) => {
-      const l = textButton(text, onTap, "menu", fit ? w - 18 : 0);
-      l.position.set(x + w / 2, y + 20);
+    // логотип main_menu/logotype: data/main_menu/title в (222; -11)
+    const title = image("menu_title");
+    title.position.set(222, -11);
+    this.addChild(title);
+    // пункты main_menu на каменной плите: стиль menu (шрифт Main-normal, при наведении Main-normal-active),
+    // рамка 250×40, текст по центру, наклон angle = 0.03 рад
+    const item = (text: string, x: number, y: number, onTap: () => void) => {
+      const l = textButton(text, onTap, "menu", 250 - 18);
+      l.position.set(x + 125, y + 20);
+      l.rotation = 0.03;
       this.addChild(l);
     };
-    item(b.game_adventure || "Кампания", 147, 186, 155, () => void this.adventure());
-    item(b.options || "Опции", 180, 239, 96, () => this.events.options());
-    // «Об игре» на третьей табличке, «Результаты» на последней (табличка одинаковой ширины, поле w — как у «Результатов» в XML)
-    item("Об игре", 130, 295, 201, () => this.events.about()); // на 2 px ниже остальных: так надпись ровно по центру таблички
-    // вместо «Выйти» (в браузере и PWA игра сама закрыться не может) — свиток «Об игре» выше, «Результаты» на последней табличке
-    item(b.menu_highscores || "Результаты", 130, 349, 201, () => this.events.highscores(), true);
-    this.refreshUser();
+    item(b.game_adventure || "Кампания", 104, 234, () => void this.adventure());
+    item(b.options || "Опции", 106, 273, () => this.events.options());
+    item(b.menu_highscores || "Результаты", 117, 308, () => this.events.highscores());
+    // на месте «Трофеев» (118; 344) пока «Об игре»: комнаты трофеев ещё нет; «Выход» (118; 383) в браузере не нужен
+    item("Об игре", 118, 344, () => this.events.about());
     this.addChild(this.overlay);
   }
 
-  /** «Приветствую, %name%, если это не Вы, нажмите сюда» вверху меню (main_menu/logoff: y 0, цвет 250;150;0, при наведении 255;200;50). */
+  /**
+   * «Приветствую, %name%, если это не Вы, нажмите сюда» (main_menu/logoff: рамка 320×72 в (230; 121), текст по центру,
+   * шрифт logoff белым, при наведении logoff-active с цветом 175;125;250). Текст в ru.xml уже разбит на три строки.
+   */
   refreshUser() {
     this.greeting?.destroy();
     this.greeting = null;
     const name = this.events.userName();
     if (!name) return;
-    const normal = rgb(250, 150, 0);
-    const active = rgb(255, 200, 50);
-    const l = pop(fmt(this.rules.texts.users?.main_change_user ?? "Приветствую, %name%, если это не Вы, нажмите сюда", { name }), "rubius_24", normal, { align: "center" });
-    l.position.set(W / 2, 4);
+    const text = fmt(this.rules.texts.users?.main_change_user ?? "Приветствую, %name%, если это не Вы, нажмите сюда", { name });
+    const l = pop(text, "logoff", COLOR.white, { align: "center" });
+    const hover = pop(text, "logoff-active", rgb(175, 125, 250), { align: "center" });
+    hover.visible = false;
+    hover.eventMode = "none";
+    l.addChild(hover);
+    l.anchor.set(0.5, 0.5);
+    l.position.set(230 + 160, 121 + 36);
     l.eventMode = "static";
     l.cursor = "pointer";
-    l.on("pointerover", () => l.setColor(active));
-    l.on("pointerout", () => l.setColor(normal));
+    const glyphs = () => l.children.filter((c) => c !== hover);
+    l.on("pointerover", () => ((hover.visible = true), glyphs().forEach((c) => (c.visible = false))));
+    l.on("pointerout", () => ((hover.visible = false), glyphs().forEach((c) => (c.visible = true))));
     l.on("pointertap", () => this.events.changeUser());
     this.greeting = l;
     this.addChildAt(l, this.children.indexOf(this.overlay) >= 0 ? this.children.indexOf(this.overlay) : this.children.length);
@@ -84,11 +95,14 @@ export class Menu extends Container {
   private async adventure() {
     const t = this.rules.texts;
     if (!this.events.hasSave()) return this.comics();
+    // new_or_continue_game «Цветка Стихий»: кнопки столбиком — новая игра, продолжить, вернуться (загрузки сохранений в порте нет)
     const r = await dialog(this.overlay, {
       body: fmt(t.new_game.text),
+      stack: true,
       buttons: [
         { text: t.buttons_menu.new_game || "Новая Игра", value: "new" },
-        { text: t.buttons_menu.continue_game || "Продолжить", value: "continue" }, // справа: основное действие, легко не спутать с новой игрой
+        { text: t.buttons_menu.continue_game || "Продолжить", value: "continue" },
+        { text: t.buttons.return || "Вернуться", value: "cancel" },
       ],
     });
     if (r === "continue") return this.events.play(false);

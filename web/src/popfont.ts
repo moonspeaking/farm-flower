@@ -15,7 +15,12 @@ export type FontName =
   | "BritannicBold14" | "TC4_16_en" | "Verdana14" | "ComicSansMS18" | "comic_18"
   | "rubius_20" | "rubius_24" | "rubius_30" | "arial_narrow_bold_24" | "palatino_14"
   | "comic_stroke_white_14" | "comic_stroke_white_18" | "comic_stroke_white_24"
-  | "float_points" | "bonus_events_white" | "time";
+  | "float_points" | "bonus_events_white" | "time"
+  // интерфейс «Цветка Стихий» (resource.xml): цветные шрифты меню, кнопок и панели
+  | "Main-normal" | "Main-normal-active" | "button-normal" | "button-normal-active"
+  | "stat_control_fonts_1" | "stat_control_fonts_2" | "stat_control_fonts_menu_normal"
+  | "stat_control_fonts_menu-normal-active" | "stat_control_fonts_menu_deactive"
+  | "palatino_15" | "Dialog" | "Dialog2" | "logoff" | "logoff-active";
 
 const fonts = new Map<string, FontData>();
 const sheets = new Map<string, Texture>();
@@ -27,6 +32,11 @@ export async function loadFonts() {
   await Assets.load(images.map((n) => ({ alias: `font:${n}`, src: `fonts/${n}.webp` })));
   for (const n of images) sheets.set(n, Texture.from(`font:${n}`));
   for (const [name, f] of Object.entries(data)) fonts.set(name, f);
+}
+
+/** Глиф символа; в части шрифтов «Цветка Стихий» (Dialog, Dialog2…) нет «ё» — тогда «е», как в книжном наборе. */
+function glyph(font: FontData, ch: string): Glyph | undefined {
+  return font.glyphs[ch] ?? (ch === "ё" ? font.glyphs["е"] : ch === "Ё" ? font.glyphs["Е"] : undefined);
 }
 
 function cell(font: FontData, g: Glyph) {
@@ -114,7 +124,7 @@ export class PopLabel extends Container {
 
   private advance(f: FontData, ch: string) {
     if (ch === " ") return f.space;
-    const g = f.glyphs[ch] ?? f.glyphs["?"];
+    const g = glyph(f, ch) ?? f.glyphs["?"];
     return g ? g[4] : f.space;
   }
 
@@ -132,7 +142,7 @@ export class PopLabel extends Container {
     lines.forEach((line, row) => {
       let x = align === "left" ? 0 : align === "center" ? (this.textWidth - widths[row]) / 2 : this.textWidth - widths[row];
       for (const ch of line) {
-        const g = f.glyphs[ch] ?? (ch === " " ? undefined : f.glyphs["?"]);
+        const g = glyph(f, ch) ?? (ch === " " ? undefined : f.glyphs["?"]);
         if (g) {
           const s = new Sprite(cell(f, g));
           s.tint = this.color;

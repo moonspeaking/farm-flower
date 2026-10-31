@@ -11,9 +11,9 @@ interface Store {
   current: string | null;
 }
 
-const KEY = "iris-farm-profiles";
+const KEY = "iris-flower-profiles";
 /** Сохранения до появления игроков — при создании первого игрока переходят к нему. */
-const LEGACY = ["iris-farm-save-v3", "iris-farm-save-v2"];
+const LEGACY = ["iris-flower-save-v3", "iris-flower-save-v2"];
 export const NAME_MAX = 20;
 
 function read(): Store {
@@ -34,7 +34,7 @@ function write(s: Store) {
   }
 }
 
-/** Ключ сохранения игрока: base — версия формата («iris-farm-save-v3»). */
+/** Ключ сохранения игрока: base — версия формата («iris-flower-save-v3»). */
 export function saveKey(base: string, id: string) {
   return `${base}:${id}`;
 }

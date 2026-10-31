@@ -99,9 +99,9 @@ interface Save {
   tutorial: string[];
 }
 
-const KEY = "iris-farm-save-v2";
-const KEY3 = "iris-farm-save-v3";
-const OPTIONS_KEY = "iris-farm-options";
+const KEY = "iris-flower-save-v2";
+const KEY3 = "iris-flower-save-v3";
+const OPTIONS_KEY = "iris-flower-options";
 
 type Listener = () => void;
 

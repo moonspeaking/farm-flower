@@ -31,13 +31,15 @@
   <body>
     <div id="loading"><canvas id="loadcv"></canvas></div>
     <script>
-      // Экран загрузки оригинала (BugsLoadingScreen, exe 0x472f80 / 0x472da0): ромашка в (356; 200) зацветает по показанному
+      // Экран загрузки (BugsLoadingScreen, адреса exe первой игры 0x472f80 / 0x472da0): стручок в (300; 150) растёт по показанному
       // проценту; вредитель стоит в x = (1 − процент) · 800 и ползёт справа налево, надпись приклеена справа к нему
       (function () {
         var cv = document.getElementById("loadcv");
         var ctx = cv.getContext("2d");
         var W = 800, H = 600, POS_Y = 300; // loading pos_y из properties_ru.xml
-        var BUGS = { snail: 1, kloun: 0.5, pchela: 1, etti: 1, krab: 0.5, spirit: 1, helper: 1, gusenica: 0.5, bug: 0.6 }; // время круга анимации, с
+        // вредители экрана загрузки (loading/bugs «Цветка Стихий»): [время круга анимации move, с; кадров] — из properties.xml
+        var BUGS = { boar: [0.6, 11], bug: [0.6, 12], etti: [1, 11], frog: [0.6, 11], gusenica: [0.5, 11], helper: [1, 11], kloun: [0.5, 11],
+          krab: [0.4, 12], ladybird: [0.8, 11], lemur: [0.6, 11], parrot: [0.7, 11], pchela: [1, 11], snail: [1, 11], spirit: [1, 11], turtle: [0.6, 11] };
         var names = Object.keys(BUGS);
         var bugName = names[Math.floor(Math.random() * names.length)];
         var flower = new Image();
@@ -78,12 +80,13 @@
           ctx.setTransform(k, 0, 0, k, (cv.width - W * k) / 2, (cv.height - H * k) / 2);
           ctx.globalAlpha = fade;
           var t = (now - t0) / 1000;
-          // порядок оригинала: вредитель, ромашка, надпись
+          // порядок оригинала: вредитель, стручок, надпись
           var bw = 0, bh = 0, bx = Math.floor((1 - shown) * W + 0.5);
           if (bug.complete && bug.naturalWidth) {
             bw = bug.naturalWidth;
-            bh = Math.floor(bug.naturalHeight / 11);
-            var bi = Math.floor((t / BUGS[bugName]) * 11) % 11;
+            var rows = BUGS[bugName][1];
+            bh = Math.floor(bug.naturalHeight / rows);
+            var bi = Math.floor((t / BUGS[bugName][0]) * rows) % rows;
             // ползёт влево, а в оригинале взята анимация move/right и вредитель пятится — отражаем её, как левые направления на ферме
             ctx.save();
             ctx.translate(bx + bw, POS_Y - Math.floor(bh / 2));
@@ -92,11 +95,11 @@
             ctx.restore();
           }
           if (flower.complete && flower.naturalWidth) {
-            var fh = Math.floor(flower.naturalHeight / 12);
-            var idx = Math.min(11, Math.floor(shown * 12 + 0.001));
-            // в skin_ru.xml (356; 200), но тогда низ ромашки (с ореолом y + 85) задевает вредителя, проходящего под ней:
-            // самый высокий (etti) достаёт до y = 257. Подняли на 32 px, чтобы ни один вредитель её не касался
-            ctx.drawImage(flower, 0, idx * fh, flower.naturalWidth, fh, 356, 168, flower.naturalWidth, fh);
+            // стручок «Цветка Стихий»: 26 кадров по 82 px, loading/progress в properties_ru.xml — (300; 150)
+            var FRAMES = 26;
+            var fh = Math.floor(flower.naturalHeight / FRAMES);
+            var idx = Math.min(FRAMES - 1, Math.floor(shown * FRAMES + 0.001));
+            ctx.drawImage(flower, 0, idx * fh, flower.naturalWidth, fh, 300, 150, flower.naturalWidth, fh);
           }
           ctx.fillStyle = "#fff";
           ctx.font = "bold 24px Verdana, system-ui, sans-serif";

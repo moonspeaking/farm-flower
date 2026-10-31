@@ -29,21 +29,22 @@ export function gameMenu(parent: Container, rules: Rules, actions: { options(): 
     actions.closed();
   };
   layer.addChild(shade(close));
+  // «Цветок Стихий»: фон game_menu 417×497 по центру экрана, кнопки стиля normal в рамках 210×34, текст по центру:
+  // back (97; 131), options (95; 168), exit (96; 329). Сохранения/загрузки (save, load) и квестов (quest) в порте нет — игра сохраняется сама
   const box = new Container();
-  box.position.set((W - 225) / 2 + 40, (H - 304) / 2);
+  box.position.set(Math.round((W - 417) / 2), Math.round((H - 497) / 2));
   box.addChild(image("game_menu_bg"));
-  // позиции кнопок из game_menu: back (38; 34), options (69; 105), exit (62; 206); ширины 148 / 83 / 93, высота 34
-  const item = (text: string, x: number, y: number, w: number, fn: () => void) => {
-    const b = textButton(text, fn);
-    b.position.set(x + w / 2, y + 17);
+  const item = (text: string, x: number, y: number, fn: () => void) => {
+    const b = textButton(text, fn, "normal", 200);
+    b.position.set(x + 105, y + 17);
     box.addChild(b);
   };
-  item(t.game_menu_back ?? "Вернуться", 38, 34, 148, close);
-  item(t.game_menu_options ?? "Опции", 69, 105, 83, () => {
+  item(t.game_menu_back ?? "Вернуться", 97, 131, close);
+  item(t.game_menu_options ?? "Опции", 95, 168, () => {
     dispose();
     actions.options();
   });
-  item(t.game_menu_exit ?? "Выйти", 62, 206, 93, () => {
+  item(t.game_menu_exit ?? "Выйти", 96, 329, () => {
     dispose();
     actions.exit();
   });
@@ -62,33 +63,37 @@ export function optionsScreen(parent: Container, rules: Rules, onClose: () => vo
     onClose();
   };
   layer.addChild(shade());
+  // «Цветок Стихий»: окно options 346×450 по центру; фон (417×497) игра растягивает до размеров окна — тогда пазы на досках
+  // ложатся ровно под ползунки из XML
   const box = new Container();
-  box.position.set((W - 346) / 2, (H - 450) / 2);
-  box.addChild(image("options_bg"));
-  const title = pop(t.title ?? "Опции", "TC4_16_en", COLOR.white, { align: "center", scale: 1.15 });
-  title.position.set(173, 37);
-  box.addChild(title);
-
-  const label = (text: string, x: number, y: number, align: "left" | "center" = "center", wrap?: number) => {
-    const l = pop(text, "BritannicBold14", rgb(40, 28, 12), { align, wrap, lineOffset: -4, scale: 0.8 });
-    l.position.set(x, y);
+  box.position.set(Math.round((W - 346) / 2), Math.round((H - 450) / 2));
+  const bg = image("options_bg");
+  bg.width = 346;
+  bg.height = 450;
+  box.addChild(bg);
+  // заголовок и подписи громкости — stat_control_fonts_menu_normal по центру рамки 346: title (2; 53), music (1; 124), sound (4; 201)
+  const caption = (text: string, x: number, y: number) => {
+    const l = pop(text, "stat_control_fonts_menu_normal", COLOR.white, { align: "center" });
+    l.position.set(x + 173, y);
     box.addChild(l);
-    return l;
   };
-  // ползунок: дорожка 60…286 по x; thumb 24×24
-  const slider = (y: number, value: number, set: (v: number) => void) => {
-    const x0 = 92;
-    const x1 = 232;
-    const track = new Graphics().roundRect(x0, y + 8, x1 - x0 + 24, 8, 4).fill(0x4a3a1c).stroke({ color: 0xe6c178, width: 2 });
+  caption(t.title ?? "Опции", 2, 53);
+  caption(t.music ?? "Музыка", 1, 124);
+  caption(t.sound ?? "Звуки", 4, 201);
+
+  // ползунок music_slider_x/y/width/height: (108; 98) 140×24 и (108; 168); дорожка нарисована на фоне, бегунок thumb 28×26
+  const slider = (x0: number, y: number, value: number, set: (v: number) => void) => {
+    const span = 140 - 28;
+    const area = new Graphics().rect(x0, y, 140, 24).fill({ color: 0xffffff, alpha: 0.001 });
     const thumb = image("options_thumb");
-    thumb.position.set(x0 + (x1 - x0) * value, y + 0);
+    thumb.position.set(x0 + span * value, y - 1);
     thumb.eventMode = "static";
     thumb.cursor = "pointer";
     let drag = false;
     const move = (gx: number) => {
       const p = box.toLocal({ x: gx, y: 0 });
-      const v = Math.max(0, Math.min(1, (p.x - 12 - x0) / (x1 - x0)));
-      thumb.x = x0 + (x1 - x0) * v;
+      const v = Math.max(0, Math.min(1, (p.x - 14 - x0) / span));
+      thumb.x = x0 + span * v;
       set(v);
     };
     thumb.on("pointerdown", () => (drag = true));
@@ -97,29 +102,30 @@ export function optionsScreen(parent: Container, rules: Rules, onClose: () => vo
     layer.on("globalpointermove", (e) => drag && move(e.global.x));
     layer.on("pointerup", () => (drag = false));
     layer.on("pointerupoutside", () => (drag = false));
-    track.eventMode = "static";
-    track.on("pointerdown", (e) => move(e.global.x));
-    box.addChild(track, thumb);
+    area.eventMode = "static";
+    area.on("pointerdown", (e) => move(e.global.x));
+    box.addChild(area, thumb);
   };
-  label(t.music ?? "Музыка", 173, 94);
-  slider(113, cur.music, (v) => {
+  slider(108, 98, cur.music, (v) => {
     cur.music = v;
     audio.setOptions({ ...cur });
   });
-  label(t.sound ?? "Звуки", 173, 139);
-  slider(158, cur.sound, (v) => {
+  slider(108, 168, cur.sound, (v) => {
     cur.sound = v;
     audio.setOptions({ ...cur });
     audio.play("flower_get");
   });
 
-  // флажки: x = 221, y — из XML (check_fullscreen 178, check_custom_cursor 248, check_game_warnings 283)
-  const check = (text: string, top: number, get: () => boolean, set: (v: boolean) => void) => {
-    const l = label(text, 112, top, "left", 140);
-    const cy = top + l.textHeight / 2 - 12; // флажок по центру своей надписи
+  // флажки: надпись stat_control_fonts_1 слева (левый верх из XML), квадратик 28×24 справа:
+  // fullscreen текст (102; 233) / флажок (247; 230), acc_3d (101; 255) / (247; 253), custom_cursor (98; 275) / (245; 282),
+  // game_warnings (97; 314) / (245; 312). Строки acc_3d (3D-ускоритель) в вебе нет — на её месте «Блестки»; «Итоги дня» — ниже
+  const check = (text: string, tx: number, ty: number, cx: number, cy: number, get: () => boolean, set: (v: boolean) => void) => {
+    const l = pop(text, "stat_control_fonts_1", COLOR.white, { wrap: 160 }); // рамки надписей 150–160 px
+    l.position.set(tx, ty);
+    box.addChild(l);
     const on = image("options_check");
     const off = image("options_check_off");
-    for (const s of [on, off]) s.position.set(80, cy);
+    for (const s of [on, off]) s.position.set(cx, cy);
     box.addChild(off, on);
     const sync = () => {
       on.visible = get();
@@ -131,34 +137,36 @@ export function optionsScreen(parent: Container, rules: Rules, onClose: () => vo
     sync();
     return sync;
   };
-  const fullscreenCheck = check(t.fullscreen ?? "На весь экран", 188, () => !!document.fullscreenElement, (v) => {
+  const fullscreenCheck = check(t.fullscreen ?? "На весь экран", 102, 233, 247, 230, () => !!document.fullscreenElement, (v) => {
     if (v) void document.documentElement.requestFullscreen?.().catch(() => undefined);
     else void document.exitFullscreen?.().catch(() => undefined);
   });
   // полный экран включается не мгновенно (и клавишей F тоже) — флажок обновляется, когда режим действительно сменился
   document.addEventListener("fullscreenchange", fullscreenCheck);
   layer.once("destroyed", () => document.removeEventListener("fullscreenchange", fullscreenCheck));
-  check(t.custom_cursor ?? "Специальные Курсоры", 210, () => cur.cursors, (v) => {
-    cur.cursors = v;
-    audio.setOptions({ ...cur });
-  });
-  check(t.game_warnings ?? "Предупреждения в игре", 243, () => cur.warnings, (v) => {
-    cur.warnings = v;
-    audio.setOptions({ ...cur });
-  });
-
-  check("Блестки", 297, () => cur.sparkles, (v) => {
+  check("Блестки", 101, 255, 247, 253, () => cur.sparkles, (v) => {
     cur.sparkles = v;
     audio.setOptions({ ...cur });
   });
-  check("Итоги дня", 275, () => cur.dayStats, (v) => {
+  check(t.custom_cursor ?? "Специальные курсоры", 98, 275, 245, 282, () => cur.cursors, (v) => {
+    cur.cursors = v;
+    audio.setOptions({ ...cur });
+  });
+  check(t.game_warnings ?? "Предупреждения", 97, 314, 245, 312, () => cur.warnings, (v) => {
+    cur.warnings = v;
+    audio.setOptions({ ...cur });
+  });
+  check("Итоги дня", 97, 336, 245, 334, () => cur.dayStats, (v) => {
     cur.dayStats = v;
     audio.setOptions({ ...cur });
   });
 
+  // ok (37; 370) 146×34, текст по центру; на месте credits (192; 357) 96×44 — «Об игре»
   const ok = textButton(rules.texts.buttons.ok ?? "OK", done);
-  ok.position.set(173, 375);
-  box.addChild(ok);
+  ok.position.set(37 + 73, 370 + 17);
+  const about = textButton("Об игре", () => void aboutScreen(parent, rules), "normal", 96);
+  about.position.set(192 + 48, 357 + 22);
+  box.addChild(ok, about);
   layer.addChild(box);
   parent.addChild(layer);
 }
@@ -173,7 +181,7 @@ export interface Score {
   current?: boolean;
 }
 
-const SCORES_KEY = "iris-farm-scores";
+const SCORES_KEY = "iris-flower-scores";
 
 export function loadScores(rules: Rules): Score[] {
   try {
@@ -203,41 +211,38 @@ export function highscoresScreen(parent: Container, rules: Rules, onClose: () =>
   const layer = new Container();
   const t = rules.texts.headers;
   layer.addChild(image("highscores_bg"));
-  const caption = pop(t.highscore_header ?? "Рекорды", "TC4_16_en", COLOR.white, { align: "center", scale: 1.1 });
-  caption.position.set(406, 154); // по центру рамки (свиток 200…613)
+  // «Цветок Стихий», highscores: заголовок (47; 158) 800 по центру шрифтом stat_control_fonts_menu_normal;
+  // шапки колонок stat_control_fonts_1 по центру рамок: игрок (256; 197) 200, дни (464; 195) 50, деньги (520; 194) 75;
+  // строки шрифтом stat_control_1 цвета 180;180;180 (текущий игрок — 255;0;0), первая в first_line_pos (270; 217), шаг 16
+  const caption = pop(t.highscore_header ?? "Рекорды", "stat_control_fonts_menu_normal", COLOR.white, { align: "center" });
+  caption.position.set(47 + 400, 158);
   layer.addChild(caption);
-  const head = (text: string, x: number, align: "left" | "center" = "left") => {
-    const l = pop(text, "TC4_16_en", rgb(90, 55, 20), { align, scale: 0.8 });
-    l.position.set(x, 194);
+  const head = (text: string, x: number, y: number) => {
+    const l = pop(text, "stat_control_fonts_1", COLOR.white, { align: "center" });
+    l.position.set(x, y);
     layer.addChild(l);
   };
-  head(t.highscore_player_header ?? "Игрок", 260);
-  // колонки между вертикальными линиями свитка: дни 465…510, деньги 510…584 — значения по центру колонки
-  head(t.highscore_day_header ?? "Дни", 487.5, "center");
-  head(t.highscore_money_header ?? "Деньги", 547, "center");
+  head(t.highscore_player_header ?? "Игрок", 256 + 100, 197);
+  head(t.highscore_day_header ?? "Дни", 464 + 25, 195);
+  head(t.highscore_money_header ?? "Деньги", 520 + 37.5, 194);
   loadScores(rules).slice(0, 10).forEach((s, i) => {
-    const y = 225 + i * 16.1;
-    const color = s.current ? rgb(160, 40, 20) : rgb(60, 36, 12);
+    const y = 217 + i * 16;
+    const color = s.current ? rgb(255, 0, 0) : rgb(180, 180, 180);
     const place = (text: string, x: number, align: "left" | "center" = "left") => {
-      const l = pop(text, "BritannicBold14", color, { align, scale: 0.8 });
+      const l = pop(text, "stat_control_fonts_2", color, { align, scale: 0.7 });
       l.position.set(x, y);
       layer.addChild(l);
     };
-    place(s.name, 260);
-    place(String(s.days), 487.5, "center");
-    place(String(s.money), 547, "center");
-    if (s.current) {
-      const m = image("in_game");
-      m.scale.set(0.6);
-      m.position.set(232, y - 2);
-      layer.addChild(m);
-    }
+    place(s.name, 270);
+    place(String(s.days), 464 + 25, "center");
+    place(String(s.money), 520 + 37.5, "center");
   });
+  // ok (233; 451) 410×34
   const ok = textButton(rules.texts.buttons.ok ?? "OK", () => {
     layer.destroy({ children: true });
     onClose();
   });
-  ok.position.set(388 + 18, 435 + 17);
+  ok.position.set(233 + 205, 451 + 17);
   layer.addChild(ok);
   parent.addChild(layer);
 }
@@ -247,11 +252,13 @@ export function highscoresScreen(parent: Container, rules: Rules, onClose: () =>
 export function pauseOverlay(parent: Container, rules: Rules) {
   const layer = new Container();
   layer.addChild(shade());
+  // pause_screen 503×215 по центру, текст (250; 95) — по центру окна, шириной до 380
   const back = image("pause_bg");
-  back.position.set((W - 426) / 2, (H - 125) / 2);
+  back.position.set(Math.round((W - 503) / 2), Math.round((H - 215) / 2));
   layer.addChild(back);
-  const text = pop((rules.texts.pause.text ?? "Пауза").replace(/\\n/g, "\n"), "TC4_16_en", COLOR.white, { align: "center", scale: 1.1, lineOffset: 4 });
-  text.position.set(W / 2, H / 2 - 28);
+  const text = pop((rules.texts.pause.text ?? "Пауза").replace(/\\n/g, "\n"), "stat_control_fonts_1", COLOR.white, { align: "center", wrap: 380 });
+  text.anchor.set(0.5, 0.5);
+  text.position.set(back.x + 250, back.y + 95);
   layer.addChild(text);
   parent.addChild(layer);
   return layer;

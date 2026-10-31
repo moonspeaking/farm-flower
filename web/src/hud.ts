@@ -1,4 +1,4 @@
-// Левая панель Айрис (stat_control + game_screen/item_stat): опыт, склад, вода, деньги, день, «Меню».
+// Левая панель Айрис (stat_control + game_screen/item_stat «Цветка Стихий»): опыт, склад, вода, деньги, день, «Меню».
 import { Container, Graphics } from "pixi.js";
 import type { FontName, PopLabel } from "./popfont";
 import { rgb } from "./popfont";
@@ -6,7 +6,7 @@ import type { Rules } from "./rules";
 import type { Game } from "./state";
 import { audio } from "./audio";
 import { ParticleLayer } from "./particles";
-import { COLOR, image, pop } from "./ui";
+import { COLOR, image, pop, textButton } from "./ui";
 
 export interface HudEvents {
   /** Нажали на полоску опыта (view_button) — открыть окно умений. */
@@ -29,37 +29,42 @@ export class Hud extends Container {
     const st = rules.texts.stats;
     this.addChild(image("stat_panel"));
 
-    // заголовки шрифтом TC4_16_en, чёрные; XML: hero_title (13;5), storage_title (12;142), water_title (13;243)…
-    const title = (text: string, x: number, y: number, w: number) => {
-      const l = pop(text, "TC4_16_en", COLOR.black, { align: "center" });
-      l.position.set(x + w / 2, y);
+    // «Цветок Стихий», game_screen/item_stat: панель 200×600 (ствол с листьями). Заголовки — stat_control_fonts_1 белым,
+    // align left, левый верх в позиции XML: hero_title (9;7), storage_title (12;148), water_title (12;266), money_title (11;378),
+    // day_title (104;16)
+    const title = (text: string, x: number, y: number) => {
+      const l = pop(text, "stat_control_fonts_1", COLOR.white);
+      l.position.set(x, y);
       this.addChild(l);
     };
-    title(st.hero_title, 13, 5, 80);
-    title(st.storage_title, 12, 142, 80);
-    title(st.water_title, 13, 243, 80);
-    title(st.money_title, 12, 343, 80);
-    title(st.day_title, 12, 446, 80);
+    title(st.hero_title, 9, 7);
+    title(st.storage_title, 12, 148);
+    title(st.water_title, 12, 266);
+    title(st.money_title, 11, 378);
+    title(st.day_title, 104, 16);
 
-    // значения BritannicBold14 цветами из XML: склад и день 60;60;60, вода 60;60;160, деньги 255;255;55
-    const value = (x: number, y: number, color: number, align: "left" | "center" = "left", vcenter = false, scale = 1, font: FontName = "BritannicBold14") => {
+    // значения — stat_control_fonts_2 с наклоном angle из XML (рад). Как в первой игре (там product_count (54;214) стоял
+    // центром на x = 54 при рамке 85 px), x позиции — центр надписи, y — её верх; поворот вокруг этой точки.
+    // product_count (77;235) наклон 0.2; water_count (32;350) −0.2, цвет 255;255;160; money_count (83;468) 0.2; day_count (106;35) align left
+    const value = (x: number, y: number, angle: number, color: number, align: "left" | "center" = "center", font: FontName = "stat_control_fonts_2", scale = 1) => {
       const l = pop("", font, color, { align, scale });
-      if (vcenter) l.anchor.set(align === "center" ? 0.5 : 0, 0.5);
       l.position.set(x, y);
+      l.rotation = angle;
       this.addChild(l);
       return l;
     };
     this.values = {
-      storage: value(52, 214, rgb(60, 60, 60), "center"),
-      water: value(52, 316, rgb(60, 60, 160), "center"),
-      money: value(52, 416, rgb(255, 255, 55), "center"),
-      day: value(57, 500, rgb(60, 60, 60), "center", true, 1), // day_count (15; 486) 30×30: цифра на странице календаря, размер как у цифр склада
-      level: value(19, 126, COLOR.white, "center", true, 0.85, "float_points"), // уровень — золотые цифры float_points слева от полоски опыта
+      storage: value(77, 235, 0.2, COLOR.white),
+      water: value(32, 350, -0.2, rgb(255, 255, 160)),
+      money: value(83, 468, 0.2, COLOR.white),
+      day: value(106, 35, 0, COLOR.white, "left"),
+      // уровень — float_points в жёлтом кружке слева от полоски опыта (в XML experience вынесен за экран: −149;128) — **допущение**
+      level: value(44, 108, 0, COLOR.white, "center", "float_points", 0.85),
     };
 
-    // полоска опыта 61×11 в (32; 123); при свободных очках умений мигает
+    // полоска опыта exp (56;110) 60×10; при свободных очках умений мигает. Нажатие — view_button (19;94) 90×25
     this.addChild(this.glow, this.bar, this.particles);
-    const hit = new Graphics().rect(9, 117, 90, 25).fill({ color: 0xffffff, alpha: 0.001 });
+    const hit = new Graphics().rect(19, 94, 90, 25).fill({ color: 0xffffff, alpha: 0.001 });
     hit.eventMode = "static";
     hit.cursor = "pointer";
     hit.on("pointertap", (e) => {
@@ -68,15 +73,10 @@ export class Hud extends Container {
     });
     this.addChild(hit);
 
-    const menu = pop(rules.texts.buttons.game_menu ?? "Меню", "TC4_16_en", COLOR.white, { align: "center" });
-    menu.anchor.set(0.5, 0.5);
-    menu.position.set(25 + 28, 544 + 12);
-    menu.eventMode = "static";
-    menu.cursor = "pointer";
-    menu.on("pointertap", (e) => {
-      e.stopPropagation();
-      events.menu();
-    });
+    // «Меню» на шляпке гриба: menu (21;526) 70×25, стиль menu_small
+    const menu = textButton(rules.texts.buttons.game_menu ?? "Меню", () => events.menu(), "menuSmall");
+    menu.position.set(21 + 35, 526 + 12);
+    menu.on("pointertap", (e) => e.stopPropagation());
     this.addChild(menu);
     this.update();
   }
@@ -86,9 +86,9 @@ export class Hud extends Container {
     // звёздочки (water-changes, money-changes, products-changes) вылетают из счётчика, когда значение меняется
     const now = { storage: g.storageCount(), water: g.water, money: g.gold };
     if (this.shown && audio.options.sparkles) {
-      if (now.storage !== this.shown.storage) this.particles.start("products-changes", 52, 222);
-      if (now.water !== this.shown.water) this.particles.start("water-changes", 52, 324);
-      if (now.money !== this.shown.money) this.particles.start("money-changes", 52, 424);
+      if (now.storage !== this.shown.storage) this.particles.start("products-changes", 119, 245);
+      if (now.water !== this.shown.water) this.particles.start("water-changes", 74, 360);
+      if (now.money !== this.shown.money) this.particles.start("money-changes", 120, 478);
     }
     this.shown = now;
     this.values.storage.text = `${g.storageCount()} / ${g.storageMax}`;
@@ -97,12 +97,12 @@ export class Hud extends Container {
     this.values.day.text = String(g.day);
     this.values.level.text = String(g.level);
     const [cur, need] = g.levelProgress;
-    // дорожка полоски — белая с чёрной рамкой (experience: 32; 123, 61 × 11), поверх неё зелёная заливка
-    this.bar.clear().rect(32, 123, 61, 11).fill(0xffffff).stroke({ color: 0x000000, width: 1 });
-    const w = 61 * Math.min(1, cur / need);
+    // полоска exp (56; 110) 60×10 лежит в нарисованном на панели жёлобе — без своей дорожки, только заливка
+    this.bar.clear();
+    const w = 60 * Math.min(1, cur / need);
     if (w > 0) {
-      this.bar.rect(32, 123, w, 11).fill(0x58c63c);
-      this.bar.rect(33, 124, Math.max(0, w - 2), 4).fill({ color: 0xb6f58a, alpha: 0.7 });
+      this.bar.rect(56, 110, w, 10).fill(0x58c63c);
+      this.bar.rect(57, 111, Math.max(0, w - 2), 4).fill({ color: 0xb6f58a, alpha: 0.7 });
     }
   }
 
@@ -113,7 +113,7 @@ export class Hud extends Container {
     this.glow.clear();
     if (this.blinkOn && this.game.skillPoints > 0) {
       const a = 0.35 + 0.35 * Math.sin(this.blink * 6);
-      this.glow.roundRect(29, 120, 67, 17, 7).stroke({ color: 0xffee66, width: 3, alpha: a });
+      this.glow.roundRect(53, 107, 66, 16, 7).stroke({ color: 0xffee66, width: 3, alpha: a });
     }
   }
 }

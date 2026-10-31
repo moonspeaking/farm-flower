@@ -14,15 +14,16 @@ export class Talk extends Container {
     super();
     const shade = new Graphics().rect(0, 0, W, H).fill({ color: 0x000000, alpha: 0.35 });
     shade.eventMode = "static";
+    // «Цветок Стихий»: свиток dialog_roll 798×531 в натуральную величину по центру экрана (как message_screen)
     const roll = image("dialog");
-    roll.position.set((W - roll.width) / 2, 133);
+    roll.position.set(Math.round((W - 798) / 2), Math.round((H - 531) / 2));
     this.portrait = new Sprite();
     // talker: -1; 283 — портрет стоит у левого края поверх свитка
     this.portrait.anchor.set(0, 1);
     this.portrait.position.set(-1, H);
-    // text: 97; 195, 600×170, Verdana14 чёрным по центру окна; имени говорящего в окне нет — его показывает портрет
-    this.text = pop("", "Verdana14", COLOR.black, { align: "center", wrap: 560 });
-    this.text.position.set(97 + 300, 195);
+    // text: (122; 144) 540×170, Dialog2 чёрным по центру; имени говорящего в окне нет — его показывает портрет
+    this.text = pop("", "Dialog2", COLOR.black, { align: "center", wrap: 540 });
+    this.text.position.set(122 + 270, 144);
     this.addChild(shade, roll, this.portrait, this.text, this.controls);
   }
 
@@ -38,9 +39,10 @@ export class Talk extends Container {
     this.controls.removeChildren().forEach((c) => c.destroy({ children: true }));
   }
 
-  private arrow(kind: "next" | "prev", x: number, onTap: () => void) {
+  /** prev (206; 369) и next (601; 374) 30×40 — стрелки на листьях свитка. */
+  private arrow(kind: "next" | "prev", x: number, y: number, onTap: () => void) {
     const s = image(`dialog_${kind}`);
-    s.position.set(x, 370);
+    s.position.set(x, y);
     s.eventMode = "static";
     s.cursor = "pointer";
     s.on("pointerover", () => (s.texture = tex(`dialog_${kind}_selected`)));
@@ -56,12 +58,12 @@ export class Talk extends Container {
       const render = () => {
         this.clearControls();
         this.show(list[i].talker, list[i].text);
-        if (i > 0) this.arrow("prev", 310, () => (i--, render()));
-        if (i < list.length - 1) this.arrow("next", 462, () => (i++, render()));
+        if (i > 0) this.arrow("prev", 206, 369, () => (i--, render()));
+        if (i < list.length - 1) this.arrow("next", 601, 374, () => (i++, render()));
         else {
-          // ok: 377; 371 — текстовая кнопка стиля normal на последней реплике
+          // ok (607; 384) 25×24 — текстовая кнопка стиля normal на правом листе, на последней реплике
           const ok = textButton(this.okText, resolve);
-          ok.position.set(377 + 18, 371 + 17);
+          ok.position.set(607 + 12, 384 + 12);
           this.controls.addChild(ok);
         }
       };
@@ -73,12 +75,12 @@ export class Talk extends Container {
     return new Promise((resolve) => {
       this.clearControls();
       this.show(node.talker, node.text);
-      // ответы — кнопки стиля normal на нижней линии окна (quest_dialog: buttons_down_line 390; 400), по центру правее портрета;
+      // ответы — кнопки стиля normal на нижней линии окна (quest_dialog: buttons_down_line 390; 350), по центру;
       // если ответов несколько, они идут друг над другом, последний — на линии
       const list = (node.answers ?? []).filter((a) => active(a));
       list.forEach((a, i) => {
         const b = textButton(fmt(a.text), () => resolve(a));
-        b.position.set(397, 383 - (list.length - 1 - i) * 34);
+        b.position.set(390, 350 - (list.length - 1 - i) * 30);
         this.controls.addChild(b);
       });
     });
