@@ -27,3 +27,37 @@ python3 tools/unpak.py original/install/main.pak original/pak
 | `docs/DIFF_FROM_MF1.md` | чем игра отличается от первой «Фермы» |
 
 `original/` в git не кладётся (`.gitignore`).
+
+## Порт (форк кода `Farm`)
+
+`web/` и экспортёры `tools/` скопированы из `Farm` и доработаны под данные «Цветка Стихий».
+
+```bash
+python3 -m venv .venv && .venv/bin/pip install pillow numpy
+# папка игры для экспортёров: original/game/{xml -> ../install/xml, data -> ../pak/data}
+cd web
+../.venv/bin/python ../tools/export_mf1.py ../original/game .
+../.venv/bin/python ../tools/export_fonts.py ../original/game .
+../.venv/bin/python ../tools/export_cursors.py ../original/game .
+../.venv/bin/python ../tools/export_particles.py ../original/game .
+npm ci && npx vite
+```
+
+Что пришлось поменять в экспортёрах:
+- логика в `properties.xml`, интерфейс в `properties_ru.xml` — читаются одним деревом (сначала логика);
+- `ru.xml` в UTF-8 с BOM, сущность `&cr;` (перенос строки), голые `&`, элементы после `</root>`;
+- повтор атрибута в одном теге (`location_1.xml`, `well_object`: `pail_2` дважды) — берётся последний;
+- волны: приставки `casual-` / `hardcore-` (и опечатка `hardocre-`), модификаторы `boar!@1*2$3` — сохраняются в `specs`, смысл не разобран;
+- у волны нет `delay` (берётся 0 — **допущение**, проверить по exe);
+- `<dynamic_obstacle name="well_00" removed="well_5"/>` — подмена объекта в локации;
+- число локаций — по файлам `location_N.xml` (5);
+- шрифты: `data/ru/fonts`, файлы в UTF-16, картинки вида `X.jpg` + `X_.png`.
+
+Сейчас работает: меню, ферма и город всех пяти локаций открываются без ошибок, графика своя.
+
+Не сделано (по механикам первой игры, раскладка и новое):
+- раскладка интерфейса взята из первой игры: пункты меню, панель слева (`game_screen/item_stat`), экран загрузки
+  (у `load_progress` другое число кадров) стоят не на своих местах — брать из `properties_ru.xml` «Цветка»;
+- новые механики из `docs/DIFF_FROM_MF1.md` (сложность, серии ударов, призы, автобукеты, сова/часы/рог, уровни колодца,
+  длина дня min→max, трофеи, дерево-идол, выбор квестов) не реализованы;
+- `Farm/docs/EXE_REVERSE_NOTES.md` (скопирован как `docs/MF1_EXE_NOTES.md`) — адреса для `Magic Farm_fixed.exe`, у `game.exe` они другие.

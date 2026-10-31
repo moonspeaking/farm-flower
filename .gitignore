@@ -1,3 +1,6 @@
 original/
 .DS_Store
 __pycache__/
+.venv/
+web/node_modules/
+web/dist/
