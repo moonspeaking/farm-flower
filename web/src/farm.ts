@@ -145,6 +145,8 @@ export class Farm extends Container {
   /** Призы на земле (лежат до конца дня, exe 0x42f1f0) и горн: сколько ещё призвать и пауза до следующего. */
   private prizes: { sprite: Sprite; name: string }[] = [];
   private horn = { left: 0, timer: 0, specs: [] as string[], prizeK: 0 };
+  /** Удар подряд в серии (exe поле фермы +0x708). */
+  private hitCombo = 0;
   /** Картинки, из которых собрано текущее ведро (меняются с уровнем колодца). */
   private pailKey = "";
   private readonly startBtn: Container;
@@ -340,6 +342,7 @@ export class Farm extends Container {
     // начало дня (0x411ba3): ведро полное, пауза сброшена; замедление часов снимается (0x42f6b0)
     this.slow = 1;
     this.slowLeft = 0;
+    this.hitCombo = 0;
     this.wellCooldown = 0;
     this.wellProgress = this.wellDef().fill_time;
     this.pail.level = 1;
@@ -651,12 +654,35 @@ export class Farm extends Container {
       if (this.mode !== "day" || this.paused) return;
       const g = this.game;
       // урон = оружие · (1 + attack) · (1 + attack_specific_<вид>) — так в exe (0x415045)
-      bug.hit(this.rules.weapon_attack * (1 + g.bonus("attack", "attack")) * (1 + g.attackSpecificBonus(folder)));
+      const dmg = this.rules.weapon_attack * (1 + g.bonus("attack", "attack")) * (1 + g.attackSpecificBonus(folder));
+      bug.hit(dmg * this.comboHit(bug, e.getLocalPosition(bug)));
     });
     if (mods) bug.applyMods(mods);
     this.bugs.push(bug);
     this.objects.addChild(bug);
     return bug;
+  }
+
+  /**
+   * Серия ударов (exe 0x430370): попал по вредителю — и по его мишени, если она есть, — счётчик + 1, новая мишень,
+   * множитель — damage последней строки combo_set, где удар подряд ≥ comobos_count; надпись «Комбо N» и «Урон xM»
+   * (bonus_events). Мимо мишени — серия сбрасывается, мишень пропадает, множитель 1. Таймер combo_time в exe только
+   * отсчитывается и серию не сбрасывает; сбрасывает её ещё начало дня (0x42f224).
+   */
+  private comboHit(bug: Bug, local: { x: number; y: number }) {
+    if (!bug.hitsComboTarget(local.x, local.y)) {
+      bug.clearComboTarget();
+      this.hitCombo = 0;
+      return 1;
+    }
+    this.hitCombo += 1;
+    bug.setComboTarget();
+    let mult = 1;
+    for (const c of this.rules.combo_set ?? []) if (this.hitCombo >= c.count) mult = c.damage;
+    const be = this.rules.texts.bonus_events ?? {};
+    if (this.hitCombo > 1) floatPoints(this.ui, `${be.combo_hits ?? "Комбо "}${this.hitCombo}`, bug.x, bug.y - 70, rgb(255, 230, 90));
+    if (mult > 1) floatPoints(this.ui, `${be.damages ?? "Урон x"}${mult}`, bug.x, bug.y - 52, rgb(255, 150, 90));
+    return mult;
   }
 
   /** Бросок приза из вредителя по prizes_set фермы (exe 0x431e40). Сложность в порте — casual. */

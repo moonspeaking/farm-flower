@@ -144,6 +144,8 @@ export interface Rules {
   statues?: Record<string, StatueDef>;
   /** Призы из вредителей фермы (farm/prizes_set): ступени с вероятностью k и призами (пусто — ничего). */
   prizes_set?: { k: number; prizes: string[] }[];
+  /** Серии ударов (combo_set): с какого удара подряд какой множитель урона. */
+  combo_set?: { count: number; damage: number }[];
   /** Призы (root/dropped_items): вид, значение, картинка, цвет надписи, сложности. */
   dropped_items?: Record<string, DroppedItem>;
   locations: Record<string, LocationRules>;

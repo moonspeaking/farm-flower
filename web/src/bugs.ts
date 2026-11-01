@@ -136,6 +136,8 @@ export class Bug extends Actor {
   speed: number;
   attack: number;
   exp: number;
+  /** Мишень серии ударов (exe: флаг +0x8a, точка +0x64): левый верх в своих координатах вредителя. */
+  private comboMark: Sprite | null = null;
   /** Гарантированных призов при смерти ($, exe поле +0x6c+0xc) и множитель приза (prize_k, поле +0x100). */
   prizes = 0;
   prizeMul: number;
@@ -179,6 +181,28 @@ export class Bug extends Actor {
     this.speed = Math.trunc(this.speed * m.speed + 0.5);
     this.attack = Math.trunc(this.attack * m.attack + 0.5);
     this.prizes = m.prizes;
+  }
+
+  /**
+   * Новая мишень серии (exe 0x410070): случайная точка (rand % (2r − 25)) по обеим осям в квадрате радиуса нажатия
+   * (центр — середина зоны нажатия). Картинка root/bug/target.
+   */
+  setComboTarget() {
+    const r = this.def.click_radius ?? 25;
+    const span = Math.max(1, 2 * r - 25);
+    this.comboMark ??= this.addChild(new Sprite(tex("bug_target")));
+    this.comboMark.position.set(-r + Math.floor(Math.random() * span), -2 * r + Math.floor(Math.random() * span));
+  }
+
+  clearComboTarget() {
+    this.comboMark?.destroy();
+    this.comboMark = null;
+  }
+
+  /** Попадание по мишени: квадрат 25 × 25 от её левого верхнего угла (exe 0x430d19). Мишени нет — любое попадание. */
+  hitsComboTarget(lx: number, ly: number) {
+    const t = this.comboMark;
+    return !t || (lx >= t.x && lx < t.x + 25 && ly >= t.y && ly < t.y + 25);
   }
 
   /** Удар: игрок (оружие simple_sword и умения) или Робин. */

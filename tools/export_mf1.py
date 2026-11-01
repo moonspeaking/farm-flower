@@ -811,6 +811,10 @@ def main():
     rules["statues"] = farm_statues(props, 1)
     rules["prizes_set"] = prizes_set(next(l for l in props.iter("location_1") if l.find("farm/prizes_set") is not None))
     rules["dropped_items"] = dropped_items(props.find("dropped_items"))
+    # серии ударов (combo_set, exe 0x44a6d0): с какого удара подряд какой множитель урона
+    cs = props.find("combo_set")
+    rules["combo_set"] = [{"count": int(c.attrib["comobos_count"]), "damage": float(c.attrib["damage"])}
+                          for c in list(cs)[:int(cs.attrib.get("combos_count", len(cs)))]]
     # названия и описания предметов фермы (root/item_names, root/desc): сова — owl, owl_level2, owl_level3
     rules["texts"]["item_names"] = dict(ru.find("item_names").attrib) if ru.find("item_names") is not None else {}
     rules["texts"]["item_desc"] = dict(ru.find("desc").attrib) if ru.find("desc") is not None else {}
@@ -910,6 +914,7 @@ def main():
                 if (folder / anim / f"{d}.jpg").exists():
                     names[f"bug_{bug['folder']}_{anim}_{d}"] = f"bugs/{bug['folder']}/{anim}/{d}"
     names["bq_big"] = "game/bouquets/big-flowers"
+    names["bug_target"] = "bugs/target"  # мишень серии ударов (root/bug/target)
     for it in rules["dropped_items"].values():
         names[f"prize_{it['image']}"] = f"prize_items/{it['image']}"
     for loc in [rules] + list(rules["locations"].values()):
