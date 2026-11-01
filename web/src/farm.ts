@@ -15,6 +15,7 @@ import { fmt, Place, Rules, StorageLevel } from "./rules";
 import type { Game, PlantSave, Weather } from "./state";
 import { Reminder, Tutorial } from "./tutorial";
 import { QuestScreen } from "./questscreen";
+import { wellName, wellOffer } from "./well";
 import { COLOR, dialog, floatPoints, H, image, pop, roundButton, shopButton, type ShopButton, tex, textButton, toast, W } from "./ui";
 
 /** Шаги обучения, уже сдвинутые под перенесённые кнопки. */
@@ -171,16 +172,15 @@ export class Farm extends Container {
     // подсказки стоят над панелью, чтобы их было видно
     this.addChild(this.tutorial);
 
-    // ---------------- колодец и ведро (location_1.xml: well_00, well_pail_00)
-    const wl = rules.well;
+    // ---------------- колодец и ведро (location_1.xml: well_00, well_pail_00); уровень и картинку ставит syncWell
+    const wl = this.wellDef();
     this.well = image("well");
-    this.well.position.set(wl.position[0] + wl.image_offset[0], wl.position[1] + wl.image_offset[1]);
     this.well.eventMode = "static";
     this.well.cursor = "default"; // «pour» включает syncWellCursor
     this.well.on("pointertap", () => this.tapWell());
     this.well.on("pointerover", () => this.setBuyTarget("well"));
     // вода в ведре — тот же Filled, что у бочки: картинка воды опускается на pail_height при пустом ведре (0x40d110)
-    this.pail = new Filled("pail", "pail_water", "pail_mask", rules.well.pail_height);
+    this.pail = new Filled("pail", "pail_water", "pail_mask", wl.pail_height);
     // картинка ведра 70 × 60 стоит в skin_ru.xml → game_screen/well_ctrl/well_pail_00: 240; 440 (exe 0x4146b0 берёт её по имени ведра) —
     // на 10 px левее и на 30 px выше препятствия ведра. Имя ведра на всех фермах одно, а на ферме 3 колодец сдвинут, поэтому
     // сдвиг считаем от препятствия: на фермах 1, 2, 4 это ровно 240; 440, на ферме 3 ведро остаётся у колодца
@@ -310,7 +310,7 @@ export class Farm extends Container {
     this.syncWell();
     // начало дня (0x411ba3): ведро полное, пауза сброшена
     this.wellCooldown = 0;
-    this.wellProgress = this.rules.well.fill_time;
+    this.wellProgress = this.wellDef().fill_time;
     this.pail.level = 1;
     // погода дня (exe, 0x411bbe): до 5-го дня всегда обычная, дальше rand() % 3 — поровну обычная, солнце, дождь
     const w: Weather = this.game.day < 5 ? "normal" : (["normal", "sun", "rain"] as const)[Math.floor(Math.random() * 3)];
@@ -559,8 +559,8 @@ export class Farm extends Container {
     for (const o of this.rules.obstacles) grid.add(o);
     const g = this.game;
     if (g.well) {
-      grid.add(this.rules.well);
-      grid.add(this.rules.well.pail);
+      grid.add(this.wellDef());
+      grid.add(this.wellDef().pail);
     }
     this.rules.water_storage.slice(0, g.barrels).forEach((l) => grid.add({ position: l.obstacle, dimensions: l.dimensions }));
     this.rules.product_storage.slice(0, g.boxes).forEach((l) => grid.add({ position: l.obstacle, dimensions: l.dimensions }));
@@ -713,7 +713,7 @@ export class Farm extends Container {
    * (не больше свободного места в бочках; при нуле ничего не происходит), после чего наполнение 0 и пауза delay секунд.
    */
   private updateWell(dt: number) {
-    const w = this.rules.well;
+    const w = this.wellDef();
     if (this.wellCooldown <= 0) this.wellProgress = Math.min(w.fill_time, this.wellProgress + dt);
     else this.wellCooldown -= dt;
     this.pail.level = this.wellProgress / w.fill_time;
@@ -721,7 +721,7 @@ export class Farm extends Container {
 
   /** Курсор с бочкой над колодцем и ведром — только днём и пока в ведре есть вода. */
   private syncWellCursor() {
-    const w = this.rules.well;
+    const w = this.wellDef();
     const liters = Math.floor((this.wellProgress / w.fill_time) * w.water_capacity + 0.5);
     const cursor = this.mode === "day" && this.game.well && liters > 0 ? "pour" : "default";
     this.well.cursor = cursor;
@@ -731,7 +731,7 @@ export class Farm extends Container {
   private tapWell() {
     if (!this.game.well) return toast(this.ui, "Колодец нужно купить");
     if (this.mode !== "day" || this.paused) return;
-    const w = this.rules.well;
+    const w = this.wellDef();
     const room = this.game.waterMax - this.game.water;
     const n = Math.min(Math.floor((this.wellProgress / w.fill_time) * w.water_capacity + 0.5), room);
     if (n <= 0) return room <= 0 ? toast(this.ui, "Бочки полны") : undefined;
@@ -775,9 +775,37 @@ export class Farm extends Container {
    */
   private syncWell() {
     const owned = this.game.well;
+    const w = this.wellDef();
+    const name = owned ? this.wellName() : this.wellOffer().name;
+    this.well.texture = tex(this.wellImage(name));
+    this.well.position.set(w.position[0] + w.image_offset[0], w.position[1] + w.image_offset[1]);
+    this.pail.position.set(w.pail.position[0] - 10, w.pail.position[1] - 30);
+    this.pail.sortKey = this.well.y + this.well.height + 1;
     this.well.visible = owned || (this.mode === "shop" && this.game.hasMark("shop_well"));
     this.well.alpha = owned ? 1 : 0.5;
     this.pail.visible = owned;
+  }
+
+  private wellOffer() {
+    return wellOffer(this.rules, this.game);
+  }
+
+  private wellName() {
+    return wellName(this.rules, this.game);
+  }
+
+  /** Свойства колодца: купленного, а пока не куплен — предлагаемого. Без данных об уровнях — прежний well из rules. */
+  private wellDef() {
+    const name = this.game.well ? this.wellName() : this.wellOffer().name;
+    return this.rules.well_items?.[name] ?? this.rules.well;
+  }
+
+  /** Картинка колодца: obstacles/<имя>; у well_03 картинки нет — берётся ближайший уровень ниже. */
+  private wellImage(name: string) {
+    const names = Object.values(this.rules.well_object ?? {});
+    const i = names.indexOf(name);
+    for (let k = i; k >= 0; k--) if (this.game.base.images.includes(`wellimg_${names[k]}`)) return `wellimg_${names[k]}`;
+    return "well";
   }
 
   // ================================================================ магазин на объектах
@@ -895,8 +923,9 @@ export class Farm extends Container {
         },
       });
     }
-    if (!g.well && g.hasMark("shop_well")) {
-      const cost = g.buyPrice(this.rules.well.price);
+    const offer = this.wellOffer();
+    if (offer.canBuy && g.hasMark("shop_well")) {
+      const cost = g.buyPrice(this.rules.well_items?.[offer.name]?.price ?? this.rules.well.price);
       buyables.push({
         key: "well",
         at: [this.rules.shop_positions.well[0] + 50, this.rules.shop_positions.well[1] + 30],
@@ -1020,10 +1049,15 @@ export class Farm extends Container {
   }
 
   private buyWell() {
-    const price = this.game.buyPrice(this.rules.well.price);
+    const offer = this.wellOffer();
+    if (!offer.canBuy) return;
+    const price = this.game.buyPrice(this.rules.well_items?.[offer.name]?.price ?? this.rules.well.price);
     if (this.game.gold < price) return this.notEnough();
     this.game.gold -= price;
+    // exe 0x4333d0: старый колодец убирается, ставится новый, уровень + 1
+    this.game.wellLevel += 1;
     this.game.well = true;
+    this.syncWell();
     audio.play("well_buy");
     this.renderStorages();
     this.afterPurchase();

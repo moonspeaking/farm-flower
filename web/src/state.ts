@@ -43,6 +43,9 @@ export interface FarmState {
   barrels: number;
   boxes: number;
   well: boolean;
+  /** Уровень колодца (exe поле фермы +0x7f0: 0 — нет, каждая покупка +1) и разрешена ли покупка (+0x82c, enable_buy_well). */
+  wellLevel?: number;
+  wellBuy?: boolean;
   storage: Record<string, number>;
   boughtRidges: number[];
   plants: (PlantSave | null)[];
@@ -162,6 +165,10 @@ export class Game {
   dayNext: number;
   /** Колодец нужно купить (в магазине он полупрозрачен, пока не куплен). */
   well = false;
+  /** Уровень колодца: 0 — не куплен, каждая покупка +1 (exe +0x7f0, 0x4333d0). */
+  wellLevel = 0;
+  /** Покупка и улучшение колодца разрешены (exe +0x82c, по умолчанию да; квест enable_buy_well). */
+  wellBuy = true;
   /** Собранные плоды по имени продукта. */
   storage = new Map<string, number>();
   boughtRidges: number[] = [];
@@ -219,7 +226,7 @@ export class Game {
     return {
       water: this.water, barrels: this.barrels, boxes: this.boxes, well: this.well, storage: Object.fromEntries(this.storage),
       boughtRidges: this.boughtRidges, plants, seeds: this.seeds, bouquets: this.bouquets,
-      dayCur: this.dayCur, dayNext: this.dayNext,
+      dayCur: this.dayCur, dayNext: this.dayNext, wellLevel: this.wellLevel, wellBuy: this.wellBuy,
     };
   }
 
@@ -228,6 +235,9 @@ export class Game {
     this.barrels = f.barrels;
     this.boxes = f.boxes;
     this.well = f.well;
+    // старые сохранения: колодец куплен — первый уровень
+    this.wellLevel = f.wellLevel ?? (f.well ? 1 : 0);
+    this.wellBuy = f.wellBuy ?? true;
     this.storage = new Map(Object.entries(f.storage));
     this.boughtRidges = f.boughtRidges;
     this.savedPlants = f.plants;

@@ -450,6 +450,22 @@ def wave_group(g, known):
     return {"bugs": [x["name"] for x in specs if x["mode"] != "hardcore"], "specs": specs, "delay": float(g.attrib["delay"])}
 
 
+def well_levels(farm, objects, items_root):
+    """Уровни колодца (exe 0x4f32e0): атрибуты well_object фермы (well / well_N, pail / pail_N) и свойства колодцев
+    items/wells/<имя> с их препятствиями на ферме. Какой уровень брать — решает игра (web/src/farm.ts, wellAt)."""
+    wo = dict(farm.find("well_object").attrib)
+    items = {}
+    for name in {v for k, v in wo.items() if k == "well" or k.startswith("well_")}:
+        it = items_root.find(f"items/wells/{name}")
+        if it is None or name not in objects:
+            continue
+        a = it.attrib
+        pail = a.get("pail", "")
+        items[name] = {**objects[name], "pail": objects.get(pail, objects[name]),
+                       **{k: float(a[k]) for k in ("delay", "fill_time", "water_capacity", "price", "pail_height")}}
+    return {"well_object": wo, "well_items": items}
+
+
 def day_times(farm):
     """Без атрибутов — как в exe: min и max равны time, прибавка 0."""
     t = float(farm.attrib["time"])
@@ -529,6 +545,7 @@ def export_location(n, props, xml_dir, items_root, ru, vegetations, products, bu
         "product_storage": levels("product_storage"),
         "well": {**objects["well_00"], "pail": objects["well_pail_00"],
                  **{k: float(well[k]) for k in ("delay", "fill_time", "water_capacity", "price", "pail_height")}},
+        **well_levels(farm, objects, items_root),
         "prices": {"ridge": int(items_root.find(f"items/ridges/location_{n}").attrib["price"]),
                    "water": int(items_root.find("items/water").attrib["price"])},
         "waves": waves,
@@ -624,6 +641,7 @@ def main():
         "product_storage": levels("product_storage"),
         "well": {**objects["well_00"], "pail": objects["well_pail_00"],
                  **{k: float(well[k]) for k in ("delay", "fill_time", "water_capacity", "price", "pail_height")}},
+        **well_levels(farm, objects, items_root),
         "prices": {"ridge": int(items_root.find("items/ridges/location_1").attrib["price"]),
                    "water": int(items_root.find("items/water").attrib["price"])},
     }
@@ -773,6 +791,11 @@ def main():
     for item in {a.get("item", "") for a in journal_acts if a["type"] in ("add_task", "add_task_count")} - {""}:
         if (mini / "need" / f"{item}.jpg").exists() or (mini / "need" / f"{item}.png").exists():
             names[f"need_{item}"] = f"game/towns/quests/miniimages/need/{item}"
+    # картинки колодцев всех уровней (obstacles/<имя>), если они есть
+    for loc in [rules] + list(rules["locations"].values()):
+        for name in loc.get("well_items", {}):
+            if (data_dir / "obstacles" / f"{name}.jpg").exists():
+                names[f"wellimg_{name}"] = f"obstacles/{name}"
     for item in {b["items"] for b in bugs.values() if b["items"]}:
         names[f"item_{item}"] = f"quest_items/{item}"
     for icon in ("attack_icon", "pour_icon", "product_icon"):

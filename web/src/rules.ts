@@ -72,6 +72,8 @@ export interface LocationRules {
   water_storage: StorageLevel[];
   product_storage: StorageLevel[];
   well: Rules["well"];
+  well_object: Rules["well_object"];
+  well_items: Rules["well_items"];
   prices: { ridge: number; water: number };
   waves: Rules["waves"];
   wave_delays: number[];
@@ -84,6 +86,10 @@ export interface LocationRules {
   quests: Record<string, Quest>;
   holders: Record<string, Place>;
 }
+
+export type WellDef = Place & {
+  image_offset: [number, number]; pail: Place; delay: number; fill_time: number; water_capacity: number; price: number; pail_height: number;
+};
 
 export interface Rules {
   /** Имена картинок фона фермы, ящиков и города: у локации 1 — bg, box…, у остальных — farm_bg_N и т. д. */
@@ -112,7 +118,11 @@ export interface Rules {
   ridges_for_sale: Place[];
   water_storage: StorageLevel[];
   product_storage: StorageLevel[];
-  well: Place & { image_offset: [number, number]; pail: Place; delay: number; fill_time: number; water_capacity: number; price: number; pail_height: number };
+  well: WellDef;
+  /** well_object фермы: well / pail — первый колодец, well_N / pail_N — уровень N (exe 0x4f2290, 0x4f2400). */
+  well_object: Record<string, string>;
+  /** Свойства колодцев по имени (items/wells) с препятствием на ферме. */
+  well_items: Record<string, WellDef>;
   prices: { ridge: number; water: number };
   /** Все картинки; при запуске грузятся только core_images, остальное — по локациям (location_images) при первом заходе. */
   images: string[];

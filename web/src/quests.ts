@@ -81,6 +81,7 @@ export interface StoredState {
   barrels: number;
   boxes: number;
   well: boolean;
+  wellLevel: number;
   boughtRidges: number[];
   world: { towns: Record<string, boolean>; farms: Record<string, boolean> };
 }
@@ -211,17 +212,21 @@ export class QuestEngine {
           break;
         case "store_state":
           st.stored = {
-            gold: g.gold, water: g.water, barrels: g.barrels, boxes: g.boxes, well: g.well,
+            gold: g.gold, water: g.water, barrels: g.barrels, boxes: g.boxes, well: g.well, wellLevel: g.wellLevel,
             boughtRidges: [...g.boughtRidges], world: structuredClone(g.world),
           };
           break;
         case "restore_state":
           if (st.stored) {
             const v = st.stored;
-            Object.assign(g, { gold: v.gold, water: v.water, barrels: v.barrels, boxes: v.boxes, well: v.well });
+            Object.assign(g, { gold: v.gold, water: v.water, barrels: v.barrels, boxes: v.boxes, well: v.well, wellLevel: v.wellLevel ?? (v.well ? 1 : 0) });
             g.boughtRidges = [...v.boughtRidges];
             g.world = structuredClone(v.world);
           }
+          break;
+        // exe 0x483b35: запрет или разрешение покупать колодец (поле фермы +0x82c)
+        case "enable_buy_well":
+          g.wellBuy = a.enable !== "false";
           break;
         case "set_pests_key":
           st.pestsKey = a.key ?? "";

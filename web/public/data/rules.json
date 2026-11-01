@@ -2313,6 +2313,149 @@
   "price": 150.0,
   "pail_height": 17.0
  },
+ "well_object": {
+  "well": "well_00",
+  "pail": "well_pail_00",
+  "well_1": "well_01",
+  "pail_2": "well_pail_02",
+  "well_2": "well_02",
+  "well_3": "well_03",
+  "pail_3": "well_pail_03"
+ },
+ "well_items": {
+  "well_03": {
+   "position": [
+    140.0,
+    420.0
+   ],
+   "dimensions": [
+    110.0,
+    120.0
+   ],
+   "image_offset": [
+    -70.0,
+    -100.0
+   ],
+   "pail": {
+    "position": [
+     250.0,
+     470.0
+    ],
+    "dimensions": [
+     41.0,
+     30.0
+    ],
+    "image_offset": [
+     0.0,
+     0.0
+    ]
+   },
+   "delay": 20.0,
+   "fill_time": 8.0,
+   "water_capacity": 8.0,
+   "price": 250.0,
+   "pail_height": 17.0
+  },
+  "well_01": {
+   "position": [
+    140.0,
+    420.0
+   ],
+   "dimensions": [
+    110.0,
+    120.0
+   ],
+   "image_offset": [
+    -70.0,
+    -100.0
+   ],
+   "pail": {
+    "position": [
+     250.0,
+     470.0
+    ],
+    "dimensions": [
+     41.0,
+     30.0
+    ],
+    "image_offset": [
+     0.0,
+     0.0
+    ]
+   },
+   "delay": 22.0,
+   "fill_time": 6.0,
+   "water_capacity": 4.0,
+   "price": 150.0,
+   "pail_height": 17.0
+  },
+  "well_00": {
+   "position": [
+    140.0,
+    420.0
+   ],
+   "dimensions": [
+    110.0,
+    120.0
+   ],
+   "image_offset": [
+    -70.0,
+    -100.0
+   ],
+   "pail": {
+    "position": [
+     250.0,
+     470.0
+    ],
+    "dimensions": [
+     41.0,
+     30.0
+    ],
+    "image_offset": [
+     0.0,
+     0.0
+    ]
+   },
+   "delay": 25.0,
+   "fill_time": 4.0,
+   "water_capacity": 2.0,
+   "price": 150.0,
+   "pail_height": 17.0
+  },
+  "well_02": {
+   "position": [
+    140.0,
+    420.0
+   ],
+   "dimensions": [
+    110.0,
+    120.0
+   ],
+   "image_offset": [
+    -70.0,
+    -100.0
+   ],
+   "pail": {
+    "position": [
+     250.0,
+     470.0
+    ],
+    "dimensions": [
+     41.0,
+     30.0
+    ],
+    "image_offset": [
+     0.0,
+     0.0
+    ]
+   },
+   "delay": 20.0,
+   "fill_time": 5.0,
+   "water_capacity": 5.0,
+   "price": 200.0,
+   "pail_height": 17.0
+  }
+ },
  "prices": {
   "ridge": 50,
   "water": 2
@@ -9007,6 +9150,115 @@
     "price": 150.0,
     "pail_height": 17.0
    },
+   "well_object": {
+    "well": "well_2",
+    "pail": "well_pail_2",
+    "well_2": "well_21",
+    "pail_2": "well_pail_21",
+    "well_3": "well_22",
+    "pail_3": "well_pail_22"
+   },
+   "well_items": {
+    "well_2": {
+     "position": [
+      570.0,
+      200.0
+     ],
+     "dimensions": [
+      160.0,
+      130.0
+     ],
+     "image_offset": [
+      -49.0,
+      -49.0
+     ],
+     "pail": {
+      "position": [
+       570.0,
+       200.0
+      ],
+      "dimensions": [
+       130.0,
+       130.0
+      ],
+      "image_offset": [
+       -49.0,
+       -49.0
+      ]
+     },
+     "delay": 5.0,
+     "fill_time": 40.0,
+     "water_capacity": 4.0,
+     "price": 750.0,
+     "pail_height": 17.0
+    },
+    "well_22": {
+     "position": [
+      570.0,
+      200.0
+     ],
+     "dimensions": [
+      160.0,
+      130.0
+     ],
+     "image_offset": [
+      -49.0,
+      -49.0
+     ],
+     "pail": {
+      "position": [
+       570.0,
+       200.0
+      ],
+      "dimensions": [
+       130.0,
+       130.0
+      ],
+      "image_offset": [
+       -49.0,
+       -49.0
+      ]
+     },
+     "delay": 5.0,
+     "fill_time": 40.0,
+     "water_capacity": 12.0,
+     "price": 1000.0,
+     "pail_height": 17.0
+    },
+    "well_21": {
+     "position": [
+      570.0,
+      200.0
+     ],
+     "dimensions": [
+      160.0,
+      130.0
+     ],
+     "image_offset": [
+      -49.0,
+      -49.0
+     ],
+     "pail": {
+      "position": [
+       570.0,
+       200.0
+      ],
+      "dimensions": [
+       130.0,
+       130.0
+      ],
+      "image_offset": [
+       -49.0,
+       -49.0
+      ]
+     },
+     "delay": 5.0,
+     "fill_time": 40.0,
+     "water_capacity": 8.0,
+     "price": 900.0,
+     "pail_height": 17.0
+    }
+   },
    "prices": {
     "ridge": 250,
     "water": 2
@@ -14440,6 +14692,115 @@
     "water_capacity": 2.0,
     "price": 150.0,
     "pail_height": 17.0
+   },
+   "well_object": {
+    "well": "well_3",
+    "pail": "well_pail_3",
+    "well_2": "well_31",
+    "pail_2": "well_pail_31",
+    "well_3": "well_32",
+    "pail_3": "well_pail_32"
+   },
+   "well_items": {
+    "well_3": {
+     "position": [
+      342.0,
+      0.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       342.0,
+       0.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 14.0,
+     "fill_time": 1.0,
+     "water_capacity": 1.0,
+     "price": 75.0,
+     "pail_height": 17.0
+    },
+    "well_31": {
+     "position": [
+      342.0,
+      0.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       342.0,
+       0.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 10.0,
+     "fill_time": 1.0,
+     "water_capacity": 1.0,
+     "price": 175.0,
+     "pail_height": 17.0
+    },
+    "well_32": {
+     "position": [
+      342.0,
+      0.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       342.0,
+       0.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 7.0,
+     "fill_time": 1.0,
+     "water_capacity": 1.0,
+     "price": 300.0,
+     "pail_height": 17.0
+    }
    },
    "prices": {
     "ridge": 75,
@@ -19990,6 +20351,115 @@
     "water_capacity": 2.0,
     "price": 150.0,
     "pail_height": 17.0
+   },
+   "well_object": {
+    "well": "well_4",
+    "pail": "well_pail_4",
+    "well_2": "well_41",
+    "pail_2": "well_pail_41",
+    "well_3": "well_42",
+    "pail_3": "well_pail_42"
+   },
+   "well_items": {
+    "well_41": {
+     "position": [
+      632.0,
+      100.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       632.0,
+       100.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 22.0,
+     "fill_time": 4.0,
+     "water_capacity": 4.0,
+     "price": 900.0,
+     "pail_height": 17.0
+    },
+    "well_42": {
+     "position": [
+      632.0,
+      100.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       632.0,
+       100.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 20.0,
+     "fill_time": 5.0,
+     "water_capacity": 5.0,
+     "price": 1100.0,
+     "pail_height": 17.0
+    },
+    "well_4": {
+     "position": [
+      632.0,
+      100.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       632.0,
+       100.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 25.0,
+     "fill_time": 3.0,
+     "water_capacity": 3.0,
+     "price": 750.0,
+     "pail_height": 17.0
+    }
    },
    "prices": {
     "ridge": 500,
@@ -27730,6 +28200,115 @@
     "price": 150.0,
     "pail_height": 17.0
    },
+   "well_object": {
+    "well": "well_5",
+    "pail": "well_pail_5",
+    "well_2": "well_51",
+    "pail_2": "well_pail_51",
+    "well_3": "well_52",
+    "pail_3": "well_pail_52"
+   },
+   "well_items": {
+    "well_51": {
+     "position": [
+      98.0,
+      391.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       98.0,
+       391.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 20.0,
+     "fill_time": 3.0,
+     "water_capacity": 3.0,
+     "price": 225.0,
+     "pail_height": 17.0
+    },
+    "well_5": {
+     "position": [
+      98.0,
+      391.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       98.0,
+       391.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 25.0,
+     "fill_time": 2.0,
+     "water_capacity": 2.0,
+     "price": 100.0,
+     "pail_height": 17.0
+    },
+    "well_52": {
+     "position": [
+      98.0,
+      391.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       98.0,
+       391.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 20.0,
+     "fill_time": 5.0,
+     "water_capacity": 5.0,
+     "price": 350.0,
+     "pail_height": 17.0
+    }
+   },
    "prices": {
     "ridge": 100,
     "water": 2
@@ -33546,7 +34125,10 @@
   "weather_normal",
   "weather_rain",
   "weather_sun",
-  "well"
+  "well",
+  "wellimg_well_00",
+  "wellimg_well_01",
+  "wellimg_well_02"
  ],
  "core_images": [
   "barrel",
@@ -33871,7 +34453,10 @@
   "weather_normal",
   "weather_rain",
   "weather_sun",
-  "well"
+  "well",
+  "wellimg_well_00",
+  "wellimg_well_01",
+  "wellimg_well_02"
  ],
  "location_images": {
   "1": [
