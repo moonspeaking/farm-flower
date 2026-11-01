@@ -2323,7 +2323,7 @@
   "pail_3": "well_pail_03"
  },
  "well_items": {
-  "well_03": {
+  "well_00": {
    "position": [
     140.0,
     420.0
@@ -2350,16 +2350,16 @@
      0.0
     ]
    },
-   "delay": 20.0,
-   "fill_time": 8.0,
-   "water_capacity": 8.0,
-   "price": 250.0,
+   "delay": 25.0,
+   "fill_time": 4.0,
+   "water_capacity": 2.0,
+   "price": 150.0,
    "pail_height": 17.0,
-   "image": "wellimg_well_03",
+   "image": "wellimg_well_00",
    "pail_images": [
-    "pail_well_pail_03",
-    "pailw_well_pail_03",
-    "pailm_well_pail_03"
+    "pail_well_pail_00",
+    "pailw_well_pail_00",
+    "pailm_well_pail_00"
    ],
    "pail_pos": [
     240.0,
@@ -2445,7 +2445,7 @@
    "pail_images": [],
    "pail_pos": null
   },
-  "well_00": {
+  "well_03": {
    "position": [
     140.0,
     420.0
@@ -2472,16 +2472,16 @@
      0.0
     ]
    },
-   "delay": 25.0,
-   "fill_time": 4.0,
-   "water_capacity": 2.0,
-   "price": 150.0,
+   "delay": 20.0,
+   "fill_time": 8.0,
+   "water_capacity": 8.0,
+   "price": 250.0,
    "pail_height": 17.0,
-   "image": "wellimg_well_00",
+   "image": "wellimg_well_03",
    "pail_images": [
-    "pail_well_pail_00",
-    "pailw_well_pail_00",
-    "pailm_well_pail_00"
+    "pail_well_pail_03",
+    "pailw_well_pail_03",
+    "pailm_well_pail_03"
    ],
    "pail_pos": [
     240.0,
@@ -6739,6 +6739,1769 @@
    ]
   }
  },
+ "prizes_set": [
+  {
+   "k": 0.35,
+   "prizes": [
+    "loc1_gold_1",
+    "loc1_water_1",
+    "loc1_exp_1"
+   ]
+  },
+  {
+   "k": 0.15,
+   "prizes": [
+    "loc1_gold_2",
+    "loc1_water_2",
+    "loc1_exp_2"
+   ]
+  },
+  {
+   "k": 0.1,
+   "prizes": [
+    "loc1_gold_3",
+    "loc1_water_3",
+    "loc1_exp_3"
+   ]
+  },
+  {
+   "k": 0.05,
+   "prizes": [
+    "loc1_gold_4",
+    "loc1_water_4",
+    "loc1_exp_4"
+   ]
+  },
+  {
+   "k": 0.03,
+   "prizes": [
+    "loc1_gold_5",
+    "loc1_water_5",
+    "loc1_exp_5"
+   ]
+  },
+  {
+   "k": 0.015,
+   "prizes": [
+    "loc1_gold_6",
+    "loc1_water_6",
+    "loc1_exp_6"
+   ]
+  },
+  {
+   "k": 0.015,
+   "prizes": [
+    "loc1_gold_6"
+   ]
+  },
+  {
+   "k": 0.0075,
+   "prizes": [
+    "loc1_gold_7"
+   ]
+  },
+  {
+   "k": 0.004,
+   "prizes": [
+    "loc1_gold_8"
+   ]
+  },
+  {
+   "k": 0.002,
+   "prizes": [
+    "loc1_gold_9"
+   ]
+  },
+  {
+   "k": 0.2,
+   "prizes": []
+  }
+ ],
+ "dropped_items": {
+  "exp_1": {
+   "kind": "exp",
+   "value": 5,
+   "image": "exp_1",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "exp_2": {
+   "kind": "exp",
+   "value": 10,
+   "image": "exp_2",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "exp_3": {
+   "kind": "exp",
+   "value": 15,
+   "image": "exp_3",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "exp_4": {
+   "kind": "exp",
+   "value": 20,
+   "image": "exp_4",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "exp_5": {
+   "kind": "exp",
+   "value": 25,
+   "image": "exp_5",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "exp_6": {
+   "kind": "exp",
+   "value": 30,
+   "image": "exp_6",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "exp_7": {
+   "kind": "exp",
+   "value": 35,
+   "image": "exp_7",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "exp_8": {
+   "kind": "exp",
+   "value": 40,
+   "image": "exp_8",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "exp_base_1": {
+   "kind": "exp",
+   "value": 5,
+   "image": "exp_base_1",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "exp_base_2": {
+   "kind": "exp",
+   "value": 10,
+   "image": "exp_base_2",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "exp_base_3": {
+   "kind": "exp",
+   "value": 15,
+   "image": "exp_base_3",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "exp_loc_1": {
+   "kind": "exp",
+   "value": 12,
+   "image": "exp_loc_1",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "exp_loc_2": {
+   "kind": "exp",
+   "value": 20,
+   "image": "exp_loc_2",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "exp_loc_3": {
+   "kind": "exp",
+   "value": 35,
+   "image": "exp_loc_3",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "exp_loc_4": {
+   "kind": "exp",
+   "value": 50,
+   "image": "exp_loc_4",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "exp_loc_5": {
+   "kind": "exp",
+   "value": 100,
+   "image": "exp_loc_5",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "gold_1": {
+   "kind": "gold",
+   "value": 5,
+   "image": "gold_1",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "gold_2": {
+   "kind": "gold",
+   "value": 10,
+   "image": "gold_2",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "gold_3": {
+   "kind": "gold",
+   "value": 15,
+   "image": "gold_3",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "gold_4": {
+   "kind": "gold",
+   "value": 20,
+   "image": "gold_4",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "gold_5": {
+   "kind": "gold",
+   "value": 25,
+   "image": "gold_5",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "gold_6": {
+   "kind": "gold",
+   "value": 30,
+   "image": "gold_6",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "gold_7": {
+   "kind": "gold",
+   "value": 35,
+   "image": "gold_7",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "gold_8": {
+   "kind": "gold",
+   "value": 40,
+   "image": "gold_8",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "gold_base_1": {
+   "kind": "gold",
+   "value": 5,
+   "image": "gold_base_1",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "gold_base_2": {
+   "kind": "gold",
+   "value": 7,
+   "image": "gold_base_2",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "gold_base_3": {
+   "kind": "gold",
+   "value": 10,
+   "image": "gold_base_3",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "gold_loc_1": {
+   "kind": "gold",
+   "value": 12,
+   "image": "gold_loc_1",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "gold_loc_2": {
+   "kind": "gold",
+   "value": 7,
+   "image": "gold_loc_2",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "gold_loc_3": {
+   "kind": "gold",
+   "value": 7,
+   "image": "gold_loc_3",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "gold_loc_4": {
+   "kind": "gold",
+   "value": 25,
+   "image": "gold_loc_4",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "gold_loc_5": {
+   "kind": "gold",
+   "value": 50,
+   "image": "gold_loc_5",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc1_exp_1": {
+   "kind": "exp",
+   "value": 2,
+   "image": "exp_base_1",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc1_exp_2": {
+   "kind": "exp",
+   "value": 4,
+   "image": "exp_base_2",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc1_exp_3": {
+   "kind": "exp",
+   "value": 6,
+   "image": "exp_base_3",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc1_exp_4": {
+   "kind": "exp",
+   "value": 10,
+   "image": "exp_1",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc1_exp_5": {
+   "kind": "exp",
+   "value": 12,
+   "image": "exp_3",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc1_exp_6": {
+   "kind": "exp",
+   "value": 15,
+   "image": "exp_loc_1",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc1_gold_1": {
+   "kind": "gold",
+   "value": 3,
+   "image": "gold_base_1",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc1_gold_2": {
+   "kind": "gold",
+   "value": 5,
+   "image": "gold_base_2",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc1_gold_3": {
+   "kind": "gold",
+   "value": 7,
+   "image": "gold_base_3",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc1_gold_4": {
+   "kind": "gold",
+   "value": 10,
+   "image": "gold_1",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc1_gold_5": {
+   "kind": "gold",
+   "value": 12,
+   "image": "gold_3",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc1_gold_6": {
+   "kind": "gold",
+   "value": 15,
+   "image": "gold_5",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc1_gold_7": {
+   "kind": "gold",
+   "value": 17,
+   "image": "gold_7",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc1_gold_8": {
+   "kind": "gold",
+   "value": 20,
+   "image": "gold_8",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc1_gold_9": {
+   "kind": "gold",
+   "value": 25,
+   "image": "gold_loc_1",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc1_water_1": {
+   "kind": "water",
+   "value": 1,
+   "image": "water_base_1",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc1_water_2": {
+   "kind": "water",
+   "value": 2,
+   "image": "water_base_2",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc1_water_3": {
+   "kind": "water",
+   "value": 3,
+   "image": "water_base_3",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc1_water_4": {
+   "kind": "water",
+   "value": 4,
+   "image": "water_1",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc1_water_5": {
+   "kind": "water",
+   "value": 5,
+   "image": "water_3",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc1_water_6": {
+   "kind": "water",
+   "value": 6,
+   "image": "water_loc_1",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc2_exp_1": {
+   "kind": "exp",
+   "value": 10,
+   "image": "exp_base_1",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc2_exp_2": {
+   "kind": "exp",
+   "value": 14,
+   "image": "exp_base_2",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc2_exp_3": {
+   "kind": "exp",
+   "value": 18,
+   "image": "exp_base_3",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc2_exp_4": {
+   "kind": "exp",
+   "value": 22,
+   "image": "exp_2",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc2_exp_5": {
+   "kind": "exp",
+   "value": 25,
+   "image": "exp_4",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc2_exp_6": {
+   "kind": "exp",
+   "value": 30,
+   "image": "exp_6",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc2_exp_7": {
+   "kind": "exp",
+   "value": 35,
+   "image": "exp_loc_2",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc2_gold_1": {
+   "kind": "gold",
+   "value": 10,
+   "image": "gold_base_1",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc2_gold_2": {
+   "kind": "gold",
+   "value": 15,
+   "image": "gold_base_2",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc2_gold_3": {
+   "kind": "gold",
+   "value": 20,
+   "image": "gold_base_3",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc2_gold_4": {
+   "kind": "gold",
+   "value": 25,
+   "image": "gold_2",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc2_gold_5": {
+   "kind": "gold",
+   "value": 30,
+   "image": "gold_4",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc2_gold_6": {
+   "kind": "gold",
+   "value": 40,
+   "image": "gold_6",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc2_gold_7": {
+   "kind": "gold",
+   "value": 50,
+   "image": "gold_loc_2",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc2_water_1": {
+   "kind": "water",
+   "value": 1,
+   "image": "water_base_1",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc2_water_2": {
+   "kind": "water",
+   "value": 2,
+   "image": "water_base_2",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc2_water_3": {
+   "kind": "water",
+   "value": 3,
+   "image": "water_base_3",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc2_water_4": {
+   "kind": "water",
+   "value": 4,
+   "image": "water_2",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc2_water_5": {
+   "kind": "water",
+   "value": 5,
+   "image": "water_4",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc2_water_6": {
+   "kind": "water",
+   "value": 6,
+   "image": "water_6",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc2_water_7": {
+   "kind": "water",
+   "value": 7,
+   "image": "water_loc_2",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc3_exp_1": {
+   "kind": "exp",
+   "value": 15,
+   "image": "exp_base_1",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc3_exp_2": {
+   "kind": "exp",
+   "value": 20,
+   "image": "exp_base_2",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc3_exp_3": {
+   "kind": "exp",
+   "value": 25,
+   "image": "exp_base_3",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc3_exp_4": {
+   "kind": "exp",
+   "value": 30,
+   "image": "exp_3",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc3_exp_5": {
+   "kind": "exp",
+   "value": 35,
+   "image": "exp_5",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc3_exp_6": {
+   "kind": "exp",
+   "value": 40,
+   "image": "exp_6",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc3_exp_7": {
+   "kind": "exp",
+   "value": 45,
+   "image": "exp_loc_3",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc3_gold_1": {
+   "kind": "gold",
+   "value": 2,
+   "image": "gold_base_1",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc3_gold_2": {
+   "kind": "gold",
+   "value": 3,
+   "image": "gold_base_2",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc3_gold_3": {
+   "kind": "gold",
+   "value": 5,
+   "image": "gold_base_3",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc3_gold_4": {
+   "kind": "gold",
+   "value": 7,
+   "image": "gold_3",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc3_gold_5": {
+   "kind": "gold",
+   "value": 10,
+   "image": "gold_5",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc3_gold_6": {
+   "kind": "gold",
+   "value": 15,
+   "image": "gold_7",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc3_gold_7": {
+   "kind": "gold",
+   "value": 20,
+   "image": "gold_loc_3",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc3_water_1": {
+   "kind": "water",
+   "value": 1,
+   "image": "water_base_1",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc3_water_2": {
+   "kind": "water",
+   "value": 2,
+   "image": "water_base_2",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc3_water_3": {
+   "kind": "water",
+   "value": 3,
+   "image": "water_base_3",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc3_water_4": {
+   "kind": "water",
+   "value": 4,
+   "image": "water_3",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc3_water_5": {
+   "kind": "water",
+   "value": 5,
+   "image": "water_5",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc3_water_6": {
+   "kind": "water",
+   "value": 6,
+   "image": "water_7",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc3_water_7": {
+   "kind": "water",
+   "value": 7,
+   "image": "water_loc_3",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc4_exp_1": {
+   "kind": "exp",
+   "value": 20,
+   "image": "exp_base_1",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc4_exp_2": {
+   "kind": "exp",
+   "value": 25,
+   "image": "exp_base_2",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc4_exp_3": {
+   "kind": "exp",
+   "value": 30,
+   "image": "exp_base_3",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc4_exp_4": {
+   "kind": "exp",
+   "value": 40,
+   "image": "exp_4",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc4_exp_5": {
+   "kind": "exp",
+   "value": 45,
+   "image": "exp_6",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc4_exp_6": {
+   "kind": "exp",
+   "value": 50,
+   "image": "exp_8",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc4_exp_7": {
+   "kind": "exp",
+   "value": 60,
+   "image": "exp_loc_4",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc4_gold_1": {
+   "kind": "gold",
+   "value": 15,
+   "image": "gold_base_1",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc4_gold_2": {
+   "kind": "gold",
+   "value": 20,
+   "image": "gold_base_2",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc4_gold_3": {
+   "kind": "gold",
+   "value": 25,
+   "image": "gold_base_3",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc4_gold_4": {
+   "kind": "gold",
+   "value": 35,
+   "image": "gold_4",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc4_gold_5": {
+   "kind": "gold",
+   "value": 50,
+   "image": "gold_6",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc4_gold_6": {
+   "kind": "gold",
+   "value": 65,
+   "image": "gold_8",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc4_gold_7": {
+   "kind": "gold",
+   "value": 80,
+   "image": "gold_loc_4",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc4_water_1": {
+   "kind": "water",
+   "value": 1,
+   "image": "water_base_1",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc4_water_2": {
+   "kind": "water",
+   "value": 2,
+   "image": "water_base_2",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc4_water_3": {
+   "kind": "water",
+   "value": 3,
+   "image": "water_base_3",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc4_water_4": {
+   "kind": "water",
+   "value": 4,
+   "image": "water_4",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc4_water_5": {
+   "kind": "water",
+   "value": 5,
+   "image": "water_6",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc4_water_6": {
+   "kind": "water",
+   "value": 6,
+   "image": "water_8",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc4_water_7": {
+   "kind": "water",
+   "value": 7,
+   "image": "water_loc_4",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc5_exp_1": {
+   "kind": "exp",
+   "value": 30,
+   "image": "exp_base_1",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc5_exp_2": {
+   "kind": "exp",
+   "value": 35,
+   "image": "exp_base_2",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc5_exp_3": {
+   "kind": "exp",
+   "value": 35,
+   "image": "exp_base_3",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc5_exp_4": {
+   "kind": "exp",
+   "value": 50,
+   "image": "exp_5",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc5_exp_5": {
+   "kind": "exp",
+   "value": 55,
+   "image": "exp_7",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc5_exp_6": {
+   "kind": "exp",
+   "value": 60,
+   "image": "exp_1",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc5_exp_7": {
+   "kind": "exp",
+   "value": 70,
+   "image": "exp_loc_4",
+   "color": [
+    190,
+    190,
+    190
+   ],
+   "difficults": []
+  },
+  "loc5_gold_1": {
+   "kind": "gold",
+   "value": 5,
+   "image": "crystal_1",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc5_gold_2": {
+   "kind": "gold",
+   "value": 7,
+   "image": "crystal_2",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc5_gold_3": {
+   "kind": "gold",
+   "value": 9,
+   "image": "crystal_3",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc5_gold_4": {
+   "kind": "gold",
+   "value": 11,
+   "image": "crystal_4",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc5_gold_5": {
+   "kind": "gold",
+   "value": 15,
+   "image": "crystal_5",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc5_gold_6": {
+   "kind": "gold",
+   "value": 20,
+   "image": "crystal_5",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc5_gold_7": {
+   "kind": "gold",
+   "value": 30,
+   "image": "crystal_5",
+   "color": [
+    200,
+    200,
+    0
+   ],
+   "difficults": []
+  },
+  "loc5_water_1": {
+   "kind": "water",
+   "value": 1,
+   "image": "water_base_1",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc5_water_2": {
+   "kind": "water",
+   "value": 2,
+   "image": "water_base_2",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc5_water_3": {
+   "kind": "water",
+   "value": 3,
+   "image": "water_base_3",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc5_water_4": {
+   "kind": "water",
+   "value": 4,
+   "image": "water_5",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc5_water_5": {
+   "kind": "water",
+   "value": 5,
+   "image": "water_7",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc5_water_6": {
+   "kind": "water",
+   "value": 6,
+   "image": "water_1",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "loc5_water_7": {
+   "kind": "water",
+   "value": 7,
+   "image": "water_loc_5",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "water_1": {
+   "kind": "water",
+   "value": 1,
+   "image": "water_1",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "water_2": {
+   "kind": "water",
+   "value": 2,
+   "image": "water_2",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "water_3": {
+   "kind": "water",
+   "value": 3,
+   "image": "water_3",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "water_4": {
+   "kind": "water",
+   "value": 4,
+   "image": "water_4",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "water_5": {
+   "kind": "water",
+   "value": 5,
+   "image": "water_5",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "water_6": {
+   "kind": "water",
+   "value": 6,
+   "image": "water_6",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "water_7": {
+   "kind": "water",
+   "value": 7,
+   "image": "water_7",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "water_8": {
+   "kind": "water",
+   "value": 8,
+   "image": "water_8",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "water_base_1": {
+   "kind": "water",
+   "value": 1,
+   "image": "water_base_1",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "water_base_2": {
+   "kind": "water",
+   "value": 2,
+   "image": "water_base_2",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "water_base_3": {
+   "kind": "water",
+   "value": 3,
+   "image": "water_base_3",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "water_loc_1": {
+   "kind": "water",
+   "value": 1,
+   "image": "water_loc_1",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "water_loc_2": {
+   "kind": "water",
+   "value": 2,
+   "image": "water_loc_2",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "water_loc_3": {
+   "kind": "water",
+   "value": 1,
+   "image": "water_loc_3",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "water_loc_4": {
+   "kind": "water",
+   "value": 3,
+   "image": "water_loc_4",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  },
+  "water_loc_5": {
+   "kind": "water",
+   "value": 3,
+   "image": "water_loc_5",
+   "color": [
+    100,
+    100,
+    255
+   ],
+   "difficults": []
+  }
+ },
  "bugs": {
   "ladybird": {
    "folder": "ladybird",
@@ -6750,6 +8513,7 @@
    "exp": 1.0,
    "items": "",
    "reincorn": "",
+   "prize_k": 1.0,
    "anims": {
     "eat": {
      "rows": 11,
@@ -6783,6 +8547,7 @@
    "exp": 3.0,
    "items": "",
    "reincorn": "",
+   "prize_k": 1.0,
    "anims": {
     "eat": {
      "rows": 11,
@@ -6816,6 +8581,7 @@
    "exp": 2.0,
    "items": "snail_shell",
    "reincorn": "",
+   "prize_k": 1.0,
    "anims": {
     "eat": {
      "rows": 12,
@@ -6849,6 +8615,7 @@
    "exp": 0.0,
    "items": "snail_shell",
    "reincorn": "snail_no_armour",
+   "prize_k": 1.0,
    "anims": {
     "eat": {
      "rows": 12,
@@ -6887,6 +8654,7 @@
    "exp": 4.0,
    "items": "",
    "reincorn": "",
+   "prize_k": 1.0,
    "anims": {
     "eat": {
      "rows": 11,
@@ -6920,6 +8688,7 @@
    "exp": 0.0,
    "items": "",
    "reincorn": "spirit_no_armour",
+   "prize_k": 2.0,
    "anims": {
     "eat": {
      "rows": 11,
@@ -6958,6 +8727,7 @@
    "exp": 150.0,
    "items": "",
    "reincorn": "",
+   "prize_k": 3.0,
    "anims": {
     "eat": {
      "rows": 11,
@@ -6986,6 +8756,7 @@
    "speed": 0.0,
    "items": "",
    "reincorn": "",
+   "prize_k": 1.0,
    "anims": {
     "move": {
      "rows": 11,
@@ -7009,6 +8780,7 @@
    "exp": 30.0,
    "items": "kloun_lutt",
    "reincorn": "",
+   "prize_k": 1.0,
    "anims": {
     "eat": {
      "rows": 12,
@@ -7042,6 +8814,7 @@
    "exp": 30.0,
    "items": "",
    "reincorn": "",
+   "prize_k": 3.0,
    "anims": {
     "arrive": {
      "rows": 13,
@@ -7080,6 +8853,7 @@
    "exp": 40.0,
    "items": "",
    "reincorn": "",
+   "prize_k": 2.0,
    "anims": {
     "eat": {
      "rows": 12,
@@ -7113,6 +8887,7 @@
    "exp": 50.0,
    "items": "crab_claw",
    "reincorn": "",
+   "prize_k": 2.0,
    "anims": {
     "eat": {
      "rows": 12,
@@ -7146,6 +8921,7 @@
    "exp": 45.0,
    "items": "",
    "reincorn": "",
+   "prize_k": 1.0,
    "anims": {
     "eat": {
      "rows": 11,
@@ -7179,6 +8955,7 @@
    "exp": 40.0,
    "items": "small_bug_jaw",
    "reincorn": "",
+   "prize_k": 1.0,
    "anims": {
     "eat": {
      "rows": 12,
@@ -7212,6 +8989,7 @@
    "exp": 105.0,
    "items": "",
    "reincorn": "",
+   "prize_k": 1.0,
    "anims": {
     "eat": {
      "rows": 11,
@@ -7245,6 +9023,7 @@
    "exp": 100.0,
    "items": "",
    "reincorn": "",
+   "prize_k": 2.0,
    "anims": {
     "eat": {
      "rows": 11,
@@ -7278,6 +9057,7 @@
    "exp": 80.0,
    "items": "etti_club",
    "reincorn": "",
+   "prize_k": 3.0,
    "anims": {
     "eat": {
      "rows": 11,
@@ -7311,6 +9091,7 @@
    "exp": 120.0,
    "items": "ghost_weight",
    "reincorn": "",
+   "prize_k": 1.0,
    "anims": {
     "eat": {
      "rows": 11,
@@ -7349,6 +9130,7 @@
    "exp": 90.0,
    "items": "lemur",
    "reincorn": "",
+   "prize_k": 1.0,
    "anims": {
     "eat": {
      "rows": 11,
@@ -7382,6 +9164,7 @@
    "exp": 120.0,
    "items": "",
    "reincorn": "",
+   "prize_k": 1.0,
    "anims": {
     "eat": {
      "rows": 13,
@@ -8016,7 +9799,7 @@
    },
    {
     "bugs": [
-     "snail"
+     "snail!@1*2$2"
     ],
     "specs": [
      {
@@ -8349,7 +10132,7 @@
    },
    {
     "bugs": [
-     "ladybird"
+     "ladybird!@1*2$4"
     ],
     "specs": [
      {
@@ -8752,7 +10535,7 @@
    },
    {
     "bugs": [
-     "pchela"
+     "pchela!@1*2$3"
     ],
     "specs": [
      {
@@ -8960,7 +10743,7 @@
    },
    {
     "bugs": [
-     "pchela"
+     "pchela!*2$2"
     ],
     "specs": [
      {
@@ -8997,7 +10780,7 @@
    },
    {
     "bugs": [
-     "snail"
+     "snail!2#2$1"
     ],
     "specs": [
      {
@@ -9015,7 +10798,7 @@
    },
    {
     "bugs": [
-     "ladybird",
+     "ladybird!*2$2",
      "pchela"
     ],
     "specs": [
@@ -9064,7 +10847,7 @@
    },
    {
     "bugs": [
-     "snail_2"
+     "snail_2!@1*2$3"
     ],
     "specs": [
      {
@@ -9563,49 +11346,6 @@
       150.0
      ]
     },
-    "well_22": {
-     "position": [
-      570.0,
-      200.0
-     ],
-     "dimensions": [
-      160.0,
-      130.0
-     ],
-     "image_offset": [
-      -49.0,
-      -49.0
-     ],
-     "pail": {
-      "position": [
-       570.0,
-       200.0
-      ],
-      "dimensions": [
-       130.0,
-       130.0
-      ],
-      "image_offset": [
-       -49.0,
-       -49.0
-      ]
-     },
-     "delay": 5.0,
-     "fill_time": 40.0,
-     "water_capacity": 12.0,
-     "price": 1000.0,
-     "pail_height": 17.0,
-     "image": "",
-     "pail_images": [
-      "pail_well_pail_22",
-      "pailw_well_pail_22",
-      "pailm_well_pail_22"
-     ],
-     "pail_pos": [
-      490.0,
-      150.0
-     ]
-    },
     "well_2": {
      "position": [
       570.0,
@@ -9643,6 +11383,49 @@
       "pail_well_pail_2",
       "pailw_well_pail_2",
       "pailm_well_pail_2"
+     ],
+     "pail_pos": [
+      490.0,
+      150.0
+     ]
+    },
+    "well_22": {
+     "position": [
+      570.0,
+      200.0
+     ],
+     "dimensions": [
+      160.0,
+      130.0
+     ],
+     "image_offset": [
+      -49.0,
+      -49.0
+     ],
+     "pail": {
+      "position": [
+       570.0,
+       200.0
+      ],
+      "dimensions": [
+       130.0,
+       130.0
+      ],
+      "image_offset": [
+       -49.0,
+       -49.0
+      ]
+     },
+     "delay": 5.0,
+     "fill_time": 40.0,
+     "water_capacity": 12.0,
+     "price": 1000.0,
+     "pail_height": 17.0,
+     "image": "",
+     "pail_images": [
+      "pail_well_pail_22",
+      "pailw_well_pail_22",
+      "pailm_well_pail_22"
      ],
      "pail_pos": [
       490.0,
@@ -10186,7 +11969,7 @@
      },
      {
       "bugs": [
-       "krot",
+       "krot@1*2$4",
        "krot"
       ],
       "specs": [
@@ -10503,7 +12286,7 @@
      },
      {
       "bugs": [
-       "krot"
+       "krot@1*2"
       ],
       "specs": [
        {
@@ -10585,7 +12368,7 @@
      },
      {
       "bugs": [
-       "gusenica"
+       "gusenica!@1*2$6+2"
       ],
       "specs": [
        {
@@ -10598,7 +12381,7 @@
      },
      {
       "bugs": [
-       "gusenica"
+       "gusenica!@1*2$4"
       ],
       "specs": [
        {
@@ -10637,7 +12420,7 @@
      },
      {
       "bugs": [
-       "kloun",
+       "kloun!@1*2",
        "kloun"
       ],
       "specs": [
@@ -10796,7 +12579,7 @@
      },
      {
       "bugs": [
-       "gusenica",
+       "gusenica!@1*2$2",
        "kloun"
       ],
       "specs": [
@@ -10930,7 +12713,7 @@
      {
       "bugs": [
        "gusenica",
-       "gusenica",
+       "gusenica!@1*2",
        "gusenica"
       ],
       "specs": [
@@ -11024,7 +12807,7 @@
      },
      {
       "bugs": [
-       "kloun",
+       "kloun!@2*2#2$2",
        "krot"
       ],
       "specs": [
@@ -11093,7 +12876,7 @@
      },
      {
       "bugs": [
-       "krot"
+       "krot@1*2"
       ],
       "specs": [
        {
@@ -11117,7 +12900,7 @@
      },
      {
       "bugs": [
-       "kloun"
+       "kloun@1*2$2+2"
       ],
       "specs": [
        {
@@ -11135,7 +12918,7 @@
      },
      {
       "bugs": [
-       "krot"
+       "krot@1*2$4"
       ],
       "specs": [
        {
@@ -11164,7 +12947,7 @@
      },
      {
       "bugs": [
-       "gusenica"
+       "gusenica!@1*2$2"
       ],
       "specs": [
        {
@@ -11476,6 +13259,68 @@
      ]
     }
    },
+   "prizes_set": [
+    {
+     "k": 0.35,
+     "prizes": [
+      "loc2_gold_1",
+      "loc2_water_1",
+      "loc2_exp_1"
+     ]
+    },
+    {
+     "k": 0.15,
+     "prizes": [
+      "loc2_gold_2",
+      "loc2_water_2",
+      "loc2_exp_2"
+     ]
+    },
+    {
+     "k": 0.1,
+     "prizes": [
+      "loc2_gold_3",
+      "loc2_water_3",
+      "loc2_exp_3"
+     ]
+    },
+    {
+     "k": 0.05,
+     "prizes": [
+      "loc2_gold_4",
+      "loc2_water_4",
+      "loc2_exp_4"
+     ]
+    },
+    {
+     "k": 0.025,
+     "prizes": [
+      "loc2_gold_5",
+      "loc2_water_5",
+      "loc2_exp_5"
+     ]
+    },
+    {
+     "k": 0.0125,
+     "prizes": [
+      "loc2_gold_6",
+      "loc2_water_6",
+      "loc2_exp_6"
+     ]
+    },
+    {
+     "k": 0.0065,
+     "prizes": [
+      "loc2_gold_7",
+      "loc2_water_7",
+      "loc2_exp_7"
+     ]
+    },
+    {
+     "k": 0.2,
+     "prizes": []
+    }
+   ],
    "obstacles": [
     {
      "position": [
@@ -15245,49 +17090,6 @@
       0.0
      ]
     },
-    "well_3": {
-     "position": [
-      342.0,
-      0.0
-     ],
-     "dimensions": [
-      155.0,
-      180.0
-     ],
-     "image_offset": [
-      0.0,
-      0.0
-     ],
-     "pail": {
-      "position": [
-       342.0,
-       0.0
-      ],
-      "dimensions": [
-       155.0,
-       180.0
-      ],
-      "image_offset": [
-       0.0,
-       0.0
-      ]
-     },
-     "delay": 14.0,
-     "fill_time": 1.0,
-     "water_capacity": 1.0,
-     "price": 75.0,
-     "pail_height": 17.0,
-     "image": "",
-     "pail_images": [
-      "pail_well_pail_3",
-      "pailw_well_pail_3",
-      "pailm_well_pail_3"
-     ],
-     "pail_pos": [
-      342.0,
-      0.0
-     ]
-    },
     "well_31": {
      "position": [
       342.0,
@@ -15325,6 +17127,49 @@
       "pail_well_pail_31",
       "pailw_well_pail_31",
       "pailm_well_pail_31"
+     ],
+     "pail_pos": [
+      342.0,
+      0.0
+     ]
+    },
+    "well_3": {
+     "position": [
+      342.0,
+      0.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       342.0,
+       0.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 14.0,
+     "fill_time": 1.0,
+     "water_capacity": 1.0,
+     "price": 75.0,
+     "pail_height": 17.0,
+     "image": "",
+     "pail_images": [
+      "pail_well_pail_3",
+      "pailw_well_pail_3",
+      "pailm_well_pail_3"
      ],
      "pail_pos": [
       342.0,
@@ -15540,7 +17385,7 @@
      },
      {
       "bugs": [
-       "krab"
+       "krab!@1*2$4"
       ],
       "specs": [
        {
@@ -15558,7 +17403,7 @@
      },
      {
       "bugs": [
-       "krab"
+       "krab!@1*2$3"
       ],
       "specs": [
        {
@@ -15573,7 +17418,7 @@
     [
      {
       "bugs": [
-       "krab"
+       "krab!@1*2$4"
       ],
       "specs": [
        {
@@ -15819,8 +17664,8 @@
      },
      {
       "bugs": [
-       "krab",
-       "krab"
+       "krab!@1*2",
+       "krab!@1*2"
       ],
       "specs": [
        {
@@ -15838,7 +17683,7 @@
      },
      {
       "bugs": [
-       "parrot"
+       "parrot!@1*2$4"
       ],
       "specs": [
        {
@@ -15960,7 +17805,7 @@
      },
      {
       "bugs": [
-       "parrot"
+       "parrot!@1*2$4+2"
       ],
       "specs": [
        {
@@ -16024,7 +17869,7 @@
      },
      {
       "bugs": [
-       "krab"
+       "krab!@1*2"
       ],
       "specs": [
        {
@@ -16124,7 +17969,7 @@
      },
      {
       "bugs": [
-       "parrot"
+       "parrot!@1*2"
       ],
       "specs": [
        {
@@ -16142,7 +17987,7 @@
      },
      {
       "bugs": [
-       "parrot",
+       "parrot!@1*2$2",
        "krab"
       ],
       "specs": [
@@ -16244,7 +18089,7 @@
      },
      {
       "bugs": [
-       "bug"
+       "bug!@1*2$3"
       ],
       "specs": [
        {
@@ -16262,7 +18107,7 @@
      },
      {
       "bugs": [
-       "bug"
+       "bug!@1*2$2+2"
       ],
       "specs": [
        {
@@ -16420,7 +18265,7 @@
      },
      {
       "bugs": [
-       "bug",
+       "bug!@1*2$2",
        "krab"
       ],
       "specs": [
@@ -16465,7 +18310,7 @@
     [
      {
       "bugs": [
-       "krab",
+       "krab!@1*2$3",
        "parrot"
       ],
       "specs": [
@@ -16528,7 +18373,7 @@
     [
      {
       "bugs": [
-       "bug",
+       "bug!@1*2$2",
        "krab"
       ],
       "specs": [
@@ -16597,8 +18442,8 @@
      },
      {
       "bugs": [
-       "bug",
-       "krab"
+       "bug!@1*2$3",
+       "krab!@1*2$3"
       ],
       "specs": [
        {
@@ -16649,8 +18494,8 @@
      },
      {
       "bugs": [
-       "krab",
-       "bug"
+       "krab!@1*2$3",
+       "bug!@1*2$3"
       ],
       "specs": [
        {
@@ -17278,6 +19123,68 @@
      ]
     }
    },
+   "prizes_set": [
+    {
+     "k": 0.35,
+     "prizes": [
+      "loc3_gold_1",
+      "loc3_water_1",
+      "loc3_exp_1"
+     ]
+    },
+    {
+     "k": 0.15,
+     "prizes": [
+      "loc3_gold_2",
+      "loc3_water_2",
+      "loc3_exp_2"
+     ]
+    },
+    {
+     "k": 0.1,
+     "prizes": [
+      "loc3_gold_3",
+      "loc3_water_3",
+      "loc3_exp_3"
+     ]
+    },
+    {
+     "k": 0.05,
+     "prizes": [
+      "loc3_gold_4",
+      "loc3_water_4",
+      "loc3_exp_4"
+     ]
+    },
+    {
+     "k": 0.025,
+     "prizes": [
+      "loc3_gold_5",
+      "loc3_water_5",
+      "loc3_exp_5"
+     ]
+    },
+    {
+     "k": 0.0125,
+     "prizes": [
+      "loc3_gold_6",
+      "loc3_water_6",
+      "loc3_exp_6"
+     ]
+    },
+    {
+     "k": 0.0065,
+     "prizes": [
+      "loc3_gold_7",
+      "loc3_water_7",
+      "loc3_exp_7"
+     ]
+    },
+    {
+     "k": 0.2,
+     "prizes": []
+    }
+   ],
    "obstacles": [
     {
      "position": [
@@ -20999,49 +22906,6 @@
     "pail_3": "well_pail_42"
    },
    "well_items": {
-    "well_41": {
-     "position": [
-      632.0,
-      100.0
-     ],
-     "dimensions": [
-      155.0,
-      180.0
-     ],
-     "image_offset": [
-      0.0,
-      0.0
-     ],
-     "pail": {
-      "position": [
-       632.0,
-       100.0
-      ],
-      "dimensions": [
-       155.0,
-       180.0
-      ],
-      "image_offset": [
-       0.0,
-       0.0
-      ]
-     },
-     "delay": 22.0,
-     "fill_time": 4.0,
-     "water_capacity": 4.0,
-     "price": 900.0,
-     "pail_height": 17.0,
-     "image": "",
-     "pail_images": [
-      "pail_well_pail_41",
-      "pailw_well_pail_41",
-      "pailm_well_pail_41"
-     ],
-     "pail_pos": [
-      631.0,
-      153.0
-     ]
-    },
     "well_42": {
      "position": [
       632.0,
@@ -21122,6 +22986,49 @@
       "pail_well_pail_4",
       "pailw_well_pail_4",
       "pailm_well_pail_4"
+     ],
+     "pail_pos": [
+      631.0,
+      153.0
+     ]
+    },
+    "well_41": {
+     "position": [
+      632.0,
+      100.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       632.0,
+       100.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 22.0,
+     "fill_time": 4.0,
+     "water_capacity": 4.0,
+     "price": 900.0,
+     "pail_height": 17.0,
+     "image": "",
+     "pail_images": [
+      "pail_well_pail_41",
+      "pailw_well_pail_41",
+      "pailm_well_pail_41"
      ],
      "pail_pos": [
       631.0,
@@ -21451,7 +23358,7 @@
      },
      {
       "bugs": [
-       "boar",
+       "boar!@1*2$4",
        "boar"
       ],
       "specs": [
@@ -21475,7 +23382,7 @@
      },
      {
       "bugs": [
-       "boar"
+       "boar!@1*2$2"
       ],
       "specs": [
        {
@@ -21586,7 +23493,7 @@
      },
      {
       "bugs": [
-       "boar",
+       "boar!@1*2$2",
        "turtle"
       ],
       "specs": [
@@ -21634,7 +23541,7 @@
      },
      {
       "bugs": [
-       "boar"
+       "boar!@1*2$3"
       ],
       "specs": [
        {
@@ -21775,7 +23682,7 @@
      },
      {
       "bugs": [
-       "turtle"
+       "turtle!@3#2"
       ],
       "specs": [
        {
@@ -21798,7 +23705,7 @@
      },
      {
       "bugs": [
-       "turtle"
+       "turtle!@1*2$6"
       ],
       "specs": [
        {
@@ -21963,7 +23870,7 @@
      {
       "bugs": [
        "etti",
-       "etti"
+       "etti!@3#2$3"
       ],
       "specs": [
        {
@@ -22062,7 +23969,7 @@
      {
       "bugs": [
        "boar",
-       "turtle"
+       "turtle!@1*2$3"
       ],
       "specs": [
        {
@@ -22125,7 +24032,7 @@
      },
      {
       "bugs": [
-       "turtle",
+       "turtle!@1*2",
        "turtle"
       ],
       "specs": [
@@ -22233,7 +24140,7 @@
      },
      {
       "bugs": [
-       "etti"
+       "etti!@1*2$4"
       ],
       "specs": [
        {
@@ -22256,7 +24163,7 @@
      },
      {
       "bugs": [
-       "etti"
+       "etti!@1*2$4"
       ],
       "specs": [
        {
@@ -22289,7 +24196,7 @@
      },
      {
       "bugs": [
-       "turtle",
+       "turtle!@1*2",
        "etti"
       ],
       "specs": [
@@ -22404,7 +24311,7 @@
      {
       "bugs": [
        "boar",
-       "etti"
+       "etti!@1$2*2"
       ],
       "specs": [
        {
@@ -22442,7 +24349,7 @@
      },
      {
       "bugs": [
-       "turtle"
+       "turtle!@1*2$5"
       ],
       "specs": [
        {
@@ -22543,7 +24450,7 @@
      },
      {
       "bugs": [
-       "turtle"
+       "turtle!@1*2"
       ],
       "specs": [
        {
@@ -22577,7 +24484,7 @@
     [
      {
       "bugs": [
-       "etti",
+       "etti!@1*2$2",
        "etti"
       ],
       "specs": [
@@ -22596,7 +24503,7 @@
      },
      {
       "bugs": [
-       "etti",
+       "etti!@1*2$2",
        "boar"
       ],
       "specs": [
@@ -22621,7 +24528,7 @@
      {
       "bugs": [
        "turtle",
-       "turtle"
+       "turtle!@3#3$2"
       ],
       "specs": [
        {
@@ -22713,7 +24620,7 @@
      },
      {
       "bugs": [
-       "etti"
+       "etti@1*2$2"
       ],
       "specs": [
        {
@@ -22731,7 +24638,7 @@
      },
      {
       "bugs": [
-       "boar",
+       "boar!@1*2$4",
        "boar"
       ],
       "specs": [
@@ -22755,7 +24662,7 @@
      },
      {
       "bugs": [
-       "turtle",
+       "turtle!@1*2$2",
        "etti"
       ],
       "specs": [
@@ -24050,6 +25957,68 @@
      ]
     }
    },
+   "prizes_set": [
+    {
+     "k": 0.35,
+     "prizes": [
+      "loc4_gold_1",
+      "loc4_water_1",
+      "loc4_exp_1"
+     ]
+    },
+    {
+     "k": 0.15,
+     "prizes": [
+      "loc4_gold_2",
+      "loc4_water_2",
+      "loc4_exp_2"
+     ]
+    },
+    {
+     "k": 0.1,
+     "prizes": [
+      "loc4_gold_3",
+      "loc4_water_3",
+      "loc4_exp_3"
+     ]
+    },
+    {
+     "k": 0.05,
+     "prizes": [
+      "loc4_gold_4",
+      "loc4_water_4",
+      "loc4_exp_4"
+     ]
+    },
+    {
+     "k": 0.025,
+     "prizes": [
+      "loc4_gold_5",
+      "loc4_water_5",
+      "loc4_exp_5"
+     ]
+    },
+    {
+     "k": 0.0125,
+     "prizes": [
+      "loc4_gold_6",
+      "loc4_water_6",
+      "loc4_exp_6"
+     ]
+    },
+    {
+     "k": 0.0065,
+     "prizes": [
+      "loc4_gold_7",
+      "loc4_water_7",
+      "loc4_exp_7"
+     ]
+    },
+    {
+     "k": 0.2,
+     "prizes": []
+    }
+   ],
    "obstacles": [
     {
      "position": [
@@ -28989,49 +30958,6 @@
     "pail_3": "well_pail_52"
    },
    "well_items": {
-    "well_5": {
-     "position": [
-      98.0,
-      391.0
-     ],
-     "dimensions": [
-      155.0,
-      180.0
-     ],
-     "image_offset": [
-      0.0,
-      0.0
-     ],
-     "pail": {
-      "position": [
-       98.0,
-       391.0
-      ],
-      "dimensions": [
-       155.0,
-       180.0
-      ],
-      "image_offset": [
-       0.0,
-       0.0
-      ]
-     },
-     "delay": 25.0,
-     "fill_time": 2.0,
-     "water_capacity": 2.0,
-     "price": 100.0,
-     "pail_height": 17.0,
-     "image": "",
-     "pail_images": [
-      "pail_well_pail_5",
-      "pailw_well_pail_5",
-      "pailm_well_pail_5"
-     ],
-     "pail_pos": [
-      98.0,
-      391.0
-     ]
-    },
     "well_51": {
      "position": [
       98.0,
@@ -29069,6 +30995,49 @@
       "pail_well_pail_51",
       "pailw_well_pail_51",
       "pailm_well_pail_51"
+     ],
+     "pail_pos": [
+      98.0,
+      391.0
+     ]
+    },
+    "well_5": {
+     "position": [
+      98.0,
+      391.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       98.0,
+       391.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 25.0,
+     "fill_time": 2.0,
+     "water_capacity": 2.0,
+     "price": 100.0,
+     "pail_height": 17.0,
+     "image": "",
+     "pail_images": [
+      "pail_well_pail_5",
+      "pailw_well_pail_5",
+      "pailm_well_pail_5"
      ],
      "pail_pos": [
       98.0,
@@ -29281,7 +31250,7 @@
     [
      {
       "bugs": [
-       "lemur"
+       "lemur!@1*2$2"
       ],
       "specs": [
        {
@@ -29299,7 +31268,7 @@
      },
      {
       "bugs": [
-       "lemur"
+       "lemur!@1*2#2"
       ],
       "specs": [
        {
@@ -29362,8 +31331,8 @@
      },
      {
       "bugs": [
-       "lemur",
-       "lemur"
+       "lemur!@3#2$2",
+       "lemur!@3#2$2"
       ],
       "specs": [
        {
@@ -29381,7 +31350,7 @@
      },
      {
       "bugs": [
-       "lemur"
+       "lemur!@3#2$2"
       ],
       "specs": [
        {
@@ -29419,7 +31388,7 @@
      },
      {
       "bugs": [
-       "lemur"
+       "lemur!@1*2$2"
       ],
       "specs": [
        {
@@ -29539,7 +31508,7 @@
      },
      {
       "bugs": [
-       "lemur",
+       "lemur!@1*2$2",
        "lemur"
       ],
       "specs": [
@@ -29587,7 +31556,7 @@
      },
      {
       "bugs": [
-       "frog"
+       "frog!@1*2$4"
       ],
       "specs": [
        {
@@ -29632,7 +31601,7 @@
      {
       "bugs": [
        "frog",
-       "frog"
+       "frog!@1*2"
       ],
       "specs": [
        {
@@ -29705,7 +31674,7 @@
     [
      {
       "bugs": [
-       "frog",
+       "frog!@1*2",
        "lemur"
       ],
       "specs": [
@@ -29734,7 +31703,7 @@
      },
      {
       "bugs": [
-       "lemur",
+       "lemur!@1*2",
        "spirit"
       ],
       "specs": [
@@ -29758,7 +31727,7 @@
      },
      {
       "bugs": [
-       "frog"
+       "frog!@1*2"
       ],
       "specs": [
        {
@@ -29850,7 +31819,7 @@
      },
      {
       "bugs": [
-       "spirit",
+       "spirit!@1*2",
        "spirit"
       ],
       "specs": [
@@ -29874,7 +31843,7 @@
      },
      {
       "bugs": [
-       "spirit",
+       "spirit!@3#2",
        "spirit"
       ],
       "specs": [
@@ -29988,7 +31957,7 @@
     [
      {
       "bugs": [
-       "spirit",
+       "spirit!@1*2",
        "frog"
       ],
       "specs": [
@@ -30012,7 +31981,7 @@
      },
      {
       "bugs": [
-       "spirit",
+       "spirit!@3#3",
        "spirit"
       ],
       "specs": [
@@ -30036,8 +32005,8 @@
      },
      {
       "bugs": [
-       "spirit",
-       "spirit"
+       "spirit!@1*2$3",
+       "spirit!@3#3"
       ],
       "specs": [
        {
@@ -30167,7 +32136,7 @@
      {
       "bugs": [
        "spirit_2",
-       "spirit"
+       "spirit!@1*2$3"
       ],
       "specs": [
        {
@@ -30211,7 +32180,7 @@
     [
      {
       "bugs": [
-       "lemur"
+       "lemur!@1*2$2"
       ],
       "specs": [
        {
@@ -30296,7 +32265,7 @@
      },
      {
       "bugs": [
-       "spirit_2"
+       "spirit_2!@1*2"
       ],
       "specs": [
        {
@@ -30314,8 +32283,8 @@
      },
      {
       "bugs": [
-       "spirit_2",
-       "spirit_2"
+       "spirit_2!@1*2",
+       "spirit_2!@1*2+2"
       ],
       "specs": [
        {
@@ -30369,7 +32338,7 @@
      },
      {
       "bugs": [
-       "lemur",
+       "lemur!@1*2",
        "lemur"
       ],
       "specs": [
@@ -30393,7 +32362,7 @@
      },
      {
       "bugs": [
-       "frog",
+       "frog!@1*2",
        "frog"
       ],
       "specs": [
@@ -30422,8 +32391,8 @@
      },
      {
       "bugs": [
-       "spirit",
-       "spirit"
+       "spirit!@1*2$3",
+       "spirit!@1*2+2"
       ],
       "specs": [
        {
@@ -30451,7 +32420,7 @@
      },
      {
       "bugs": [
-       "spirit_2"
+       "spirit_2!@1*2"
       ],
       "specs": [
        {
@@ -30551,7 +32520,7 @@
     [
      {
       "bugs": [
-       "spirit_2",
+       "spirit_2!@1*2",
        "frog"
       ],
       "specs": [
@@ -30575,7 +32544,7 @@
      },
      {
       "bugs": [
-       "frog",
+       "frog!@1*2",
        "frog"
       ],
       "specs": [
@@ -30622,8 +32591,8 @@
      },
      {
       "bugs": [
-       "spirit",
-       "spirit"
+       "spirit!@3#2",
+       "spirit!@3#2+2"
       ],
       "specs": [
        {
@@ -30697,7 +32666,7 @@
      {
       "bugs": [
        "spirit",
-       "frog"
+       "frog!@3#2+2"
       ],
       "specs": [
        {
@@ -30720,7 +32689,7 @@
      },
      {
       "bugs": [
-       "spirit_2"
+       "spirit_2!@1*2"
       ],
       "specs": [
        {
@@ -30805,7 +32774,7 @@
      },
      {
       "bugs": [
-       "spirit_2"
+       "spirit_2!@1*2"
       ],
       "specs": [
        {
@@ -30828,7 +32797,7 @@
      },
      {
       "bugs": [
-       "spirit_2"
+       "spirit_2!@1*2"
       ],
       "specs": [
        {
@@ -30846,7 +32815,7 @@
      },
      {
       "bugs": [
-       "frog",
+       "frog!@1*2",
        "frog"
       ],
       "specs": [
@@ -30893,7 +32862,7 @@
      },
      {
       "bugs": [
-       "spirit"
+       "spirit!@3#2+2"
       ],
       "specs": [
        {
@@ -30913,7 +32882,7 @@
     [
      {
       "bugs": [
-       "spirit_2"
+       "spirit_2!@1*2"
       ],
       "specs": [
        {
@@ -30931,7 +32900,7 @@
      },
      {
       "bugs": [
-       "frog",
+       "frog!@1*2",
        "frog"
       ],
       "specs": [
@@ -30973,7 +32942,7 @@
      },
      {
       "bugs": [
-       "spirit"
+       "spirit!@3#2"
       ],
       "specs": [
        {
@@ -31040,7 +33009,7 @@
      {
       "bugs": [
        "spirit",
-       "frog"
+       "frog!@3#2+2"
       ],
       "specs": [
        {
@@ -31063,7 +33032,7 @@
      },
      {
       "bugs": [
-       "spirit_2"
+       "spirit_2!@1*2"
       ],
       "specs": [
        {
@@ -31446,6 +33415,76 @@
      ]
     }
    },
+   "prizes_set": [
+    {
+     "k": 0.35,
+     "prizes": [
+      "loc5_gold_1",
+      "loc5_water_1",
+      "loc5_exp_1"
+     ]
+    },
+    {
+     "k": 0.15,
+     "prizes": [
+      "loc5_gold_2",
+      "loc5_water_2",
+      "loc5_exp_2"
+     ]
+    },
+    {
+     "k": 0.1,
+     "prizes": [
+      "loc5_gold_3",
+      "loc5_water_3",
+      "loc5_exp_3"
+     ]
+    },
+    {
+     "k": 0.05,
+     "prizes": [
+      "loc5_gold_4",
+      "loc5_water_4",
+      "loc5_exp_4"
+     ]
+    },
+    {
+     "k": 0.025,
+     "prizes": [
+      "loc5_gold_5",
+      "loc5_water_5",
+      "loc5_exp_5"
+     ]
+    },
+    {
+     "k": 0.0125,
+     "prizes": [
+      "loc5_gold_6",
+      "loc5_water_6",
+      "loc5_exp_6"
+     ]
+    },
+    {
+     "k": 0.0065,
+     "prizes": [
+      "loc5_gold_7",
+      "loc5_water_7",
+      "loc5_exp_7"
+     ]
+    },
+    {
+     "k": 0.2,
+     "prizes": []
+    },
+    {
+     "k": 0.45,
+     "prizes": [
+      "loc5_gold_5",
+      "loc5_gold_3",
+      "loc5_gold_1"
+     ]
+    }
+   ],
    "obstacles": [
     {
      "position": [
@@ -35110,6 +37149,59 @@
   "pineapple_2",
   "pineapple_3",
   "pirate_ship",
+  "prize_crystal_1",
+  "prize_crystal_2",
+  "prize_crystal_3",
+  "prize_crystal_4",
+  "prize_crystal_5",
+  "prize_exp_1",
+  "prize_exp_2",
+  "prize_exp_3",
+  "prize_exp_4",
+  "prize_exp_5",
+  "prize_exp_6",
+  "prize_exp_7",
+  "prize_exp_8",
+  "prize_exp_base_1",
+  "prize_exp_base_2",
+  "prize_exp_base_3",
+  "prize_exp_loc_1",
+  "prize_exp_loc_2",
+  "prize_exp_loc_3",
+  "prize_exp_loc_4",
+  "prize_exp_loc_5",
+  "prize_gold_1",
+  "prize_gold_2",
+  "prize_gold_3",
+  "prize_gold_4",
+  "prize_gold_5",
+  "prize_gold_6",
+  "prize_gold_7",
+  "prize_gold_8",
+  "prize_gold_base_1",
+  "prize_gold_base_2",
+  "prize_gold_base_3",
+  "prize_gold_loc_1",
+  "prize_gold_loc_2",
+  "prize_gold_loc_3",
+  "prize_gold_loc_4",
+  "prize_gold_loc_5",
+  "prize_water_1",
+  "prize_water_2",
+  "prize_water_3",
+  "prize_water_4",
+  "prize_water_5",
+  "prize_water_6",
+  "prize_water_7",
+  "prize_water_8",
+  "prize_water_base_1",
+  "prize_water_base_2",
+  "prize_water_base_3",
+  "prize_water_loc_1",
+  "prize_water_loc_2",
+  "prize_water_loc_3",
+  "prize_water_loc_4",
+  "prize_water_loc_5",
   "quest_back",
   "quest_info",
   "quest_next_active",
@@ -35546,6 +37638,59 @@
   "pineapple_2",
   "pineapple_3",
   "pirate_ship",
+  "prize_crystal_1",
+  "prize_crystal_2",
+  "prize_crystal_3",
+  "prize_crystal_4",
+  "prize_crystal_5",
+  "prize_exp_1",
+  "prize_exp_2",
+  "prize_exp_3",
+  "prize_exp_4",
+  "prize_exp_5",
+  "prize_exp_6",
+  "prize_exp_7",
+  "prize_exp_8",
+  "prize_exp_base_1",
+  "prize_exp_base_2",
+  "prize_exp_base_3",
+  "prize_exp_loc_1",
+  "prize_exp_loc_2",
+  "prize_exp_loc_3",
+  "prize_exp_loc_4",
+  "prize_exp_loc_5",
+  "prize_gold_1",
+  "prize_gold_2",
+  "prize_gold_3",
+  "prize_gold_4",
+  "prize_gold_5",
+  "prize_gold_6",
+  "prize_gold_7",
+  "prize_gold_8",
+  "prize_gold_base_1",
+  "prize_gold_base_2",
+  "prize_gold_base_3",
+  "prize_gold_loc_1",
+  "prize_gold_loc_2",
+  "prize_gold_loc_3",
+  "prize_gold_loc_4",
+  "prize_gold_loc_5",
+  "prize_water_1",
+  "prize_water_2",
+  "prize_water_3",
+  "prize_water_4",
+  "prize_water_5",
+  "prize_water_6",
+  "prize_water_7",
+  "prize_water_8",
+  "prize_water_base_1",
+  "prize_water_base_2",
+  "prize_water_base_3",
+  "prize_water_loc_1",
+  "prize_water_loc_2",
+  "prize_water_loc_3",
+  "prize_water_loc_4",
+  "prize_water_loc_5",
   "quest_back",
   "quest_info",
   "quest_next_active",

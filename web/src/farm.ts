@@ -2,7 +2,7 @@
 import { Container, Graphics, NineSliceSprite, Sprite, Texture } from "pixi.js";
 import { audio } from "./audio";
 import { BouquetScreen } from "./bouquets";
-import { PathGrid } from "./pathgrid";
+import { CELL_H, CELL_W, PathGrid } from "./pathgrid";
 import { continueDayOverlay } from "./screens";
 import { Bug, BugArriver, Helper, newArriverState } from "./bugs";
 import { Hud } from "./hud";
@@ -18,6 +18,8 @@ import { QuestScreen } from "./questscreen";
 import type { WellDef } from "./rules";
 import { wellName, wellOffer } from "./well";
 import { Statue } from "./statue";
+import { rollPrize } from "./prizes";
+import { parseBugSpec } from "./bugs";
 import { COLOR, dialog, floatPoints, H, image, pop, roundButton, shopButton, type ShopButton, tex, textButton, toast, W } from "./ui";
 
 /** Шаги обучения, уже сдвинутые под перенесённые кнопки. */
@@ -33,8 +35,8 @@ type Mode = "shop" | "day";
 const STATUE_BALLOONS: Record<string, [number, number]> = {
   owl: [680, 200], neptun: [700, 400], altar: [200, 500], horn: [620, 500], clock: [720, 500],
 };
-/** Статуи, чей эффект сделан: алтарь и горн бросают призы (dropped_items), которых в порте ещё нет. */
-const STATUE_EFFECTS = new Set(["owl", "neptun", "clock"]);
+/** Статуи, чей эффект сделан (все пять). */
+const STATUE_EFFECTS = new Set(["owl", "neptun", "clock", "altar", "horn"]);
 
 class Filled extends Container {
   private readonly fill: Sprite;
@@ -140,6 +142,9 @@ export class Farm extends Container {
   /** Часы: замедление вредителей (поле фермы +0x834, 1 — нет) и сколько ему ещё длиться, с. */
   private slow = 1;
   private slowLeft = 0;
+  /** Призы на земле (лежат до конца дня, exe 0x42f1f0) и горн: сколько ещё призвать и пауза до следующего. */
+  private prizes: { sprite: Sprite; name: string }[] = [];
+  private horn = { left: 0, timer: 0, specs: [] as string[], prizeK: 0 };
   /** Картинки, из которых собрано текущее ведро (меняются с уровнем колодца). */
   private pailKey = "";
   private readonly startBtn: Container;
@@ -409,6 +414,10 @@ export class Farm extends Container {
     this.mode = "shop";
     // вредители уходят вместе с днём
     for (const b of this.bugs) b.destroy({ children: true });
+    // призы лежат до конца дня (exe 0x42f1f0 чистит их список), горн замолкает
+    for (const p of this.prizes) p.sprite.destroy();
+    this.prizes = [];
+    this.horn.left = 0;
     this.bugs = [];
     this.helper?.rest();
     // день кончился — у растений жажда сбрасывается, засохшие на вид возвращаются к норме, несобранные плоды пропадают
@@ -455,7 +464,15 @@ export class Farm extends Container {
     for (const r of this.ridges) r.update(dt);
     // disable_bug_wave: отключённые квестом вредители не появляются
     const name = this.arriver.tick(this.rules, dt, !this.bugs.some((b) => !b.dead), this.rules.weather[this.game.weather]?.bug_arrive ?? 1, this.game.quests.pestsKey ?? "");
-    if (name && !this.game.quests.bugsOff?.includes(name)) this.spawnBug(name);
+    if (name && !this.game.quests.bugsOff?.includes(parseBugSpec(name).name)) this.spawnBug(name);
+    // горн (0x504650): по вредителю в секунду, первый сразу; множитель приза каждого + prize_k горна
+    if (this.horn.left > 0 && (this.horn.timer -= dt) <= 0) {
+      this.horn.timer = 1;
+      this.horn.left -= 1;
+      const spec = this.horn.specs[Math.floor(Math.random() * this.horn.specs.length)];
+      const bug = spec ? this.spawnBug(spec) : null;
+      if (bug && this.horn.prizeK > 0) bug.prizeMul += this.horn.prizeK;
+    }
     for (const b of this.bugs) {
       b.update(dt * this.slow); // часы замедляют вредителей
       // вредитель через 3 с после появления ставит в очередь подсказку «Это вредитель» (exe: таймер +0x3c = 3 в конструкторе Bug, 0x405a2c)
@@ -485,12 +502,12 @@ export class Farm extends Container {
 
   // ================================================================ опыт и особые умения
 
-  private gainExp(n: number, x: number, y: number, label = `+${n}`) {
+  private gainExp(n: number, x: number, y: number, label = `+${n}`, color?: number) {
     if (n <= 0) return;
     const before = this.game.level;
     this.game.addExp(n);
     this.expToday += n;
-    floatPoints(this.ui, label, x, y);
+    floatPoints(this.ui, label, x, y, color);
     if (this.game.level > before) {
       audio.play("level_up");
       toast(this.ui, `${this.rules.texts.stats.hero_title} ${this.game.level}`, 400, 200);
@@ -604,8 +621,10 @@ export class Farm extends Container {
     return grid;
   }
 
-  private spawnBug(name: string) {
-    if (!this.rules.bugs[name]) return;
+  /** Вредитель по строке волны или горна «snail!@1*2$3» (имя и модификаторы, exe 0x41bad0). */
+  private spawnBug(spec: string): Bug | null {
+    const { name, mods } = parseBugSpec(spec);
+    if (!this.rules.bugs[name]) return null;
     const [x, y] = this.rules.arrive_positions[Math.floor(Math.random() * this.rules.arrive_positions.length)];
     const folder = this.rules.bugs[name].folder;
     const bug = new Bug(name, this.rules, {
@@ -618,7 +637,10 @@ export class Farm extends Container {
         audio.play("bug_die");
         const def = this.rules.bugs[b.kind];
         const key = def.folder;
-        this.gainExp((def as unknown as { exp?: number }).exp ?? 0, b.x, b.y - 40);
+        this.gainExp(b.exp, b.x, b.y - 40);
+        // призы (exe 0x410300): $N — N гарантированных из всех ступеней, иначе один бросок по prizes_set фермы
+        if (b.prizes > 0) for (let i = 0; i < b.prizes; i++) this.dropPrize(b.prizeMul, true, b.x, b.y);
+        else this.dropPrize(b.prizeMul, false, b.x, b.y);
         this.specific("attack", key, this.rules.texts.bug_names[key] ?? key);
       },
       drop: (item, bx, by) => this.dropItem(item, bx, by),
@@ -631,8 +653,75 @@ export class Farm extends Container {
       // урон = оружие · (1 + attack) · (1 + attack_specific_<вид>) — так в exe (0x415045)
       bug.hit(this.rules.weapon_attack * (1 + g.bonus("attack", "attack")) * (1 + g.attackSpecificBonus(folder)));
     });
+    if (mods) bug.applyMods(mods);
     this.bugs.push(bug);
     this.objects.addChild(bug);
+    return bug;
+  }
+
+  /** Бросок приза из вредителя по prizes_set фермы (exe 0x431e40). Сложность в порте — casual. */
+  private dropPrize(mul: number, force: boolean, x: number, y: number) {
+    const name = rollPrize(this.rules.prizes_set ?? [], this.rules.dropped_items ?? {}, mul, force, "casual");
+    if (name) this.placePrize(name, x, y);
+  }
+
+  /**
+   * Приз на земле. exe ставит его на свободную клетку сетки рядом с точкой (0x428870, радиус 3 клетки); здесь —
+   * в точке со случайным сдвигом до клетки (**допущение**). Подбирается нажатием по картинке (0x430370, 0x4b54d0).
+   */
+  private placePrize(name: string, x: number, y: number) {
+    const it = this.rules.dropped_items?.[name];
+    if (!it) return;
+    const sprite = image(`prize_${it.image}`);
+    sprite.anchor.set(0.5, 0.8);
+    sprite.position.set(
+      // не под левой панелью (она закрывает ферму до x ≈ 120) и не за правым краем
+      Math.max(120 + sprite.width / 2, Math.min(800 - sprite.width / 2, x + (Math.random() - 0.5) * CELL_W)),
+      Math.max(120, Math.min(590, y + (Math.random() - 0.5) * CELL_H)),
+    );
+    sprite.eventMode = "static";
+    sprite.cursor = "gather_product";
+    const entry = { sprite, name };
+    sprite.on("pointertap", (e) => {
+      e.stopPropagation();
+      this.collectPrize(entry);
+    });
+    this.prizes.push(entry);
+    this.objects.addChild(sprite);
+    // tutorial/prize: «Иногда из вредителей выпадают различные ценности…» (exe флаг фермы +0x6fc)
+    this.tutorial.show("prize", sprite.x, sprite.y - 40);
+  }
+
+  /**
+   * Сбор приза (exe 0x566a80): «exp» — опыт, «gold» — золото (в 5-й локации надпись про кристаллы), «water» — вода,
+   * но только сколько влезет в бочки. Надпись «+N …» цветом приза (float_string_color).
+   */
+  private collectPrize(entry: { sprite: Sprite; name: string }) {
+    if (this.paused) return;
+    const it = this.rules.dropped_items?.[entry.name];
+    const i = this.prizes.indexOf(entry);
+    if (!it || i < 0) return;
+    this.prizes.splice(i, 1);
+    const { x, y } = entry.sprite;
+    entry.sprite.destroy();
+    const ev = this.rules.texts.events ?? {};
+    const color = rgb(...it.color);
+    const g = this.game;
+    if (it.kind === "exp") {
+      this.gainExp(it.value, x, y - 30, fmt(ev.dropped_item_exp ?? "+%value% Опыт", { value: it.value }), color);
+    } else if (it.kind === "gold") {
+      g.gold += it.value;
+      const key = this.rules.location === 5 ? "dropped_item_crystal" : "dropped_item_gold";
+      floatPoints(this.ui, fmt(ev[key] ?? "+%value%", { value: it.value }), x, y - 30, color);
+    } else {
+      const add = Math.min(it.value, g.waterMax - g.water);
+      if (add > 0) {
+        g.water += add;
+        floatPoints(this.ui, fmt(ev.dropped_item_water ?? "+%value% Вода", { value: add }), x, y - 30, color);
+      }
+    }
+    g.changed();
+    this.renderStorages();
   }
 
   /** Предмет выпадает, только пока квест разрешил (enable_bug_item count). */
@@ -1177,12 +1266,26 @@ export class Farm extends Container {
       for (const b of this.bugs) {
         if (b.dead || b.life <= 0.1) continue;
         b.hit(dmg < b.life ? dmg : b.life - 0.1);
+        if (num("prize_k") > 0) b.prizeMul += num("prize_k");
       }
     } else if (st.kind === "clock") {
       // часы (0x505730): все вредители фермы замедляются в slow_k раз на max_activete_time секунд (0x5057d0);
       // замедляются их анимации и укусы (0x40f4c8, 0x58e8d0), день идёт как обычно
       this.slow = num("slow_k") || 1;
       this.slowLeft = num("max_activete_time");
+    } else if (st.kind === "altar") {
+      // алтарь (0x4fe7d0): случайный приз из items в точку position + случайный сдвиг в пределах drop_offset
+      const items = String(p.items ?? "").split(";").map((x) => x.trim()).filter(Boolean);
+      const name = items[Math.floor(Math.random() * items.length)];
+      const at = String(p.position ?? "").split(";").map(Number);
+      const off = String(p.drop_offset ?? "0;0").split(";").map(Number);
+      if (name && at.length === 2) this.placePrize(name, at[0] + Math.random() * off[0], at[1] + Math.random() * off[1]);
+    } else if (st.kind === "horn") {
+      // горн (0x504bc0): призвать round(rand(min_bugs..max_bugs)) вредителей из bugs, по одному в секунду
+      this.horn = {
+        left: Math.trunc(rand(num("min_bugs"), num("max_bugs")) + 0.5), timer: 0,
+        specs: String(p.bugs ?? "").split(";").map((x) => x.trim()).filter(Boolean), prizeK: num("prize_k"),
+      };
     }
   }
 

@@ -54,6 +54,9 @@ export interface BugDef {
   obst_radius?: number;
   life?: number;
   speed?: number;
+  exp?: number;
+  /** Множитель приза (bugs/<вид>/@prize_k, exe поле +0x100). */
+  prize_k?: number;
   items: string;
   reincorn: string;
   anims: Record<string, BugAnim>;
@@ -75,6 +78,7 @@ export interface LocationRules {
   well_object: Rules["well_object"];
   well_items: Rules["well_items"];
   statues?: Rules["statues"];
+  prizes_set?: Rules["prizes_set"];
   prices: { ridge: number; water: number };
   waves: Rules["waves"];
   wave_delays: number[];
@@ -97,6 +101,14 @@ export type WellDef = Place & {
   pail_images?: string[];
   pail_pos?: [number, number] | null;
 };
+
+export interface DroppedItem {
+  kind: "exp" | "gold" | "water";
+  value: number;
+  image: string;
+  color: [number, number, number];
+  difficults: string[];
+}
 
 export interface StatueLevel {
   price: number;
@@ -130,6 +142,10 @@ export interface Rules {
   shop_positions: { sell_prod: [number, number]; buy_water: [number, number]; well: [number, number] } & Partial<Record<string, [number, number]>>;
   /** Статуи фермы по виду (сова, Нептун, алтарь, горн, часы). */
   statues?: Record<string, StatueDef>;
+  /** Призы из вредителей фермы (farm/prizes_set): ступени с вероятностью k и призами (пусто — ничего). */
+  prizes_set?: { k: number; prizes: string[] }[];
+  /** Призы (root/dropped_items): вид, значение, картинка, цвет надписи, сложности. */
+  dropped_items?: Record<string, DroppedItem>;
   locations: Record<string, LocationRules>;
   global_map: Record<string, { position: [number, number]; dimensions: [number, number]; image: string }>;
   start: { gold: number; water: number; vegetations: string[] };

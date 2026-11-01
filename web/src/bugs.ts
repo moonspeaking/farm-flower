@@ -89,6 +89,32 @@ export interface BugEvents {
   drop(item: string, x: number, y: number): void;
 }
 
+/** Модификаторы вредителя из строки волны или горна (exe 0x401fa0): @уровень, *жизнь, #скорость, $призы, +атака. */
+export interface BugMods {
+  level: number;
+  life: number;
+  speed: number;
+  prizes: number;
+  attack: number;
+}
+
+/**
+ * Строка вредителя «casual-snail!@1*2$3»: приставка сложности, имя и модификаторы после «!» (exe 0x41bad0, 0x4197a0).
+ * Числа — после своего символа: @ и $ целые, * # + дробные (по умолчанию 1). Модификаторы действуют, только если @ > 0.
+ */
+export function parseBugSpec(spec: string): { name: string; mods: BugMods | null } {
+  const raw = spec.trim().replace(/^(casual|hardcore|hardocre)-/, "");
+  const bang = raw.indexOf("!");
+  const name = (bang >= 0 ? raw.slice(0, bang) : raw).replace(/[^a-z_0-9].*$/, "");
+  const num = (ch: string, def: number) => {
+    const m = raw.match(new RegExp(`\\${ch}(-?[0-9]*\\.?[0-9]+)`));
+    return m ? Number(m[1]) : def;
+  };
+  const level = Math.trunc(num("@", 0));
+  if (level <= 0) return { name, mods: null };
+  return { name, mods: { level, life: num("*", 1), speed: num("#", 1), prizes: Math.trunc(num("$", 0)), attack: num("+", 1) } };
+}
+
 export class Bug extends Actor {
   /** Через сколько секунд после появления показать подсказку «bug» (exe: поле +0x3c = 3,0). */
   hintIn = 3;
@@ -106,6 +132,13 @@ export class Bug extends Actor {
   private retry = 0;
   /** Во что превратится после анимации reincorn (улитка без панциря). */
   private reincornTo = "";
+  /** Свойства этого вредителя (из bugs + модификаторы): скорость, атака, опыт за убийство. */
+  speed: number;
+  attack: number;
+  exp: number;
+  /** Гарантированных призов при смерти ($, exe поле +0x6c+0xc) и множитель приза (prize_k, поле +0x100). */
+  prizes = 0;
+  prizeMul: number;
 
   constructor(
     public kind: string,
@@ -117,6 +150,10 @@ export class Bug extends Actor {
     super(rules.bugs[kind]);
     this.life = this.def.life ?? 1;
     this.maxLife = this.life;
+    this.speed = this.def.speed ?? 40;
+    this.attack = this.def.attack ?? 1;
+    this.exp = this.def.exp ?? 0;
+    this.prizeMul = this.def.prize_k ?? 1;
     // progresses: сердечки над вредителем (attack_bug, у сильных — attack_bug_strong), смещение (0; −50)
     const strong = this.maxLife >= rules.strong_heart;
     const pr = rules.progresses[strong ? "attack_bug_strong" : "attack_bug"];
@@ -129,6 +166,19 @@ export class Bug extends Actor {
     const r = this.def.click_radius ?? 25;
     this.hitArea = { contains: (px: number, py: number) => px * px + (py + r) * (py + r) < r * r * 1.6 };
     this.play("move", x < 400 ? 1 : -1, 0, true);
+  }
+
+  /**
+   * Модификаторы (exe 0x40e0a0): жизнь × *; опыт = ⌊опыт · (1 + * / 3 + # / 3)⌋; скорость = round(скорость · #);
+   * атака = round(атака · +); $ — сколько гарантированных призов выпадет при смерти.
+   */
+  applyMods(m: BugMods) {
+    this.life *= m.life;
+    this.maxLife = this.life;
+    this.exp = Math.trunc(this.exp * (1 + m.life / 3 + m.speed / 3));
+    this.speed = Math.trunc(this.speed * m.speed + 0.5);
+    this.attack = Math.trunc(this.attack * m.attack + 0.5);
+    this.prizes = m.prizes;
   }
 
   /** Удар: игрок (оружие simple_sword и умения) или Робин. */
@@ -177,6 +227,9 @@ export class Bug extends Actor {
         this.def = this.rules.bugs[this.reincornTo];
         this.life = this.def.life ?? 1;
         this.maxLife = this.life;
+        this.speed = this.def.speed ?? 40;
+        this.attack = this.def.attack ?? 1;
+        this.exp = this.def.exp ?? 0;
         this.reincornTo = "";
       }
       this.anim = "";
@@ -196,7 +249,7 @@ export class Bug extends Actor {
         this.eatTimer -= period;
         this.events.bit(this); // звук bug_attack раз в проход анимации
       }
-      if (this.target.bite((this.def.attack ?? 1) * dt)) {
+      if (this.target.bite(this.attack * dt)) {
         this.target = null;
         this.attacking = false;
       }
@@ -205,7 +258,7 @@ export class Bug extends Actor {
     // выбор цели (0x4b2620): случайное растение, путь до клетки рядом с ним; без цели — блуждание (0x4b23d0)
     if (!this.target && this.retry <= 0) this.chooseTarget();
     this.retry -= dt;
-    this.follow(this.def.speed ?? 40, dt);
+    this.follow(this.speed, dt);
   }
 
   /** Занятые вредителем клетки: вокруг следующей путевой точки, а без пути — вокруг текущей клетки (0x4b2290). */

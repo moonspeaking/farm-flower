@@ -257,6 +257,8 @@ def split_images(rules, bugs, names):
             for grp in day:
                 for b in (x["name"] for x in grp["specs"]):
                     imgs |= bug_images(b, set())
+        for b in statue_bugs(d.get("statues", {}), set(bugs)):
+            imgs |= bug_images(b, set())
         imgs |= {f"holder_{h}" for h in d["holders"]} | {f"talker_{t}" for t in talkers(d["quests"])}
         imgs |= ({"bg", "town_bg", "box", "box_content", "box_mask"} if n == 1 else
                  {f"farm_bg_{n}", f"town_bg_{n}", f"box_{n}", f"box_content_{n}", f"box_mask_{n}"})
@@ -452,7 +454,8 @@ def wave_group(g, known):
             continue
         mode = {"hardocre": "hardcore"}.get(m.group(1), m.group(1)) or "any"
         specs.append({"name": m.group(2), "mode": mode, "mods": m.group(3)})
-    return {"bugs": [x["name"] for x in specs if x["mode"] != "hardcore"], "specs": specs, "delay": float(g.attrib["delay"])}
+    # bugs — для обычной сложности, с модификаторами (snail!@1*2$2 — разбирает игра, web/src/bugs.ts parseBugSpec)
+    return {"bugs": [x["name"] + x["mods"] for x in specs if x["mode"] != "hardcore"], "specs": specs, "delay": float(g.attrib["delay"])}
 
 
 STATUES = ("owl", "neptun", "altar", "horn", "clock")
@@ -487,6 +490,46 @@ def farm_statues(props, n):
                     params[k] = v
             levels.append({**common, "params": params})
         out[kind] = {"position": vec(el.attrib["position"]), "dimensions": vec(el.attrib["dimensions"]), "levels": levels}
+    return out
+
+
+def statue_bugs(statues, known):
+    """Вредители, которых призывает горн (bugs у его уровней), — их спрайты нужны локации."""
+    out = set()
+    for st in statues.values():
+        for lv in st["levels"]:
+            for raw in str(lv["params"].get("bugs", "")).split(";"):
+                m = re.match(r"\s*(?:(?:casual|hardcore|hardocre)-)?([a-z_0-9]+)", raw)
+                if m and m.group(1) in known:
+                    out.add(m.group(1))
+    return out
+
+
+def prizes_set(locn):
+    """Призы фермы (farm/prizes_set, exe 0x42c640): ступени с вероятностью prize_k и призами (пусто — ничего).
+    Читаются первые prizes_count записей."""
+    ps = locn.find("farm/prizes_set") if locn is not None else None
+    if ps is None:
+        return []
+    entries = list(ps)[:int(ps.attrib.get("prizes_count", len(ps)))]
+    return [{"k": float(e.attrib["prize_k"].rstrip("f")),
+             "prizes": [x.strip() for x in e.attrib.get("prizes", "").split(";") if x.strip()]} for e in entries]
+
+
+def dropped_items(el):
+    """Призы (root/dropped_items, exe 0x4b4880): вид по имени (exp / gold / water — так их различает сбор, 0x566a80),
+    значение, картинка data/prize_items/<image>, цвет надписи, сложности (difficults; пусто — любая)."""
+    out = {}
+    for it in el:
+        a = it.attrib
+        if "value" not in a or "image" not in a:
+            continue
+        kind = next((k for k in ("exp", "gold", "water") if k in it.tag), None)
+        if not kind:
+            continue
+        out[it.tag] = {"kind": kind, "value": int(float(a["value"])), "image": a["image"],
+                       "color": [int(x) for x in a.get("float_string_color", "255;255;255").split(";")[:3]],
+                       "difficults": [x.strip() for x in a.get("difficults", "").split(";") if x.strip()]}
     return out
 
 
@@ -565,7 +608,7 @@ def bug_def(bug_root, name):
     return {
         "folder": a["folder"],
         **{k: float(a[k]) for k in ("attack", "click_radius", "obst_radius", "life", "speed", "exp") if k in a},
-        "items": a.get("items", ""), "reincorn": a.get("reincorn", ""),
+        "items": a.get("items", ""), "reincorn": a.get("reincorn", ""), "prize_k": float(a.get("prize_k", 1)),
         "anims": {an.tag: {"rows": int(an.attrib["anim_rows"]), "time": float(an.attrib["play_time"]),
                            "loop": an.attrib.get("loop", "true") == "true"} for an in bug_root.find(name).find("anims")},
     }
@@ -604,6 +647,9 @@ def export_location(n, props, xml_dir, items_root, ru, vegetations, products, bu
         for grp in g:
             for b in (x["name"] for x in grp["specs"]):
                 bugs.setdefault(b, bug_def(props.find("bugs"), b))
+    statues = farm_statues(props, n)
+    for b in statue_bugs(statues, {x.tag for x in props.find("bugs")}):
+        bugs.setdefault(b, bug_def(props.find("bugs"), b))
     for b in list(bugs):
         r = bugs[b]["reincorn"]
         if r:
@@ -632,7 +678,8 @@ def export_location(n, props, xml_dir, items_root, ru, vegetations, products, bu
         "arrive_positions": arrive,
         "bouquets": bouquet_list(bset),
         "bouquet_random": bouquet_random(locn.find("bouquet_random_set")),
-        "statues": farm_statues(props, n),
+        "statues": statues,
+        "prizes_set": prizes_set(locn),
         "obstacles": [{"position": vec(o.attrib["position"]), "dimensions": vec(o.attrib["dimensions"])} for o in farm.findall("obstacle")],
         "quests": quests,
         "holders": holders,
@@ -762,6 +809,8 @@ def main():
     rules["texts"]["characters"] = dict(ru.find("characters").attrib)
     rules["texts"]["global_map"] = dict(ru.find("global_map").attrib)
     rules["statues"] = farm_statues(props, 1)
+    rules["prizes_set"] = prizes_set(next(l for l in props.iter("location_1") if l.find("farm/prizes_set") is not None))
+    rules["dropped_items"] = dropped_items(props.find("dropped_items"))
     # названия и описания предметов фермы (root/item_names, root/desc): сова — owl, owl_level2, owl_level3
     rules["texts"]["item_names"] = dict(ru.find("item_names").attrib) if ru.find("item_names") is not None else {}
     rules["texts"]["item_desc"] = dict(ru.find("desc").attrib) if ru.find("desc") is not None else {}
@@ -775,7 +824,7 @@ def main():
     loc1 = next(l for l in props.iter("location_1") if l.find("bug_arriver") is not None)
     arriver = loc1.find("bug_arriver")
     waves = [[wave_group(g, {b.tag for b in props.find("bugs")}) for g in w] for w in arriver.find("waves")]
-    used = {x["name"] for w in waves for g in w for x in g["specs"]}
+    used = {x["name"] for w in waves for g in w for x in g["specs"]} | statue_bugs(rules["statues"], {b.tag for b in props.find("bugs")})
     bug_root = props.find("bugs")
     for b in list(used):  # то, во что превращаются (reincorn), тоже нужно
         r = bug_root.find(b).attrib.get("reincorn", "")
@@ -788,7 +837,7 @@ def main():
         bugs[name] = {
             "folder": a["folder"],
             **{k: float(a[k]) for k in ("attack", "click_radius", "obst_radius", "life", "speed", "exp") if k in a},
-            "items": a.get("items", ""), "reincorn": a.get("reincorn", ""),
+            "items": a.get("items", ""), "reincorn": a.get("reincorn", ""), "prize_k": float(a.get("prize_k", 1)),
             "anims": {an.tag: {"rows": int(an.attrib["anim_rows"]), "time": float(an.attrib["play_time"]),
                                "loop": an.attrib.get("loop", "true") == "true"} for an in el.find("anims")},
         }
@@ -861,6 +910,8 @@ def main():
                 if (folder / anim / f"{d}.jpg").exists():
                     names[f"bug_{bug['folder']}_{anim}_{d}"] = f"bugs/{bug['folder']}/{anim}/{d}"
     names["bq_big"] = "game/bouquets/big-flowers"
+    for it in rules["dropped_items"].values():
+        names[f"prize_{it['image']}"] = f"prize_items/{it['image']}"
     for loc in [rules] + list(rules["locations"].values()):
         for st in loc.get("statues", {}).values():
             for lv in st["levels"]:
