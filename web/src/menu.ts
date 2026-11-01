@@ -77,6 +77,7 @@ export class Menu extends Container {
     const text = fmt(this.rules.texts.users?.main_change_user ?? "Приветствую, %name%, если это не Вы, нажмите сюда", { name });
     const l = pop(text, "logoff", COLOR.white, { align: "center" });
     const hover = pop(text, "logoff-active", rgb(175, 125, 250), { align: "center" });
+    hover.anchor.set(0, 0);
     hover.visible = false;
     hover.eventMode = "none";
     l.addChild(hover);

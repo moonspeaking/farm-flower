@@ -179,6 +179,8 @@ export function textButton(text: string, onTap: () => void, kind: ButtonKind = "
   // шрифт наведения — отдельная надпись поверх (в оригинале кнопка рисуется другим растровым шрифтом)
   const hover = s.activeFont ? pop(text, s.activeFont, s.active, { align: "center", scale: k }) : null;
   if (hover) {
+    // надпись наведения — дочерняя, её точка привязки — левый верхний угол, как у букв основной надписи
+    hover.anchor.set(0, 0);
     hover.position.set((t.textWidth - hover.textWidth) / 2, (t.textHeight - hover.textHeight) / 2);
     hover.visible = false;
     hover.eventMode = "none";
