@@ -426,7 +426,7 @@ export class Farm extends Container {
     if (this.endPrompt) return;
     for (const r of this.ridges) r.update(dt);
     // disable_bug_wave: отключённые квестом вредители не появляются
-    const name = this.arriver.tick(this.rules, dt, !this.bugs.some((b) => !b.dead), this.rules.weather[this.game.weather]?.bug_arrive ?? 1);
+    const name = this.arriver.tick(this.rules, dt, !this.bugs.some((b) => !b.dead), this.rules.weather[this.game.weather]?.bug_arrive ?? 1, this.game.quests.pestsKey ?? "");
     if (name && !this.game.quests.bugsOff?.includes(name)) this.spawnBug(name);
     for (const b of this.bugs) {
       b.update(dt);

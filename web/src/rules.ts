@@ -71,6 +71,8 @@ export interface LocationRules {
   prices: { ridge: number; water: number };
   waves: Rules["waves"];
   wave_delays: number[];
+  wave_keys: string[];
+  wave_loop: number;
   arrive_positions: [number, number][];
   bouquets: string[][];
   shop_positions: Rules["shop_positions"];
@@ -115,6 +117,10 @@ export interface Rules {
   waves: { bugs: string[]; delay: number }[][];
   /** Пауза после волны (delay у wave.), отсчитывается, когда группы вышли и на поле нет вредителей. */
   wave_delays: number[];
+  /** Ключ волны: играют только волны, чей ключ равен ключу вредителей фермы (set_pests_key, по умолчанию ""). */
+  wave_keys: string[];
+  /** wave_loop: с какой волны идёт круг после последней. */
+  wave_loop: number;
   arrive_positions: [number, number][];
   helper: { attack: number; attack_period: number; attack_range: number; speed: number; radius: number; start_skill_prob: number; per_level_skill_prob: number; icon_offset: [number, number] };
   /** Метки, которые игра ставит по дню (set_mark_by_day): shop_barrel — с 5-го дня и т. д. */

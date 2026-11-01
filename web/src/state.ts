@@ -69,6 +69,9 @@ interface SaveV3 {
   tutorial: string[];
   loc: number;
   farms: Record<number, FarmState>;
+  weapons?: string[];
+  owl?: boolean;
+  medals?: Record<string, number>;
   questStates: Record<number, QuestState>;
   world: WorldState;
   marks?: string[];
@@ -166,6 +169,10 @@ export class Game {
   /** Предметы квестов (ракушки, дубинки…) и сколько их ещё может выпасть из вредителей — общие для локаций. */
   items: Record<string, number> = {};
   bugItems: Record<string, number> = {};
+  /** Оружие из квестов (add_weapon: лопата, меч…), сова на ферме (add_owl), медали дракона для комнаты трофеев. */
+  weapons: string[] = [];
+  owl = false;
+  medals: Record<string, number> = {};
   /** Волны вредителей по локациям (BugArriver фермы): живут, пока идёт игра, в сохранение не пишутся — как в exe. */
   arrivers: Record<number, ArriverState> = {};
   loc = 1;
@@ -264,6 +271,9 @@ export class Game {
   /** Метка: поставлена квестом или днём (set_mark_by_day). */
   hasMark(name: string) {
     const day = this.rules.marks_by_day[name];
+    // метка сложности: exe при выборе сложности (0x44b2e0) снимает метку старой и ставит casual / hardcore.
+    // Выбора сложности в порте пока нет — игра идёт как casual
+    if (name === "casual") return !this.marks.includes("hardcore");
     return this.marks.includes(name) || (day !== undefined && this.day >= day);
   }
 
@@ -357,6 +367,7 @@ export class Game {
       kills: this.kills, gathered: this.gathered, attackSpecific: this.attackSpecific, productSpecific: this.productSpecific,
       tutorial: this.tutorial, loc: this.loc, farms: { ...this.farms, [this.loc]: this.snapshot(plants) },
       questStates: this.questStates, world: this.world, marks: this.marks, items: this.items, bugItems: this.bugItems,
+      weapons: this.weapons, owl: this.owl, medals: this.medals,
     };
     try {
       localStorage.setItem(saveKey(KEY3, this.profile), JSON.stringify(data));
@@ -386,6 +397,7 @@ export class Game {
           day: s.day, gold: s.gold, exp: s.exp, skills: s.skills, kills: s.kills, gathered: s.gathered,
           attackSpecific: s.attackSpecific, productSpecific: s.productSpecific, tutorial: s.tutorial,
           questStates: s.questStates, world: s.world, farms: s.farms, loc: s.loc, marks: s.marks ?? [], items: s.items ?? {}, bugItems: s.bugItems ?? {},
+          weapons: s.weapons ?? [], owl: !!s.owl, medals: s.medals ?? {},
         });
         this.mergeOldMarks();
         this.restore(s.farms[s.loc]);

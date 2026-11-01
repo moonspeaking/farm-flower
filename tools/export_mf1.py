@@ -440,6 +440,11 @@ def wave_group(g, known):
     return {"bugs": [x["name"] for x in specs if x["mode"] != "hardcore"], "specs": specs, "delay": float(g.attrib["delay"])}
 
 
+def wave_keys(arriver):
+    return {"wave_keys": [w.attrib.get("key", "") for w in arriver.find("waves")],
+            "wave_loop": int(arriver.attrib.get("wave_loop", 0))}
+
+
 def export_waves(props, bug_root, n):
     """Волны вредителей локации n: [{bugs, delay}…] по дням, места появления."""
     locn = next(l for l in props.iter(f"location_{n}") if l.find("bug_arriver") is not None)
@@ -510,6 +515,8 @@ def export_location(n, props, xml_dir, items_root, ru, vegetations, products, bu
         "waves": waves,
         # пауза после волны (атрибут delay у wave.): отсчитывается, когда группы вышли и поле чистое (exe 0x40ced0)
         "wave_delays": [float(w.attrib.get("delay", 0)) for w in next(l for l in props.iter(f"location_{n}") if l.find("bug_arriver") is not None).find("bug_arriver/waves")],
+        # ключ волны (key у wave.) и wave_loop — с какой волны начинать круг заново (exe 0x41c400)
+        **wave_keys(next(l for l in props.iter(f"location_{n}") if l.find("bug_arriver") is not None).find("bug_arriver")),
         "arrive_positions": arrive,
         "bouquets": [[x.strip() for x in b.attrib["bouquet"].split(";") if x.strip()] for b in bset],
         "obstacles": [{"position": vec(o.attrib["position"]), "dimensions": vec(o.attrib["dimensions"])} for o in farm.findall("obstacle")],
@@ -664,6 +671,7 @@ def main():
     rules["bugs"] = bugs
     rules["waves"] = waves
     rules["wave_delays"] = [float(w.attrib.get("delay", 0)) for w in arriver.find("waves")]
+    rules.update(wave_keys(arriver))
     rules["arrive_positions"] = [vec(v) for v in arriver.find("arrive_positions").attrib.values()]
     rules["helper"] = {k: (vec(v) if ";" in v else float(v)) for k, v in props.find("common/helper").attrib.items()}
     rules["weapon_attack"] = float(items_root.find("weapons/simple_sword").attrib["attack"])

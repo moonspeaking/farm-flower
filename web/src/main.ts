@@ -183,6 +183,7 @@ async function main() {
       hasEmptyRidge: () => f.hasEmptyRidge(),
       addVegetation: (v) => f.addVegetation(v),
       removeVegetation: (v) => f.removeVegetation(v),
+      location: () => n,
     });
     const t: Town = new Town(lr, g, quests, {
       toFarm: () => {

@@ -547,19 +547,41 @@ export function newArriverState(): ArriverState {
 export class BugArriver {
   constructor(private readonly state: ArriverState) {}
 
+  /**
+   * Выбор следующей волны «Цветка Стихий» (exe 0x41c400): если номер вышел за последнюю волну — переход на wave_loop;
+   * волны, чей ключ не равен ключу вредителей (set_pests_key), пропускаются; при выходе за конец во время пропуска —
+   * на wave_loop − 1 при пустом ключе и на 0 при заданном (особые волны с ключом идут по кругу с начала). −1 — волны нет.
+   */
+  static pick(rules: Rules, s: ArriverState, key: string): number {
+    const n = rules.waves.length;
+    if (!n) return -1;
+    const keys = rules.wave_keys ?? [];
+    const loop = rules.wave_loop ?? 0;
+    if (s.next > n - 1) s.next = loop;
+    // в exe поиск без ограничения; здесь — не больше 2n шагов, чтобы ключ без своих волн не повесил игру
+    for (let step = 0; (keys[s.next] ?? "") !== key; step++) {
+      if (step > 2 * n) return -1;
+      s.next += 1;
+      if (s.next > n - 1) s.next = key === "" ? loop - 1 : 0;
+    }
+    const picked = s.next;
+    s.next += 1;
+    return picked;
+  }
+
   /** Имя вредителя, которому пора появиться (не больше одного за кадр), или null. */
-  tick(rules: Rules, dt: number, fieldEmpty: boolean, arrive: number): string | null {
+  tick(rules: Rules, dt: number, fieldEmpty: boolean, arrive: number, key = ""): string | null {
     const s = this.state;
     const g = s.groups[0];
     if (!g) {
       if (!fieldEmpty) return null;
       s.wait -= dt;
       if (s.wait > 0) return null;
-      if (s.next >= rules.waves.length) s.next = 0;
-      const wave = rules.waves[s.next] ?? [];
-      s.wait = (rules.wave_delays?.[s.next] ?? 0) * arrive;
+      const i = BugArriver.pick(rules, s, key);
+      if (i < 0) return null;
+      const wave = rules.waves[i] ?? [];
+      s.wait = (rules.wave_delays?.[i] ?? 0) * arrive;
       s.groups = wave.map((x) => ({ bugs: [...x.bugs], delay: x.delay, wait: x.delay }));
-      s.next += 1;
       return null;
     }
     if (!g.bugs.length) {

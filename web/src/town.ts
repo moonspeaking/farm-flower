@@ -150,7 +150,7 @@ export class Town extends Container {
     void this.startTalk(holder, list[0]);
   }
 
-  private async startTalk(holder: string, { quest, data }: ReturnType<QuestEngine["available"]>[number]) {
+  private async startTalk(holder: string, { quest, sub, data }: ReturnType<QuestEngine["available"]>[number]) {
     if (this.busy) return;
     this.busy = true;
     // в разговоре персонаж нарисован крупно на переднем плане — фигуру в городе прячем, чтобы он не двоился
@@ -162,9 +162,9 @@ export class Town extends Container {
     await talk.play(
       data.dialog,
       (a) => this.quests.answerActive(a, quest),
-      (a) => this.quests.run(a.actions, quest),
+      (a) => this.quests.run(a.actions, quest, sub),
     );
-    this.quests.run(data.actions, quest);
+    this.quests.run(data.actions, quest, sub);
     talk.destroy({ children: true });
     this.busy = false;
     this.refresh();
