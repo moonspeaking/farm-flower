@@ -493,6 +493,27 @@ def farm_statues(props, n):
     return out
 
 
+def auto_bouquet(props, n):
+    """Автосборка букетов (root/auto_bouquet_level/location_N, exe 0x4091c0): пороги уровней (каждый — сколько ещё цветов
+    продать в букетах), полоса на экране букетов (control) и картинки уровней."""
+    el = props.find(f"auto_bouquet_level/location_{n}")
+    if el is None:
+        return None
+    c = el.find("control").attrib
+    pic = lambda path: "ab_" + path.rsplit("/", 1)[-1] if path else ""
+    levels = []
+    for i in range(len(el)):
+        lv = el.find(f"level_{i}")
+        if lv is None:
+            break
+        a = lv.attrib
+        levels.append({"level_image": pic(a.get("level_image", "")), "level_pos": vec(a.get("level_image_pos", "0;0")),
+                       "progress_image": pic(a.get("progress_image", "")), "progress_pos": vec(a.get("progress_image_pos", "0;0"))})
+    return {"thresholds": [int(x) for x in el.attrib["levels_array"].split(";")],
+            "position": vec(c["position"]), "dimensions": vec(c["dimensions"]),
+            "complete": pic(el.find("complete").attrib.get("image", "")), "levels": levels}
+
+
 def statue_bugs(statues, known):
     """Вредители, которых призывает горн (bugs у его уровней), — их спрайты нужны локации."""
     out = set()
@@ -680,6 +701,7 @@ def export_location(n, props, xml_dir, items_root, ru, vegetations, products, bu
         "bouquet_random": bouquet_random(locn.find("bouquet_random_set")),
         "statues": statues,
         "prizes_set": prizes_set(locn),
+        "auto_bouquet": auto_bouquet(props, n),
         "obstacles": [{"position": vec(o.attrib["position"]), "dimensions": vec(o.attrib["dimensions"])} for o in farm.findall("obstacle")],
         "quests": quests,
         "holders": holders,
@@ -809,6 +831,7 @@ def main():
     rules["texts"]["characters"] = dict(ru.find("characters").attrib)
     rules["texts"]["global_map"] = dict(ru.find("global_map").attrib)
     rules["statues"] = farm_statues(props, 1)
+    rules["auto_bouquet"] = auto_bouquet(props, 1)
     rules["prizes_set"] = prizes_set(next(l for l in props.iter("location_1") if l.find("farm/prizes_set") is not None))
     rules["dropped_items"] = dropped_items(props.find("dropped_items"))
     # серии ударов (combo_set, exe 0x44a6d0): с какого удара подряд какой множитель урона
@@ -819,6 +842,7 @@ def main():
     rules["texts"]["item_names"] = dict(ru.find("item_names").attrib) if ru.find("item_names") is not None else {}
     rules["texts"]["item_desc"] = dict(ru.find("desc").attrib) if ru.find("desc") is not None else {}
     # окно заданий: заголовок quest/header и разделитель тысяч в числах (root/delimiter, «,»)
+    rules["texts"]["tooltips"] = dict(ru.find("tooltips").attrib) if ru.find("tooltips") is not None else {}
     rules["texts"]["quest_title"] = ru.find("quest/header").attrib.get("text", "")
     rules["texts"]["delimiter"] = ru.find("delimiter").attrib.get("text", ",")
     rules["texts"]["buttons_menu"] = {k: rules["texts"]["buttons"].get(k, "") for k in
@@ -914,6 +938,8 @@ def main():
                 if (folder / anim / f"{d}.jpg").exists():
                     names[f"bug_{bug['folder']}_{anim}_{d}"] = f"bugs/{bug['folder']}/{anim}/{d}"
     names["bq_big"] = "game/bouquets/big-flowers"
+    for f in ("auto_bouquet_level_1", "auto_bouquet_level_2", "auto_bouquet_level_3", "auto_bouquet_progress_1", "complete"):
+        names[f"ab_{f}"] = f"game/bouquets/{f}"
     names["bug_target"] = "bugs/target"  # мишень серии ударов (root/bug/target)
     for it in rules["dropped_items"].values():
         names[f"prize_{it['image']}"] = f"prize_items/{it['image']}"

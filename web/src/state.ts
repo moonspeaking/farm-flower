@@ -50,6 +50,8 @@ export interface FarmState {
   owlLevel?: number;
   /** Уровни статуй фермы по виду (сова, Нептун, алтарь, горн, часы), 0 — нет. */
   statues?: Record<string, number>;
+  /** Продано цветов в букетах (автосборка, exe поле фермы +0x770+0x20). */
+  autoSold?: number;
   storage: Record<string, number>;
   boughtRidges: number[];
   plants: (PlantSave | null)[];
@@ -175,6 +177,8 @@ export class Game {
   wellBuy = true;
   /** Уровни статуй фермы по виду: 0 — нет, покупка или квест add_<вид> — +1 (у совы exe поле +0x24). */
   statues: Record<string, number> = {};
+  /** Продано цветов в букетах на этой ферме — по ним растёт уровень автосборки. */
+  autoSold = 0;
   get owlLevel() {
     return this.statues.owl ?? 0;
   }
@@ -238,7 +242,7 @@ export class Game {
     return {
       water: this.water, barrels: this.barrels, boxes: this.boxes, well: this.well, storage: Object.fromEntries(this.storage),
       boughtRidges: this.boughtRidges, plants, seeds: this.seeds, bouquets: this.bouquets,
-      dayCur: this.dayCur, dayNext: this.dayNext, wellLevel: this.wellLevel, wellBuy: this.wellBuy, statues: { ...this.statues },
+      dayCur: this.dayCur, dayNext: this.dayNext, wellLevel: this.wellLevel, wellBuy: this.wellBuy, statues: { ...this.statues }, autoSold: this.autoSold,
     };
   }
 
@@ -250,6 +254,7 @@ export class Game {
     // старые сохранения: колодец куплен — первый уровень
     this.wellLevel = f.wellLevel ?? (f.well ? 1 : 0);
     this.wellBuy = f.wellBuy ?? true;
+    this.autoSold = f.autoSold ?? 0;
     this.statues = { ...(f.statues ?? {}), ...(f.owlLevel && !f.statues?.owl ? { owl: f.owlLevel } : {}) };
     this.storage = new Map(Object.entries(f.storage));
     this.boughtRidges = f.boughtRidges;

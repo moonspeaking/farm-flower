@@ -79,6 +79,7 @@ export interface LocationRules {
   well_items: Rules["well_items"];
   statues?: Rules["statues"];
   prizes_set?: Rules["prizes_set"];
+  auto_bouquet?: Rules["auto_bouquet"];
   prices: { ridge: number; water: number };
   waves: Rules["waves"];
   wave_delays: number[];
@@ -144,6 +145,11 @@ export interface Rules {
   statues?: Record<string, StatueDef>;
   /** Призы из вредителей фермы (farm/prizes_set): ступени с вероятностью k и призами (пусто — ничего). */
   prizes_set?: { k: number; prizes: string[] }[];
+  /** Автосборка букетов: пороги уровней, полоса на экране букетов и её картинки. */
+  auto_bouquet?: {
+    thresholds: number[]; position: [number, number]; dimensions: [number, number]; complete: string;
+    levels: { level_image: string; level_pos: [number, number]; progress_image: string; progress_pos: [number, number] }[];
+  } | null;
   /** Серии ударов (combo_set): с какого удара подряд какой множитель урона. */
   combo_set?: { count: number; damage: number }[];
   /** Призы (root/dropped_items): вид, значение, картинка, цвет надписи, сложности. */
@@ -211,6 +217,7 @@ export interface Rules {
     title: string;
     /** Окно заданий: заголовок и разделитель тысяч в числах. */
     quest_title?: string;
+    tooltips?: Record<string, string>;
     delimiter?: string;
     names: Record<string, string>;
     stats: Record<string, string>;

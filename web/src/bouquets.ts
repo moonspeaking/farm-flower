@@ -1,11 +1,12 @@
 // Цветочный магазин (bouquets_screen): продажа плодов поштучно и «по одному виду», корзина с цветами,
 // заказы на букеты — цветы берутся из корзины зажатой кнопкой мыши и переносятся в букет.
-import { Container, Graphics, Rectangle, Sprite } from "pixi.js";
+import { Container, Graphics, Rectangle, Sprite, Texture } from "pixi.js";
 import { audio } from "./audio";
 import { rgb } from "./popfont";
 import { fmt, Rules } from "./rules";
 import type { BouquetOrder, Game } from "./state";
-import { COLOR, floatPoints, image, pop, textButton, toast } from "./ui";
+import { autoBouquetLevel } from "./autobouquet";
+import { COLOR, floatPoints, image, pop, tex, textButton, toast } from "./ui";
 
 /** Ячейки продажи (sell_products/slots «Цветка Стихий»): позиции относительно блока (122; 66). */
 const SLOTS_XY: [number, number][] = [[21, 0], [89, 1], [157, 2], [231, 1], [300, 1], [370, 0], [440, 0], [510, 0], [583, 0]];
@@ -89,6 +90,112 @@ export class BouquetScreen extends Container {
     this.on("pointerupoutside", (e) => this.drop(e.global.x, e.global.y));
 
     this.buildBasket();
+    this.render();
+    this.addChild(this.autoBar);
+    this.renderAutoBar();
+  }
+
+  /** Полоса автосборки (auto_bouquet_level/control): прогресс до следующего уровня и значок уровня; подсказка при наведении. */
+  private readonly autoBar = new Container();
+  private autoTip: Container | null = null;
+
+  private renderAutoBar() {
+    const ab = this.rules.auto_bouquet;
+    this.autoBar.removeChildren().forEach((c) => c.destroy({ children: true }));
+    if (!ab) return;
+    const st = autoBouquetLevel(ab.thresholds, this.game.autoSold);
+    this.autoBar.position.set(...ab.position);
+    if (st.max) {
+      if (ab.complete) this.autoBar.addChild(image(ab.complete));
+    } else {
+      // exe 0x5587a0: картинка прогресса обрезается по доле, round(ширина · доля + 0.5)
+      const lv = ab.levels[st.level];
+      if (lv?.progress_image) {
+        const t = tex(lv.progress_image);
+        const w = Math.trunc(t.width * st.frac + 0.5);
+        if (w > 0) {
+          const bar = new Sprite(new Texture({ source: t.source, frame: new Rectangle(t.frame.x, t.frame.y, Math.min(w, t.width), t.height) }));
+          bar.position.set(...lv.progress_pos);
+          this.autoBar.addChild(bar);
+        }
+      }
+      if (lv?.level_image) {
+        const icon = image(lv.level_image);
+        icon.position.set(...lv.level_pos);
+        this.autoBar.addChild(icon);
+      }
+    }
+    this.autoBar.eventMode = "static";
+    this.autoBar.hitArea = new Rectangle(0, 0, ab.dimensions[0], ab.dimensions[1]);
+    this.autoBar.removeAllListeners();
+    this.autoBar.on("pointerover", () => this.showAutoTip());
+    this.autoBar.on("pointerout", () => {
+      this.autoTip?.destroy({ children: true });
+      this.autoTip = null;
+    });
+  }
+
+  /**
+   * Подсказка (exe 0x558250): tooltips/auto_bouquet_<уровень> и, пока есть следующий уровень, «нужно продать %count%»
+   * (count_1 при 1, count_2 при 2–4, count_less при 5 и больше — русские формы числа).
+   */
+  private showAutoTip() {
+    const ab = this.rules.auto_bouquet;
+    if (!ab || this.autoTip) return;
+    const tt = this.rules.texts.tooltips ?? {};
+    const st = autoBouquetLevel(ab.thresholds, this.game.autoSold);
+    const lines = [tt[`auto_bouquet_${st.level}`] ?? ""];
+    if (!st.max) {
+      const key = st.left === 1 ? "auto_bouquet_count_1" : st.left < 5 ? "auto_bouquet_count_2" : "auto_bouquet_count_less";
+      lines.push(fmt(tt[key] ?? "%count%", { count: st.left }));
+    }
+    const text = lines.map((l) => l.trim()).filter(Boolean).join("\n");
+    if (!text) return;
+    const label = pop(text, "Dialog", COLOR.white, { wrap: 260 });
+    const box = new Container();
+    box.addChild(new Graphics().roundRect(-8, -6, label.textWidth + 16, label.textHeight + 12, 6).fill({ color: 0x1d3a12, alpha: 0.92 }), label);
+    box.position.set(ab.position[0], ab.position[1] - label.textHeight - 14);
+    this.autoTip = box;
+    this.addChild(box);
+  }
+
+  /**
+   * Нажатие на свободное место букета (exe 0x510950). Уровень 1: нужный цветок сам переносится из корзины (0x510b80).
+   * Уровень 2: то же, а если перенести не вышло (такого цветка нет) — букет заполняется всем, что есть (0x510da0).
+   */
+  private autoTap(oi: number, si: number) {
+    const ab = this.rules.auto_bouquet;
+    if (!ab) return;
+    const level = autoBouquetLevel(ab.thresholds, this.game.autoSold).level;
+    if (level <= 0) return;
+    if (this.autoMove(oi, si)) return this.afterAuto(oi);
+    if (level >= 2) {
+      const o = this.game.bouquets.orders[oi];
+      let moved = false;
+      o.items.forEach((_, i) => {
+        if (!o.placed[i] && this.autoMove(oi, i)) moved = true;
+      });
+      if (moved) this.afterAuto(oi);
+    }
+  }
+
+  /** Перенести нужный месту si цветок из корзины: склад − 1, цветок пропадает из корзины. */
+  private autoMove(oi: number, si: number) {
+    const o = this.game.bouquets.orders[oi];
+    const product = o?.items[si];
+    if (!product || o.placed[si] || (this.game.storage.get(product) ?? 0) <= 0) return false;
+    this.game.storage.set(product, (this.game.storage.get(product) ?? 0) - 1);
+    const idx = this.loose.findIndex((l) => l.product === product);
+    if (idx >= 0) this.loose.splice(idx, 1)[0].sprite.destroy();
+    o.placed[si] = product;
+    return true;
+  }
+
+  private afterAuto(oi: number) {
+    audio.play("flower_put_");
+    this.game.changed();
+    const o = this.game.bouquets.orders[oi];
+    if (o.placed.every(Boolean)) this.complete(oi, o);
     this.render();
   }
 
@@ -286,6 +393,12 @@ export class BouquetScreen extends Container {
           s.alpha = 0.4;
           s.tint = 0xcfe8ff;
           this.ghosts.push({ sprite: s, order: oi, slot: si });
+          // автосборка: нажатие на свободное место
+          s.eventMode = "static";
+          s.on("pointertap", (e) => {
+            e.stopPropagation();
+            this.autoTap(oi, si);
+          });
         }
         this.orders.addChild(s);
       });
@@ -298,6 +411,9 @@ export class BouquetScreen extends Container {
     const price = this.game.orderPrice(order);
     this.game.gold += price;
     this.game.bouquets.done += 1;
+    // автосборка: в счёт идут цветы проданного букета (exe 0x434078 — число цветов в нём)
+    this.game.autoSold += order.items.length;
+    this.renderAutoBar();
     // место освобождается, новый заказ встаёт на него (exe 0x434050)
     this.game.bouquets.orders[oi] = { items: [], placed: [] };
     this.game.fillOrders();
