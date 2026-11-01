@@ -46,8 +46,10 @@ export interface FarmState {
   /** Уровень колодца (exe поле фермы +0x7f0: 0 — нет, каждая покупка +1) и разрешена ли покупка (+0x82c, enable_buy_well). */
   wellLevel?: number;
   wellBuy?: boolean;
-  /** Уровень совы фермы (0 — нет). */
+  /** Уровень совы фермы (0 — нет); старые сохранения — теперь statues.owl. */
   owlLevel?: number;
+  /** Уровни статуй фермы по виду (сова, Нептун, алтарь, горн, часы), 0 — нет. */
+  statues?: Record<string, number>;
   storage: Record<string, number>;
   boughtRidges: number[];
   plants: (PlantSave | null)[];
@@ -171,8 +173,14 @@ export class Game {
   wellLevel = 0;
   /** Покупка и улучшение колодца разрешены (exe +0x82c, по умолчанию да; квест enable_buy_well). */
   wellBuy = true;
-  /** Уровень совы фермы: 0 — нет, покупка или квест add_owl — +1 (exe поле совы +0x24). */
-  owlLevel = 0;
+  /** Уровни статуй фермы по виду: 0 — нет, покупка или квест add_<вид> — +1 (у совы exe поле +0x24). */
+  statues: Record<string, number> = {};
+  get owlLevel() {
+    return this.statues.owl ?? 0;
+  }
+  set owlLevel(v: number) {
+    this.statues.owl = v;
+  }
   /** Собранные плоды по имени продукта. */
   storage = new Map<string, number>();
   boughtRidges: number[] = [];
@@ -230,7 +238,7 @@ export class Game {
     return {
       water: this.water, barrels: this.barrels, boxes: this.boxes, well: this.well, storage: Object.fromEntries(this.storage),
       boughtRidges: this.boughtRidges, plants, seeds: this.seeds, bouquets: this.bouquets,
-      dayCur: this.dayCur, dayNext: this.dayNext, wellLevel: this.wellLevel, wellBuy: this.wellBuy, owlLevel: this.owlLevel,
+      dayCur: this.dayCur, dayNext: this.dayNext, wellLevel: this.wellLevel, wellBuy: this.wellBuy, statues: { ...this.statues },
     };
   }
 
@@ -242,7 +250,7 @@ export class Game {
     // старые сохранения: колодец куплен — первый уровень
     this.wellLevel = f.wellLevel ?? (f.well ? 1 : 0);
     this.wellBuy = f.wellBuy ?? true;
-    this.owlLevel = f.owlLevel ?? 0;
+    this.statues = { ...(f.statues ?? {}), ...(f.owlLevel && !f.statues?.owl ? { owl: f.owlLevel } : {}) };
     this.storage = new Map(Object.entries(f.storage));
     this.boughtRidges = f.boughtRidges;
     this.savedPlants = f.plants;

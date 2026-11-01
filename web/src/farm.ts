@@ -11,13 +11,13 @@ import { LevelUp } from "./levelup";
 import { skillNotice, splash, WeatherFx } from "./notices";
 import { rgb } from "./popfont";
 import { family, RidgeView } from "./ridge";
-import { fmt, Place, Rules, StorageLevel } from "./rules";
+import { fmt, Place, rand, Rules, StorageLevel } from "./rules";
 import type { Game, PlantSave, Weather } from "./state";
 import { Reminder, Tutorial } from "./tutorial";
 import { QuestScreen } from "./questscreen";
 import type { WellDef } from "./rules";
 import { wellName, wellOffer } from "./well";
-import { Owl } from "./owl";
+import { Statue } from "./statue";
 import { COLOR, dialog, floatPoints, H, image, pop, roundButton, shopButton, type ShopButton, tex, textButton, toast, W } from "./ui";
 
 /** Шаги обучения, уже сдвинутые под перенесённые кнопки. */
@@ -29,6 +29,13 @@ type Mode = "shop" | "day";
  * Ёмкость с наполнением (бочка с водой, ящик с плодами), 0x40d110: картинка содержимого сдвигается вниз на
  * round((1 − доля) · progress_height) пикселей и показывается только там, где альфа маски непрозрачна.
  */
+/** Пузыри туториала у статуй (properties_ru.xml tutorial/<вид>/@baloon_pos). */
+const STATUE_BALLOONS: Record<string, [number, number]> = {
+  owl: [680, 200], neptun: [700, 400], altar: [200, 500], horn: [620, 500], clock: [720, 500],
+};
+/** Статуи, чей эффект сделан: алтарь и горн бросают призы (dropped_items), которых в порте ещё нет. */
+const STATUE_EFFECTS = new Set(["owl", "neptun", "clock"]);
+
 class Filled extends Container {
   private readonly fill: Sprite;
   private readonly cache = new Map<number, Texture>();
@@ -127,9 +134,12 @@ export class Farm extends Container {
   private readonly boxes: Filled[] = [];
   private readonly well: Sprite;
   private pail: Filled;
-  /** Мудрая сова (есть не на всех фермах) и её показанный уровень. */
-  private owl: Owl | null = null;
-  private owlShown = -1;
+  /** Статуи фермы по виду (сова, Нептун, алтарь, горн, часы) и показанные уровни. */
+  private statues: Statue[] = [];
+  private statueShown: Record<string, number> = {};
+  /** Часы: замедление вредителей (поле фермы +0x834, 1 — нет) и сколько ему ещё длиться, с. */
+  private slow = 1;
+  private slowLeft = 0;
   /** Картинки, из которых собрано текущее ведро (меняются с уровнем колодца). */
   private pailKey = "";
   private readonly startBtn: Container;
@@ -191,14 +201,14 @@ export class Farm extends Container {
     // где стоит ведро — game_screen/well_ctrl/<ведро> (exe 0x4146b0 берёт его по имени ведра), ставит placePail
     this.objects.addChild(this.well, this.pail);
 
-    // ---------------- мудрая сова (root/shop/location_N/owl): нажать, пока горят глаза, — опыт
-    if (rules.owl) {
-      const owl = new Owl(rules.owl);
-      owl.eventMode = "static";
-      owl.on("pointertap", () => this.tapOwl());
-      owl.on("pointerover", () => this.setBuyTarget("owl"));
-      this.owl = owl;
-      this.objects.addChild(owl);
+    // ---------------- статуи фермы (root/shop/location_N/<вид>): нажать, пока светится, — эффект вида
+    for (const [kind, def] of Object.entries(rules.statues ?? {})) {
+      const st = new Statue(kind, def);
+      st.eventMode = "static";
+      st.on("pointertap", () => this.tapStatue(st));
+      st.on("pointerover", () => this.setBuyTarget(kind));
+      this.statues.push(st);
+      this.objects.addChild(st);
     }
 
     // ---------------- часы дня (whether_time_ctrl) и круглые кнопки (start_day: 527; -110, to_town: 193; -110)
@@ -287,8 +297,11 @@ export class Farm extends Container {
       if (free && tut.show("new_ridge", free.position[0] + 24, free.position[1] + 4)) this.setBuyTarget(`ridge:${idx}`);
     }
     if (g.hasMark("shop_well") && !g.well && tut.show("well", 188, 480)) this.setBuyTarget("well");
-    // tutorial/owl: пузырь у совы (680; 200), пока её можно купить
-    if (g.owlLevel === 0 && this.owlCanBuy() && tut.show("owl", 680, 200)) this.setBuyTarget("owl");
+    // tutorial/<вид>: пузырь у статуи, пока её можно купить (baloon_pos из properties_ru.xml)
+    for (const st of this.statues) {
+      const at = STATUE_BALLOONS[st.kind];
+      if (at && !g.statues[st.kind] && this.statueCanBuy(st.kind) && tut.show(st.kind, ...at)) this.setBuyTarget(st.kind);
+    }
   }
 
   private async startDay() {
@@ -319,7 +332,9 @@ export class Farm extends Container {
     this.townBtn.visible = false;
     this.clearShop();
     this.syncWell();
-    // начало дня (0x411ba3): ведро полное, пауза сброшена
+    // начало дня (0x411ba3): ведро полное, пауза сброшена; замедление часов снимается (0x42f6b0)
+    this.slow = 1;
+    this.slowLeft = 0;
     this.wellCooldown = 0;
     this.wellProgress = this.wellDef().fill_time;
     this.pail.level = 1;
@@ -442,7 +457,7 @@ export class Farm extends Container {
     const name = this.arriver.tick(this.rules, dt, !this.bugs.some((b) => !b.dead), this.rules.weather[this.game.weather]?.bug_arrive ?? 1, this.game.quests.pestsKey ?? "");
     if (name && !this.game.quests.bugsOff?.includes(name)) this.spawnBug(name);
     for (const b of this.bugs) {
-      b.update(dt);
+      b.update(dt * this.slow); // часы замедляют вредителей
       // вредитель через 3 с после появления ставит в очередь подсказку «Это вредитель» (exe: таймер +0x3c = 3 в конструкторе Bug, 0x405a2c)
       if (b.hintIn > 0 && (b.hintIn -= dt) <= 0 && !b.dead) this.tutorial.show("bug", b.x, b.y - 40);
     }
@@ -450,8 +465,12 @@ export class Farm extends Container {
     this.helper?.update(dt, this.bugs, this.ridges, (r) => this.waterRidge(r, true), () => this.pathGrid(this.helper ?? undefined));
     this.sortObjects();
     this.updateWell(dt);
-    this.owl?.update(dt);
-    if (this.owl) this.owl.cursor = this.owl.active ? "pointer" : "default";
+    for (const st of this.statues) {
+      st.update(dt);
+      st.cursor = st.active ? "pointer" : "default";
+    }
+    // часы (0x5057d0): замедление держится max_activete_time секунд, потом снова 1
+    if (this.slowLeft > 0 && (this.slowLeft -= dt) <= 0) this.slow = 1;
     this.dayLeft -= dt;
     // стрелка часов проходит верхнюю половину циферблата за день
     this.pointer.rotation = CLOCK_ANGLE[0] - (CLOCK_ANGLE[1] - CLOCK_ANGLE[0]) * (1 - Math.max(0, this.dayLeft) / this.game.dayCur);
@@ -779,7 +798,7 @@ export class Farm extends Container {
     if (this.barrels.length) spread(this.barrels, this.game.waterMax ? this.game.water / this.game.waterMax : 0);
     if (this.boxes.length) spread(this.boxes, this.game.storageMax ? this.game.storageCount() / this.game.storageMax : 0);
     this.syncWell();
-    this.syncOwl();
+    this.syncStatues();
     this.sortObjects();
   }
 
@@ -982,15 +1001,16 @@ export class Farm extends Container {
         },
       });
     }
-    const owlLv = this.rules.owl?.levels[g.owlLevel];
-    const owlAt = this.rules.shop_positions.owl;
-    if (owlLv && owlAt && this.owlCanBuy()) {
-      const cost = g.buyPrice(owlLv.price);
+    for (const st of this.statues) {
+      const lv = this.rules.statues?.[st.kind]?.levels[g.statues[st.kind] ?? 0];
+      const at = this.rules.shop_positions[st.kind];
+      if (!lv || !at || !this.statueCanBuy(st.kind)) continue;
+      const cost = g.buyPrice(lv.price);
       buyables.push({
-        key: "owl",
-        at: [owlAt[0] + 50, owlAt[1] + 30],
+        key: st.kind,
+        at: [at[0] + 50, at[1] + 30],
         button: () => {
-          const b = shopButton("small", price(cost), (t.buttons.buy_owl ?? "Улучшить").trim(), () => this.buyOwl());
+          const b = shopButton("small", price(cost), (t.buttons[`buy_${st.kind}`] ?? "Улучшить").trim(), () => this.buyStatue(st.kind));
           b.setEnabled(g.gold >= cost);
           return b;
         },
@@ -1108,51 +1128,73 @@ export class Farm extends Container {
     this.afterPurchase();
   }
 
-  /** Сову можно купить или улучшить (exe 0x4fe0c0): уровень меньше числа уровней и есть метка shop_owl_<уровень+1>. */
-  private owlCanBuy() {
-    const levels = this.rules.owl?.levels.length ?? 0;
-    return this.game.owlLevel < levels && this.game.hasMark(`shop_owl_${this.game.owlLevel + 1}`);
-  }
-
   /**
-   * Сова видна, когда куплена; пока её можно купить — между днями полупрозрачна (exe 0x4fe260: видна, если уровень > 0
-   * или её можно купить).
+   * Статую можно купить или улучшить (exe 0x4fe0c0): уровень меньше числа уровней и есть метка shop_<вид>_<уровень+1>
+   * (сова — по дню, остальные — квест add_<вид> вместе с метками). Алтарь и горн бросают призы (dropped_items), их в
+   * порте ещё нет, — эти статуи пока не продаются.
    */
-  private syncOwl() {
-    const owl = this.owl;
-    if (!owl) return;
-    const level = this.game.owlLevel;
-    if (level > 0) {
-      if (this.owlShown !== level) owl.setLevel(level);
-      this.owlShown = level;
-      owl.visible = true;
-      owl.alpha = 1;
-      return;
+  private statueCanBuy(kind: string) {
+    if (!STATUE_EFFECTS.has(kind)) return false;
+    const levels = this.rules.statues?.[kind]?.levels.length ?? 0;
+    const level = this.game.statues[kind] ?? 0;
+    return level < levels && this.game.hasMark(`shop_${kind}_${level + 1}`);
+  }
+
+  /** Статуя видна, когда куплена; пока её можно купить — между днями полупрозрачна (exe 0x4fe260). */
+  private syncStatues() {
+    for (const st of this.statues) {
+      const level = this.game.statues[st.kind] ?? 0;
+      if (level > 0) {
+        if (this.statueShown[st.kind] !== level) st.setLevel(level);
+        this.statueShown[st.kind] = level;
+        st.visible = true;
+        st.alpha = 1;
+        continue;
+      }
+      this.statueShown[st.kind] = 0;
+      st.visible = this.mode === "shop" && this.statueCanBuy(st.kind);
+      st.alpha = 0.5;
+      if (st.visible) st.showGhost(1);
     }
-    this.owlShown = 0;
-    owl.visible = this.mode === "shop" && this.owlCanBuy();
-    owl.alpha = 0.5;
-    if (owl.visible) owl.showGhost(1);
   }
 
-  private tapOwl() {
-    if (!this.owl || this.mode !== "day" || this.paused || this.game.owlLevel === 0) return;
-    const exp = this.owl.tap();
-    if (exp <= 0) return;
-    // «+N Опыт» (root/events/@dropped_item_exp)
-    this.gainExp(exp, this.owl.x + (this.rules.owl?.dimensions[0] ?? 0) / 2, this.owl.y + 20,
-      fmt(this.rules.texts.events?.dropped_item_exp ?? "+%value% Опыт", { value: exp }));
+  /** Нажатие на светящуюся статую — эффект вида (exe: виртуальный метод +0x20). */
+  private tapStatue(st: Statue) {
+    if (this.mode !== "day" || this.paused || !(this.game.statues[st.kind] ?? 0)) return;
+    if (!st.tap()) return;
+    const p = st.level!.params;
+    const num = (k: string) => Number(p[k] ?? 0);
+    const cx = st.x + (this.rules.statues?.[st.kind]?.dimensions[0] ?? 0) / 2;
+    if (st.kind === "owl") {
+      // опыт (0x569750) = ⌊exp · остаток / длина активности⌋ + 1, «+N Опыт» (root/events/@dropped_item_exp)
+      const exp = Math.trunc(num("exp") * st.leftAtTap) + 1;
+      this.gainExp(exp, cx, st.y + 20, fmt(this.rules.texts.events?.dropped_item_exp ?? "+%value% Опыт", { value: exp }));
+    } else if (st.kind === "neptun") {
+      // Нептун (0x503b00): урон rand(min_damage..max_damage) каждому вредителю, но не насмерть — жизнь не ниже 0.1.
+      // prize_k прибавляется к множителю приза вредителя (+0x100) — призов в порте пока нет
+      const dmg = rand(num("min_damage"), num("max_damage"));
+      if (dmg <= 0) return;
+      for (const b of this.bugs) {
+        if (b.dead || b.life <= 0.1) continue;
+        b.hit(dmg < b.life ? dmg : b.life - 0.1);
+      }
+    } else if (st.kind === "clock") {
+      // часы (0x505730): все вредители фермы замедляются в slow_k раз на max_activete_time секунд (0x5057d0);
+      // замедляются их анимации и укусы (0x40f4c8, 0x58e8d0), день идёт как обычно
+      this.slow = num("slow_k") || 1;
+      this.slowLeft = num("max_activete_time");
+    }
   }
 
-  private buyOwl() {
-    const lv = this.rules.owl?.levels[this.game.owlLevel];
-    if (!lv || !this.owlCanBuy()) return;
+  private buyStatue(kind: string) {
+    const lv = this.rules.statues?.[kind]?.levels[this.game.statues[kind] ?? 0];
+    if (!lv || !this.statueCanBuy(kind)) return;
     const price = this.game.buyPrice(lv.price);
     if (this.game.gold < price) return this.notEnough();
     this.game.gold -= price;
-    this.game.owlLevel += 1;
+    this.game.statues[kind] = (this.game.statues[kind] ?? 0) + 1;
     audio.play("well_buy");
-    this.syncOwl();
+    this.syncStatues();
     this.renderStorages();
     this.afterPurchase();
   }

@@ -83,6 +83,7 @@ export interface StoredState {
   well: boolean;
   wellLevel: number;
   owlLevel?: number;
+  statues?: Record<string, number>;
   boughtRidges: number[];
   world: { towns: Record<string, boolean>; farms: Record<string, boolean> };
 }
@@ -213,7 +214,7 @@ export class QuestEngine {
           break;
         case "store_state":
           st.stored = {
-            gold: g.gold, water: g.water, barrels: g.barrels, boxes: g.boxes, well: g.well, wellLevel: g.wellLevel, owlLevel: g.owlLevel,
+            gold: g.gold, water: g.water, barrels: g.barrels, boxes: g.boxes, well: g.well, wellLevel: g.wellLevel, statues: { ...g.statues },
             boughtRidges: [...g.boughtRidges], world: structuredClone(g.world),
           };
           break;
@@ -221,7 +222,8 @@ export class QuestEngine {
           if (st.stored) {
             const v = st.stored;
             Object.assign(g, { gold: v.gold, water: v.water, barrels: v.barrels, boxes: v.boxes, well: v.well, wellLevel: v.wellLevel ?? (v.well ? 1 : 0) });
-            if (v.owlLevel !== undefined) g.owlLevel = v.owlLevel;
+            if (v.statues) g.statues = { ...v.statues };
+            else if (v.owlLevel !== undefined) g.owlLevel = v.owlLevel;
             g.boughtRidges = [...v.boughtRidges];
             g.world = structuredClone(v.world);
           }
@@ -256,11 +258,17 @@ export class QuestEngine {
         case "add_weapon":
           if (!g.weapons.includes(a.name)) g.weapons.push(a.name);
           break;
-        // exe 0x433670: если сова не последнего уровня — бесплатно на уровень выше
+        // exe 0x433670 (сова), 0x43375c (Нептун)…: если статуя не последнего уровня — бесплатно на уровень выше
         case "add_owl":
-          g.owl = true;
-          g.owlLevel = Math.min(g.rules.owl?.levels.length ?? 3, g.owlLevel + 1);
+        case "add_neptun":
+        case "add_altar":
+        case "add_horn":
+        case "add_clock": {
+          const kind = a.type.slice(4);
+          if (kind === "owl") g.owl = true;
+          g.statues[kind] = Math.min(g.rules.statues?.[kind]?.levels.length ?? 3, (g.statues[kind] ?? 0) + 1);
           break;
+        }
         // медали дракона — для комнаты трофеев (exe 0x481307, 0x481400); комнаты пока нет, счётчик копится
         case "add_dragon_medal1":
         case "add_dragon_medal2":

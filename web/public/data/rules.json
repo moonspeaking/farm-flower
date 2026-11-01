@@ -2323,7 +2323,7 @@
   "pail_3": "well_pail_03"
  },
  "well_items": {
-  "well_00": {
+  "well_03": {
    "position": [
     140.0,
     420.0
@@ -2350,16 +2350,16 @@
      0.0
     ]
    },
-   "delay": 25.0,
-   "fill_time": 4.0,
-   "water_capacity": 2.0,
-   "price": 150.0,
+   "delay": 20.0,
+   "fill_time": 8.0,
+   "water_capacity": 8.0,
+   "price": 250.0,
    "pail_height": 17.0,
-   "image": "wellimg_well_00",
+   "image": "wellimg_well_03",
    "pail_images": [
-    "pail_well_pail_00",
-    "pailw_well_pail_00",
-    "pailm_well_pail_00"
+    "pail_well_pail_03",
+    "pailw_well_pail_03",
+    "pailm_well_pail_03"
    ],
    "pail_pos": [
     240.0,
@@ -2409,49 +2409,6 @@
     440.0
    ]
   },
-  "well_03": {
-   "position": [
-    140.0,
-    420.0
-   ],
-   "dimensions": [
-    110.0,
-    120.0
-   ],
-   "image_offset": [
-    -70.0,
-    -100.0
-   ],
-   "pail": {
-    "position": [
-     250.0,
-     470.0
-    ],
-    "dimensions": [
-     41.0,
-     30.0
-    ],
-    "image_offset": [
-     0.0,
-     0.0
-    ]
-   },
-   "delay": 20.0,
-   "fill_time": 8.0,
-   "water_capacity": 8.0,
-   "price": 250.0,
-   "pail_height": 17.0,
-   "image": "wellimg_well_03",
-   "pail_images": [
-    "pail_well_pail_03",
-    "pailw_well_pail_03",
-    "pailm_well_pail_03"
-   ],
-   "pail_pos": [
-    240.0,
-    440.0
-   ]
-  },
   "well_01": {
    "position": [
     140.0,
@@ -2487,6 +2444,49 @@
    "image": "",
    "pail_images": [],
    "pail_pos": null
+  },
+  "well_00": {
+   "position": [
+    140.0,
+    420.0
+   ],
+   "dimensions": [
+    110.0,
+    120.0
+   ],
+   "image_offset": [
+    -70.0,
+    -100.0
+   ],
+   "pail": {
+    "position": [
+     250.0,
+     470.0
+    ],
+    "dimensions": [
+     41.0,
+     30.0
+    ],
+    "image_offset": [
+     0.0,
+     0.0
+    ]
+   },
+   "delay": 25.0,
+   "fill_time": 4.0,
+   "water_capacity": 2.0,
+   "price": 150.0,
+   "pail_height": 17.0,
+   "image": "wellimg_well_00",
+   "pail_images": [
+    "pail_well_pail_00",
+    "pailw_well_pail_00",
+    "pailm_well_pail_00"
+   ],
+   "pail_pos": [
+    240.0,
+    440.0
+   ]
   }
  },
  "prices": {
@@ -6650,83 +6650,94 @@
    ]
   }
  },
- "owl": {
-  "position": [
-   620.0,
-   90.0
-  ],
-  "dimensions": [
-   170.0,
-   174.0
-  ],
-  "levels": [
-   {
-    "exp": 10,
-    "price": 0,
-    "stand": [
-     5.0,
-     10.0
-    ],
-    "active": [
-     4.0,
-     4.0
-    ],
-    "offset": [
-     0.0,
-     0.0
-    ],
-    "images": {
-     "action": "owl_1_action",
-     "active": "owl_1_active",
-     "stand": "owl_1_stand"
+ "statues": {
+  "owl": {
+   "position": [
+    620.0,
+    90.0
+   ],
+   "dimensions": [
+    170.0,
+    174.0
+   ],
+   "levels": [
+    {
+     "price": 0,
+     "stand": [
+      5.0,
+      10.0
+     ],
+     "active": [
+      4.0,
+      4.0
+     ],
+     "offset": [
+      0.0,
+      0.0
+     ],
+     "images": {
+      "action": "owl_1_action",
+      "active": "owl_1_active",
+      "stand": "owl_1_stand"
+     },
+     "action_time": 1.0,
+     "params": {
+      "exp": 10.0,
+      "part_pos": "0; 0"
+     }
     },
-    "action_time": 1.0
-   },
-   {
-    "exp": 15,
-    "price": 100,
-    "stand": [
-     5.0,
-     12.0
-    ],
-    "active": [
-     5.0,
-     5.0
-    ],
-    "offset": [
-     0.0,
-     0.0
-    ],
-    "images": {
-     "action": "owl_2_action",
-     "active": "owl_2_active",
-     "stand": "owl_2_stand"
+    {
+     "price": 100,
+     "stand": [
+      5.0,
+      12.0
+     ],
+     "active": [
+      5.0,
+      5.0
+     ],
+     "offset": [
+      0.0,
+      0.0
+     ],
+     "images": {
+      "action": "owl_2_action",
+      "active": "owl_2_active",
+      "stand": "owl_2_stand"
+     },
+     "action_time": 1.0,
+     "params": {
+      "exp": 15.0,
+      "part_pos": "0; 0"
+     }
     },
-    "action_time": 1.0
-   },
-   {
-    "exp": 20,
-    "price": 200,
-    "stand": [
-     8.0,
-     15.0
-    ],
-    "active": [
-     6.0,
-     6.0
-    ],
-    "offset": [
-     0.0,
-     0.0
-    ],
-    "images": {
-     "action": "owl_3_action",
-     "active": "owl_3_active",
-     "stand": "owl_3_stand"
-    },
-    "action_time": 1.0
-   }
-  ]
+    {
+     "price": 200,
+     "stand": [
+      8.0,
+      15.0
+     ],
+     "active": [
+      6.0,
+      6.0
+     ],
+     "offset": [
+      0.0,
+      0.0
+     ],
+     "images": {
+      "action": "owl_3_action",
+      "active": "owl_3_active",
+      "stand": "owl_3_stand"
+     },
+     "action_time": 1.0,
+     "params": {
+      "exp": 20.0,
+      "part_pos": "0; 0"
+     }
+    }
+   ]
+  }
  },
  "bugs": {
   "ladybird": {
@@ -9509,49 +9520,6 @@
     "pail_3": "well_pail_22"
    },
    "well_items": {
-    "well_2": {
-     "position": [
-      570.0,
-      200.0
-     ],
-     "dimensions": [
-      160.0,
-      130.0
-     ],
-     "image_offset": [
-      -49.0,
-      -49.0
-     ],
-     "pail": {
-      "position": [
-       570.0,
-       200.0
-      ],
-      "dimensions": [
-       130.0,
-       130.0
-      ],
-      "image_offset": [
-       -49.0,
-       -49.0
-      ]
-     },
-     "delay": 5.0,
-     "fill_time": 40.0,
-     "water_capacity": 4.0,
-     "price": 750.0,
-     "pail_height": 17.0,
-     "image": "",
-     "pail_images": [
-      "pail_well_pail_2",
-      "pailw_well_pail_2",
-      "pailm_well_pail_2"
-     ],
-     "pail_pos": [
-      490.0,
-      150.0
-     ]
-    },
     "well_21": {
      "position": [
       570.0,
@@ -9632,6 +9600,49 @@
       "pail_well_pail_22",
       "pailw_well_pail_22",
       "pailm_well_pail_22"
+     ],
+     "pail_pos": [
+      490.0,
+      150.0
+     ]
+    },
+    "well_2": {
+     "position": [
+      570.0,
+      200.0
+     ],
+     "dimensions": [
+      160.0,
+      130.0
+     ],
+     "image_offset": [
+      -49.0,
+      -49.0
+     ],
+     "pail": {
+      "position": [
+       570.0,
+       200.0
+      ],
+      "dimensions": [
+       130.0,
+       130.0
+      ],
+      "image_offset": [
+       -49.0,
+       -49.0
+      ]
+     },
+     "delay": 5.0,
+     "fill_time": 40.0,
+     "water_capacity": 4.0,
+     "price": 750.0,
+     "pail_height": 17.0,
+     "image": "",
+     "pail_images": [
+      "pail_well_pail_2",
+      "pailw_well_pail_2",
+      "pailm_well_pail_2"
      ],
      "pail_pos": [
       490.0,
@@ -11373,7 +11384,98 @@
      }
     ]
    },
-   "owl": null,
+   "statues": {
+    "neptun": {
+     "position": [
+      650.0,
+      350.0
+     ],
+     "dimensions": [
+      121.0,
+      200.0
+     ],
+     "levels": [
+      {
+       "price": 0,
+       "stand": [
+        15.0,
+        20.0
+       ],
+       "active": [
+        100.0,
+        100.0
+       ],
+       "offset": [
+        0.0,
+        0.0
+       ],
+       "images": {
+        "action": "neptun_1_action",
+        "active": "neptun_1_active",
+        "stand": "neptun_1_stand"
+       },
+       "action_time": 1.0,
+       "params": {
+        "max_damage": 10.0,
+        "min_damage": 5.0,
+        "prize_k": 1.0
+       }
+      },
+      {
+       "price": 300,
+       "stand": [
+        20.0,
+        25.0
+       ],
+       "active": [
+        100.0,
+        100.0
+       ],
+       "offset": [
+        0.0,
+        0.0
+       ],
+       "images": {
+        "action": "neptun_2_action",
+        "active": "neptun_2_active",
+        "stand": "neptun_2_stand"
+       },
+       "action_time": 1.0,
+       "params": {
+        "max_damage": 20.0,
+        "min_damage": 10.0,
+        "prize_k": 1.0
+       }
+      },
+      {
+       "price": 600,
+       "stand": [
+        20.0,
+        30.0
+       ],
+       "active": [
+        100.0,
+        100.0
+       ],
+       "offset": [
+        0.0,
+        0.0
+       ],
+       "images": {
+        "action": "neptun_3_action",
+        "active": "neptun_3_active",
+        "stand": "neptun_3_stand"
+       },
+       "action_time": 1.0,
+       "params": {
+        "max_damage": 30.0,
+        "min_damage": 15.0,
+        "prize_k": 1.0
+       }
+      }
+     ]
+    }
+   },
    "obstacles": [
     {
      "position": [
@@ -15100,49 +15202,6 @@
     "pail_3": "well_pail_32"
    },
    "well_items": {
-    "well_3": {
-     "position": [
-      342.0,
-      0.0
-     ],
-     "dimensions": [
-      155.0,
-      180.0
-     ],
-     "image_offset": [
-      0.0,
-      0.0
-     ],
-     "pail": {
-      "position": [
-       342.0,
-       0.0
-      ],
-      "dimensions": [
-       155.0,
-       180.0
-      ],
-      "image_offset": [
-       0.0,
-       0.0
-      ]
-     },
-     "delay": 14.0,
-     "fill_time": 1.0,
-     "water_capacity": 1.0,
-     "price": 75.0,
-     "pail_height": 17.0,
-     "image": "",
-     "pail_images": [
-      "pail_well_pail_3",
-      "pailw_well_pail_3",
-      "pailm_well_pail_3"
-     ],
-     "pail_pos": [
-      342.0,
-      0.0
-     ]
-    },
     "well_32": {
      "position": [
       342.0,
@@ -15180,6 +15239,49 @@
       "pail_well_pail_32",
       "pailw_well_pail_32",
       "pailm_well_pail_32"
+     ],
+     "pail_pos": [
+      342.0,
+      0.0
+     ]
+    },
+    "well_3": {
+     "position": [
+      342.0,
+      0.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       342.0,
+       0.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 14.0,
+     "fill_time": 1.0,
+     "water_capacity": 1.0,
+     "price": 75.0,
+     "pail_height": 17.0,
+     "image": "",
+     "pail_images": [
+      "pail_well_pail_3",
+      "pailw_well_pail_3",
+      "pailm_well_pail_3"
      ],
      "pail_pos": [
       342.0,
@@ -17084,7 +17186,98 @@
      }
     ]
    },
-   "owl": null,
+   "statues": {
+    "altar": {
+     "position": [
+      120.0,
+      450.0
+     ],
+     "dimensions": [
+      121.0,
+      143.0
+     ],
+     "levels": [
+      {
+       "price": 0,
+       "stand": [
+        10.0,
+        20.0
+       ],
+       "active": [
+        4.0,
+        4.0
+       ],
+       "offset": [
+        0.0,
+        0.0
+       ],
+       "images": {
+        "action": "altar_1_action",
+        "active": "altar_1_active",
+        "stand": "altar_1_stand"
+       },
+       "action_time": 1.0,
+       "params": {
+        "drop_offset": "45; 20",
+        "items": "exp_base_1;gold_base_1;water_base_1",
+        "position": "140; 500"
+       }
+      },
+      {
+       "price": 50,
+       "stand": [
+        8.0,
+        15.0
+       ],
+       "active": [
+        6.0,
+        6.0
+       ],
+       "offset": [
+        0.0,
+        0.0
+       ],
+       "images": {
+        "action": "altar_2_action",
+        "active": "altar_2_active",
+        "stand": "altar_2_stand"
+       },
+       "action_time": 1.0,
+       "params": {
+        "drop_offset": "45; 20",
+        "items": "exp_base_2;gold_base_2;water_base_2;exp_loc_3;water_loc_3;gold_loc_3",
+        "position": "140; 500"
+       }
+      },
+      {
+       "price": 75,
+       "stand": [
+        10.0,
+        15.0
+       ],
+       "active": [
+        8.0,
+        8.0
+       ],
+       "offset": [
+        0.0,
+        0.0
+       ],
+       "images": {
+        "action": "altar_3_action",
+        "active": "altar_3_active",
+        "stand": "altar_3_stand"
+       },
+       "action_time": 1.0,
+       "params": {
+        "drop_offset": "45; 20",
+        "items": "exp_base_3;gold_base_3;water_base_3;exp_loc_3;water_loc_3;gold_loc_3",
+        "position": "140; 500"
+       }
+      }
+     ]
+    }
+   },
    "obstacles": [
     {
      "position": [
@@ -20806,6 +20999,49 @@
     "pail_3": "well_pail_42"
    },
    "well_items": {
+    "well_41": {
+     "position": [
+      632.0,
+      100.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       632.0,
+       100.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 22.0,
+     "fill_time": 4.0,
+     "water_capacity": 4.0,
+     "price": 900.0,
+     "pail_height": 17.0,
+     "image": "",
+     "pail_images": [
+      "pail_well_pail_41",
+      "pailw_well_pail_41",
+      "pailm_well_pail_41"
+     ],
+     "pail_pos": [
+      631.0,
+      153.0
+     ]
+    },
     "well_42": {
      "position": [
       632.0,
@@ -20886,49 +21122,6 @@
       "pail_well_pail_4",
       "pailw_well_pail_4",
       "pailm_well_pail_4"
-     ],
-     "pail_pos": [
-      631.0,
-      153.0
-     ]
-    },
-    "well_41": {
-     "position": [
-      632.0,
-      100.0
-     ],
-     "dimensions": [
-      155.0,
-      180.0
-     ],
-     "image_offset": [
-      0.0,
-      0.0
-     ],
-     "pail": {
-      "position": [
-       632.0,
-       100.0
-      ],
-      "dimensions": [
-       155.0,
-       180.0
-      ],
-      "image_offset": [
-       0.0,
-       0.0
-      ]
-     },
-     "delay": 22.0,
-     "fill_time": 4.0,
-     "water_capacity": 4.0,
-     "price": 900.0,
-     "pail_height": 17.0,
-     "image": "",
-     "pail_images": [
-      "pail_well_pail_41",
-      "pailw_well_pail_41",
-      "pailm_well_pail_41"
      ],
      "pail_pos": [
       631.0,
@@ -23762,7 +23955,101 @@
      }
     ]
    },
-   "owl": null,
+   "statues": {
+    "horn": {
+     "position": [
+      579.0,
+      457.0
+     ],
+     "dimensions": [
+      224.0,
+      143.0
+     ],
+     "levels": [
+      {
+       "price": 0,
+       "stand": [
+        5.0,
+        10.0
+       ],
+       "active": [
+        100.0,
+        100.0
+       ],
+       "offset": [
+        0.0,
+        0.0
+       ],
+       "images": {
+        "action": "horn_1_action",
+        "active": "horn_1_active",
+        "stand": "horn_1_stand"
+       },
+       "action_time": 1.0,
+       "params": {
+        "bugs": "snail!@1*3$2;pchela!@1*3$2;ladybird!@1*3$2",
+        "max_bugs": 5.0,
+        "min_bugs": 5.0,
+        "prize_k": 1.0
+       }
+      },
+      {
+       "price": 500,
+       "stand": [
+        5.0,
+        10.0
+       ],
+       "active": [
+        100.0,
+        100.0
+       ],
+       "offset": [
+        0.0,
+        0.0
+       ],
+       "images": {
+        "action": "horn_2_action",
+        "active": "horn_2_active",
+        "stand": "horn_2_stand"
+       },
+       "action_time": 1.0,
+       "params": {
+        "bugs": "snail!@1*3$3;pchela!@1*3$3;gusenica!@1*2$3;kloun!@1*2$3;krab!@1*2$3",
+        "max_bugs": 5.0,
+        "min_bugs": 5.0,
+        "prize_k": 1.0
+       }
+      },
+      {
+       "price": 750,
+       "stand": [
+        5.0,
+        10.0
+       ],
+       "active": [
+        100.0,
+        100.0
+       ],
+       "offset": [
+        0.0,
+        0.0
+       ],
+       "images": {
+        "action": "horn_3_action",
+        "active": "horn_3_active",
+        "stand": "horn_3_stand"
+       },
+       "action_time": 1.0,
+       "params": {
+        "bugs": "gusenica!@1*2$4;kloun!@1*2$4;krab!@1*2$4;bug!@1*2$4;parrot!@1*2$4",
+        "max_bugs": 5.0,
+        "min_bugs": 5.0,
+        "prize_k": 1.0
+       }
+      }
+     ]
+    }
+   },
    "obstacles": [
     {
      "position": [
@@ -28702,49 +28989,6 @@
     "pail_3": "well_pail_52"
    },
    "well_items": {
-    "well_51": {
-     "position": [
-      98.0,
-      391.0
-     ],
-     "dimensions": [
-      155.0,
-      180.0
-     ],
-     "image_offset": [
-      0.0,
-      0.0
-     ],
-     "pail": {
-      "position": [
-       98.0,
-       391.0
-      ],
-      "dimensions": [
-       155.0,
-       180.0
-      ],
-      "image_offset": [
-       0.0,
-       0.0
-      ]
-     },
-     "delay": 20.0,
-     "fill_time": 3.0,
-     "water_capacity": 3.0,
-     "price": 225.0,
-     "pail_height": 17.0,
-     "image": "",
-     "pail_images": [
-      "pail_well_pail_51",
-      "pailw_well_pail_51",
-      "pailm_well_pail_51"
-     ],
-     "pail_pos": [
-      98.0,
-      391.0
-     ]
-    },
     "well_5": {
      "position": [
       98.0,
@@ -28782,6 +29026,49 @@
       "pail_well_pail_5",
       "pailw_well_pail_5",
       "pailm_well_pail_5"
+     ],
+     "pail_pos": [
+      98.0,
+      391.0
+     ]
+    },
+    "well_51": {
+     "position": [
+      98.0,
+      391.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       98.0,
+       391.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 20.0,
+     "fill_time": 3.0,
+     "water_capacity": 3.0,
+     "price": 225.0,
+     "pail_height": 17.0,
+     "image": "",
+     "pail_images": [
+      "pail_well_pail_51",
+      "pailw_well_pail_51",
+      "pailm_well_pail_51"
      ],
      "pail_pos": [
       98.0,
@@ -31089,7 +31376,76 @@
      }
     ]
    },
-   "owl": null,
+   "statues": {
+    "clock": {
+     "position": [
+      660.0,
+      450.0
+     ],
+     "dimensions": [
+      121.0,
+      143.0
+     ],
+     "levels": [
+      {
+       "price": 200,
+       "stand": [
+        15.0,
+        20.0
+       ],
+       "active": [
+        100.0,
+        100.0
+       ],
+       "offset": [
+        0.0,
+        0.0
+       ],
+       "images": {
+        "action": "clock_1_action",
+        "active": "clock_1_active",
+        "stand": "clock_1_stand"
+       },
+       "action_time": 1.0,
+       "params": {
+        "max_activete_time": 5.0,
+        "max_damage": 10.0,
+        "min_damage": 5.0,
+        "prize_k": 1.0,
+        "slow_k": 0.5
+       }
+      },
+      {
+       "price": 500,
+       "stand": [
+        20.0,
+        25.0
+       ],
+       "active": [
+        100.0,
+        100.0
+       ],
+       "offset": [
+        0.0,
+        0.0
+       ],
+       "images": {
+        "action": "clock_2_action",
+        "active": "clock_2_active",
+        "stand": "clock_2_stand"
+       },
+       "action_time": 1.0,
+       "params": {
+        "max_activete_time": 15.0,
+        "max_damage": 20.0,
+        "min_damage": 10.0,
+        "prize_k": 1.0,
+        "slow_k": 0.3
+       }
+      }
+     ]
+    }
+   },
    "obstacles": [
     {
      "position": [
@@ -34035,6 +34391,15 @@
   "shop_well": 10
  },
  "images": [
+  "altar_1_action",
+  "altar_1_active",
+  "altar_1_stand",
+  "altar_2_action",
+  "altar_2_active",
+  "altar_2_stand",
+  "altar_3_action",
+  "altar_3_active",
+  "altar_3_stand",
   "barrel",
   "barrel_mask",
   "barrel_water",
@@ -34431,6 +34796,12 @@
   "cactus_1",
   "cactus_2",
   "cactus_3",
+  "clock_1_action",
+  "clock_1_active",
+  "clock_1_stand",
+  "clock_2_action",
+  "clock_2_active",
+  "clock_2_stand",
   "clock_back",
   "clock_fore",
   "clock_pointer",
@@ -34485,6 +34856,15 @@
   "holder_shaman",
   "holder_trademan",
   "holder_traveller",
+  "horn_1_action",
+  "horn_1_active",
+  "horn_1_stand",
+  "horn_2_action",
+  "horn_2_active",
+  "horn_2_stand",
+  "horn_3_action",
+  "horn_3_active",
+  "horn_3_stand",
   "ice",
   "ice_2",
   "ice_3",
@@ -34603,6 +34983,15 @@
   "need_snail_shell",
   "need_talk",
   "need_tiger_3",
+  "neptun_1_action",
+  "neptun_1_active",
+  "neptun_1_stand",
+  "neptun_2_action",
+  "neptun_2_active",
+  "neptun_2_stand",
+  "neptun_3_action",
+  "neptun_3_active",
+  "neptun_3_stand",
   "new_user_bg",
   "nopal_1",
   "nopal_2",
@@ -34794,6 +35183,15 @@
   "wellimg_well_03"
  ],
  "core_images": [
+  "altar_1_action",
+  "altar_1_active",
+  "altar_1_stand",
+  "altar_2_action",
+  "altar_2_active",
+  "altar_2_stand",
+  "altar_3_action",
+  "altar_3_active",
+  "altar_3_stand",
   "barrel",
   "barrel_mask",
   "barrel_water",
@@ -34859,6 +35257,12 @@
   "cactus_1",
   "cactus_2",
   "cactus_3",
+  "clock_1_action",
+  "clock_1_active",
+  "clock_1_stand",
+  "clock_2_action",
+  "clock_2_active",
+  "clock_2_stand",
   "clock_back",
   "clock_fore",
   "clock_pointer",
@@ -34895,6 +35299,15 @@
   "helper_pour_icon",
   "helper_product_icon",
   "highscores_bg",
+  "horn_1_action",
+  "horn_1_active",
+  "horn_1_stand",
+  "horn_2_action",
+  "horn_2_active",
+  "horn_2_stand",
+  "horn_3_action",
+  "horn_3_active",
+  "horn_3_stand",
   "ice",
   "ice_2",
   "ice_3",
@@ -35006,6 +35419,15 @@
   "need_snail_shell",
   "need_talk",
   "need_tiger_3",
+  "neptun_1_action",
+  "neptun_1_active",
+  "neptun_1_stand",
+  "neptun_2_action",
+  "neptun_2_active",
+  "neptun_2_stand",
+  "neptun_3_action",
+  "neptun_3_active",
+  "neptun_3_stand",
   "new_user_bg",
   "nopal_1",
   "nopal_2",

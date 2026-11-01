@@ -455,27 +455,39 @@ def wave_group(g, known):
     return {"bugs": [x["name"] for x in specs if x["mode"] != "hardcore"], "specs": specs, "delay": float(g.attrib["delay"])}
 
 
-def farm_owl(props, n):
-    """Сова фермы (root/shop/location_N/owl, exe: загрузка 0x4ff3b0, смена состояний 0x5002f0): место, уровни —
-    опыт, цена, время покоя и активности (min..max), картинки stand / active / action."""
+STATUES = ("owl", "neptun", "altar", "horn", "clock")
+
+
+def farm_statues(props, n):
+    """Статуи фермы (root/shop/location_N/<owl|neptun|altar|horn|clock>): место и уровни. Общее у всех (exe 0x4fa680,
+    сова — 0x4ff3b0): цена, время покоя и активности (min..max), картинки stand / active / action; остальное — параметры
+    эффекта (exp у совы, min/max_damage у Нептуна, slow_k и max_activete_time у часов, items у алтаря, bugs у горна)."""
     loc = props.find(f"shop/location_{n}")
-    owl = loc.find("owl") if loc is not None else None
-    lv = owl.find("levels") if owl is not None else None
-    if lv is None or int(lv.attrib.get("count", 0)) == 0:
-        return None
-    levels = []
-    for i in range(1, int(lv.attrib["count"]) + 1):
-        a = lv.find(f"level_{i}").attrib
-        anims = lv.find(f"level_{i}/animations")
-        levels.append({
-            "exp": int(a["exp"]), "price": int(a["price"]),
-            "stand": [float(a["min_stand_time"]), float(a["max_stand_time"])],
-            "active": [float(a["min_active_time"]), float(a["max_active_time"])],
-            "offset": vec(a.get("image_offset", "0;0")),
-            "images": {an.tag: an.attrib["anim_image"].rsplit("/", 1)[-1] for an in anims},
-            "action_time": float(anims.find("action").attrib.get("play_time", 1)),
-        })
-    return {"position": vec(owl.attrib["position"]), "dimensions": vec(owl.attrib["dimensions"]), "levels": levels}
+    out = {}
+    for kind in STATUES:
+        el = loc.find(kind) if loc is not None else None
+        lv = el.find("levels") if el is not None else None
+        if lv is None or int(lv.attrib.get("count", 0)) == 0:
+            continue
+        levels = []
+        for i in range(1, int(lv.attrib["count"]) + 1):
+            a = dict(lv.find(f"level_{i}").attrib)
+            anims = lv.find(f"level_{i}/animations")
+            common = {"price": int(a.pop("price")),
+                      "stand": [float(a.pop("min_stand_time")), float(a.pop("max_stand_time"))],
+                      "active": [float(a.pop("min_active_time")), float(a.pop("max_active_time"))],
+                      "offset": vec(a.pop("image_offset", "0;0")),
+                      "images": {an.tag: an.attrib["anim_image"].rsplit("/", 1)[-1] for an in anims},
+                      "action_time": float(anims.find("action").attrib.get("play_time", 1))}
+            params = {}
+            for k, v in a.items():
+                try:
+                    params[k] = float(v) if ";" not in v else v
+                except ValueError:
+                    params[k] = v
+            levels.append({**common, "params": params})
+        out[kind] = {"position": vec(el.attrib["position"]), "dimensions": vec(el.attrib["dimensions"]), "levels": levels}
+    return out
 
 
 def bouquet_list(bset):
@@ -620,7 +632,7 @@ def export_location(n, props, xml_dir, items_root, ru, vegetations, products, bu
         "arrive_positions": arrive,
         "bouquets": bouquet_list(bset),
         "bouquet_random": bouquet_random(locn.find("bouquet_random_set")),
-        "owl": farm_owl(props, n),
+        "statues": farm_statues(props, n),
         "obstacles": [{"position": vec(o.attrib["position"]), "dimensions": vec(o.attrib["dimensions"])} for o in farm.findall("obstacle")],
         "quests": quests,
         "holders": holders,
@@ -749,7 +761,7 @@ def main():
     rules["holders"] = holders
     rules["texts"]["characters"] = dict(ru.find("characters").attrib)
     rules["texts"]["global_map"] = dict(ru.find("global_map").attrib)
-    rules["owl"] = farm_owl(props, 1)
+    rules["statues"] = farm_statues(props, 1)
     # названия и описания предметов фермы (root/item_names, root/desc): сова — owl, owl_level2, owl_level3
     rules["texts"]["item_names"] = dict(ru.find("item_names").attrib) if ru.find("item_names") is not None else {}
     rules["texts"]["item_desc"] = dict(ru.find("desc").attrib) if ru.find("desc") is not None else {}
@@ -850,9 +862,10 @@ def main():
                     names[f"bug_{bug['folder']}_{anim}_{d}"] = f"bugs/{bug['folder']}/{anim}/{d}"
     names["bq_big"] = "game/bouquets/big-flowers"
     for loc in [rules] + list(rules["locations"].values()):
-        for lv in (loc.get("owl") or {}).get("levels", []):
-            for img in lv["images"].values():
-                names[img] = f"obstacles/{img}"
+        for st in loc.get("statues", {}).values():
+            for lv in st["levels"]:
+                for img in lv["images"].values():
+                    names[img] = f"obstacles/{img}"
     # окно заданий (quest_screen): фон, стрелки листания, портреты персонажей журнала и значки заданий
     names["quest_back"] = "game/Quest_back"
     for d in ("next", "prev"):
