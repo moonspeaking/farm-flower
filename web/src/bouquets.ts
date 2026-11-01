@@ -7,14 +7,22 @@ import { fmt, Rules } from "./rules";
 import type { BouquetOrder, Game } from "./state";
 import { COLOR, floatPoints, image, pop, textButton, toast } from "./ui";
 
-/** Ячейки продажи (sell_products/slots): x относительно блока (121; 66). */
-const SLOT_X = [21, 91, 162, 233, 303, 374, 445, 515, 585];
-const BLOCK: [number, number] = [121, 66];
+/** Ячейки продажи (sell_products/slots «Цветка Стихий»): позиции относительно блока (122; 66). */
+const SLOTS_XY: [number, number][] = [[21, 0], [89, 1], [157, 2], [231, 1], [300, 1], [370, 0], [440, 0], [510, 0], [583, 0]];
+const BLOCK: [number, number] = [122, 66];
 
-/** Центры бумажных конусов заказов на фоне bouquets_back (слева и справа по два). */
-const CONES: [number, number][] = [[203, 288], [199, 428], [709, 288], [710, 428]];
-/** Места трёх цветов в конусе относительно его центра. */
-const FLOWER_SPOTS: [number, number][] = [[-24, -16], [0, -30], [24, -16]];
+/**
+ * Конусы заказов: bouquet_points bp1…bp4 (левый верх конуса) + (44; 53) — центр, от которого считаются цена и место броска
+ * (совпадает с центрами первой игры). Места цветов — c3 / c4 / c5 (для букетов из 3, 4, 5 цветов) от левого верха конуса.
+ */
+const BP: [number, number][] = [[159, 235], [158, 379], [668, 235], [668, 377]];
+const CONE_CENTER: [number, number] = [44, 53];
+const CONES: [number, number][] = BP.map(([x, y]) => [x + CONE_CENTER[0], y + CONE_CENTER[1]]);
+const FLOWER_POINTS: Record<number, [number, number][]> = {
+  3: [[17, 38], [68, 30], [44, 58]],
+  4: [[44, 18], [10, 39], [85, 37], [44, 58]],
+  5: [[10, 39], [45, 20], [85, 37], [30, 60], [60, 60]],
+};
 /** Корзина: внутренняя область, где лежат цветы. */
 const BASKET = new Rectangle(352, 308, 216, 160);
 /** Куда можно опустить цветок, чтобы он лёг в корзину (чуть шире самой корзины). */
@@ -65,12 +73,13 @@ export class BouquetScreen extends Container {
     this.eventMode = "static";
     this.hitArea = new Rectangle(0, 0, 800, 600);
 
-    const caption = pop(t.bouquets_screen.flower_shop_caption ?? "Цветочный Магазин", "TC4_16_en", COLOR.white, { align: "center" });
-    caption.position.set(469, 36);
+    // screen_caption (120; 47) 666×50 по центру, stat_control_fonts_menu_normal
+    const caption = pop(t.bouquets_screen.flower_shop_caption ?? "Цветочный Магазин", "stat_control_fonts_menu_normal", COLOR.white, { align: "center" });
+    caption.position.set(120 + 333, 47);
     this.addChild(caption);
     const back = textButton(t.buttons.back ?? "Назад", () => this.close());
-    // exit: позиция 422; 524, размер 81 × 34
-    back.position.set(422 + 81 / 2, 524 + 34 / 2);
+    // exit (405; 525) 100×34, текст по центру
+    back.position.set(405 + 50, 525 + 17);
     this.addChild(back);
 
     this.on("globalpointermove", (e) => this.move(e.global.x, e.global.y));
@@ -100,25 +109,25 @@ export class BouquetScreen extends Container {
     this.products().slice(0, 9).forEach((product, i) => {
       const n = this.game.storage.get(product) ?? 0;
       const price = this.game.sellPrice(this.rules.products[product]?.price ?? 0);
-      const x = BLOCK[0] + SLOT_X[i];
-      const y = BLOCK[1];
+      const x = BLOCK[0] + SLOTS_XY[i][0];
+      const y = BLOCK[1] + SLOTS_XY[i][1];
       const slot = new Container();
       slot.position.set(x, y);
-      // price_text (10; 8), image (0; 21) 60×50, count_text (23; 73) — все чёрным BritannicBold14
-      const priceText = pop(fmt(t.shop.price, { price }), "BritannicBold14", COLOR.black);
-      priceText.position.set(14, 8);
+      // price_text (9; 9) 50×20, image (0; 25) 60×50, count_text (0; 75) 80×25 — чёрным шрифтом default_text (Dialog)
+      const priceText = pop(fmt(t.shop.price, { price }), "Dialog", COLOR.black);
+      priceText.position.set(9, 9);
       const pic = image(product);
       pic.anchor.set(0.5);
       pic.scale.set(Math.min(1, 60 / pic.texture.width, 50 / pic.texture.height));
-      pic.position.set(30, 46);
-      const count = pop(String(n), "BritannicBold14", COLOR.black, { align: "center" });
-      count.position.set(34, 74);
+      pic.position.set(30, 50);
+      const count = pop(String(n), "Dialog", COLOR.black, { align: "center" });
+      count.position.set(40, 75);
       slot.addChild(priceText, pic, count);
-      // sell (10; 102) 40×19, sell_all (17; 125) 23×19 — текстовые кнопки стиля shop
-      const one = textButton(t.shop_buttons.sell ?? "Один", () => this.sell(product, 1), "shop");
-      one.position.set(30, 112);
+      // sell_all (9; 99) и sell (7; 130), обе 50×19, текст по центру — «Все» над «Один», стиль shop
       const all = textButton(t.shop_buttons.sell_all ?? "Все", () => this.sell(product, n), "shop");
-      all.position.set(29, 135);
+      all.position.set(9 + 25, 99 + 9);
+      const one = textButton(t.shop_buttons.sell ?? "Один", () => this.sell(product, 1), "shop");
+      one.position.set(7 + 25, 130 + 9);
       slot.addChild(one, all);
       this.slots.addChild(slot);
     });
@@ -244,12 +253,16 @@ export class BouquetScreen extends Container {
     this.game.bouquets.orders.slice(0, 4).forEach((o, oi) => {
       const [cx, cy] = CONES[oi];
       const price = this.game.orderPrice(o);
-      const tag = pop(fmt(this.rules.texts.shop.price, { price }), "BritannicBold14", COLOR.black, { align: "center", scale: 1.1 });
+      // цена букета: в «Цветке Стихий» раздел bouquets_shop — шрифт root/font/default (BritannicBold14), цвет 255;255;255
+      // (в первой игре этого раздела нет, и там цена чёрная)
+      const tag = pop(fmt(this.rules.texts.shop.price, { price }), "BritannicBold14", COLOR.white, { align: "center", scale: 1.1 });
       tag.position.set(cx - 18, cy - 62);
       o.items.forEach((product, si) => {
         const s = image(o.placed[si] ?? product);
         s.anchor.set(0.5);
-        s.position.set(cx + FLOWER_SPOTS[si][0], cy + FLOWER_SPOTS[si][1]);
+        const pts = FLOWER_POINTS[o.items.length] ?? FLOWER_POINTS[3];
+        const [px, py] = pts[si] ?? pts[pts.length - 1];
+        s.position.set(BP[oi][0] + px, BP[oi][1] + py);
         if (o.placed[si]) {
           // уже стоящий цветок можно снять и переложить: пока букет не собран, он остаётся в заказе
           s.eventMode = "static";

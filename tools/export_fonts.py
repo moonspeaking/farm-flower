@@ -26,7 +26,7 @@ FONTS_FLOWER = [
     "Main-normal", "Main-normal-active", "button-normal", "button-normal-active",
     "stat_control_fonts_1", "stat_control_fonts_2", "stat_control_fonts_menu_normal",
     "stat_control_fonts_menu-normal-active", "stat_control_fonts_menu_deactive",
-    "palatino_15", "Dialog", "Dialog2", "logoff", "logoff-active",
+    "palatino_15", "Dialog", "Dialog2", "logoff", "logoff-active", "quest",
 ]
 
 # символ в кавычках; обратная косая записана как '\\\\' (шрифты интерфейса «Цветка Стихий»)

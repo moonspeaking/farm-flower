@@ -32065,6 +32065,61 @@
     65.0
    ],
    "image": "town_5"
+  },
+  "farm_1": {
+   "position": [
+    86.0,
+    14.0
+   ],
+   "dimensions": [
+    86.0,
+    68.0
+   ],
+   "image": "farm_1"
+  },
+  "farm_2": {
+   "position": [
+    110.0,
+    506.0
+   ],
+   "dimensions": [
+    89.0,
+    69.0
+   ],
+   "image": "farm_2"
+  },
+  "farm_3": {
+   "position": [
+    357.0,
+    103.0
+   ],
+   "dimensions": [
+    75.0,
+    67.0
+   ],
+   "image": "farm_3"
+  },
+  "farm_4": {
+   "position": [
+    681.0,
+    50.0
+   ],
+   "dimensions": [
+    77.0,
+    65.0
+   ],
+   "image": "farm_4"
+  },
+  "farm_5": {
+   "position": [
+    645.0,
+    159.0
+   ],
+   "dimensions": [
+    58.0,
+    46.0
+   ],
+   "image": "farm_5"
   }
  },
  "exp_levels": [
@@ -33215,6 +33270,7 @@
   "rose_2",
   "rose_3",
   "round_button",
+  "rubber_back",
   "select_user_bg",
   "ship",
   "shop_medium",
@@ -33481,6 +33537,7 @@
   "rose_2",
   "rose_3",
   "round_button",
+  "rubber_back",
   "select_user_bg",
   "ship",
   "shop_medium",

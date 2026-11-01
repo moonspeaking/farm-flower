@@ -10,8 +10,9 @@ import { COLOR, image, pop, W, H } from "./ui";
 export function skillNotice(parent: Container, text: string, have: number, next: number, color: number) {
   const box = new Container();
   box.addChild(image("paper_sheet"));
-  const label = pop(text, "Verdana14", COLOR.black, { align: "center", wrap: 215, lineOffset: -2 });
-  label.position.set(26 + 225 / 2, 24);
+  // «Цветок Стихий»: текст (27; 17) 225×65 шрифтом stat_control_1 белым
+  const label = pop(text, "stat_control_fonts_1", COLOR.white, { align: "center", wrap: 225, lineOffset: -4 });
+  label.position.set(27 + 225 / 2, 17);
   box.addChild(label);
   const back = image("special_back");
   back.position.set(98, 83);

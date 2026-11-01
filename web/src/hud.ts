@@ -29,19 +29,20 @@ export class Hud extends Container {
     const st = rules.texts.stats;
     this.addChild(image("stat_panel"));
 
-    // «Цветок Стихий», game_screen/item_stat: панель 200×600 (ствол с листьями). Заголовки — stat_control_fonts_1 белым,
-    // align left, левый верх в позиции XML: hero_title (9;7), storage_title (12;148), water_title (12;266), money_title (11;378),
-    // day_title (104;16)
-    const title = (text: string, x: number, y: number) => {
-      const l = pop(text, "stat_control_fonts_1", COLOR.white);
-      l.position.set(x, y);
+    // «Цветок Стихий», game_screen/item_stat: панель 200×600 (ствол с листьями). Заголовки — stat_control_fonts_1 белым.
+    // По скриншоту оригинала они стоят по центру своих рамок (хотя в XML align="left"): storage_title (12;148) 80×25,
+    // water_title (12;266) 80×25, money_title (11;378) 80×30, day_title (104;16) 80×30 — так надписи посередине досок.
+    // hero_title (9;7) в оригинале не виден — не рисуем
+    const title = (text: string, x: number, y: number, w: number, h: number) => {
+      const l = pop(text, "stat_control_fonts_1", COLOR.white, { align: "center" });
+      l.anchor.set(0.5, 0.5);
+      l.position.set(x + w / 2, y + h / 2);
       this.addChild(l);
     };
-    title(st.hero_title, 9, 7);
-    title(st.storage_title, 12, 148);
-    title(st.water_title, 12, 266);
-    title(st.money_title, 11, 378);
-    title(st.day_title, 104, 16);
+    title(st.storage_title, 12, 148, 80, 25);
+    title(st.water_title, 12, 266, 80, 25);
+    title(st.money_title, 11, 378, 80, 30);
+    title(st.day_title, 104, 16, 80, 30);
 
     // значения — stat_control_fonts_2 с наклоном angle из XML (рад). Как в первой игре (там product_count (54;214) стоял
     // центром на x = 54 при рамке 85 px), x позиции — центр надписи, y — её верх; поворот вокруг этой точки.
@@ -57,8 +58,9 @@ export class Hud extends Container {
       storage: value(77, 235, 0.2, COLOR.white),
       water: value(32, 350, -0.2, rgb(255, 255, 160)),
       money: value(83, 468, 0.2, COLOR.white),
-      day: value(106, 35, 0, COLOR.white, "left"),
-      // уровень — float_points в жёлтом кружке слева от полоски опыта (в XML experience вынесен за экран: −149;128) — **допущение**
+      // день — по скриншоту под словом «День», по его центру (в XML day_count (106;35) 30×30, align left)
+      day: value(144, 38, 0, COLOR.white),
+      // уровень — float_points в жёлтом кружке слева от полоски опыта (в XML experience вынесен за экран; место — по скриншоту оригинала)
       level: value(44, 108, 0, COLOR.white, "center", "float_points", 0.85),
     };
 
@@ -72,6 +74,12 @@ export class Hud extends Container {
       events.openLevelUp();
     });
     this.addChild(hit);
+
+    // quest_button (88;66) 29×28 в зелёном кружке: значок свитка — глиф «q» шрифта quest (стиль quest_small).
+    // Экрана списка квестов в порте нет — значок без действия
+    const quest = pop("q", "quest", COLOR.white);
+    quest.position.set(88, 66);
+    this.addChild(quest);
 
     // «Меню» на шляпке гриба: menu (21;526) 70×25, стиль menu_small
     const menu = textButton(rules.texts.buttons.game_menu ?? "Меню", () => events.menu(), "menuSmall");

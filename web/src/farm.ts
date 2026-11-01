@@ -1,5 +1,5 @@
 // Ферма первой локации «Фермы Айрис»: подготовка к дню (магазин на объектах) → день → итоги.
-import { Container, Graphics, Sprite, Texture } from "pixi.js";
+import { Container, Graphics, NineSliceSprite, Sprite, Texture } from "pixi.js";
 import { audio } from "./audio";
 import { BouquetScreen } from "./bouquets";
 import { PathGrid } from "./pathgrid";
@@ -1039,22 +1039,23 @@ export class Farm extends Container {
     const box = new Container();
     layer.addChild(box);
     this.ui.addChild(layer);
-    const roll = image("dialog");
-    roll.width = 470;
-    roll.height = 330;
-    roll.x = -235;
-    box.addChild(roll);
-    box.position.set(W / 2 + 30, 120);
-    const ink = COLOR.black;
-    const title = pop(t.buy_water.title ?? "Покупка воды", "TC4_16_en", ink, { align: "center", scale: 1.2 });
-    title.position.set(0, 46);
-    // ширина с запасом, чтобы описание не переносилось на вторую строку; строку «Деньги» не показываем — деньги видны на панели
-    const desc = pop(t.buy_water.desc ?? "", "Verdana14", ink, { align: "center", wrap: 420 });
-    desc.position.set(0, 80);
-    const water = pop("", "BritannicBold14", rgb(60, 60, 160), { align: "center" });
-    water.position.set(0, 110);
-    const priceLabel = pop("", "BritannicBold14", ink, { align: "center" });
-    priceLabel.position.set(0, 136);
+    // «Цветок Стихий», controls/buy_water: окно 400×300 по центру. Своей картинки фона у окна нет, тексты белые —
+    // **допущение**: фон — «резина» buy_shop_item_screen/rubber_back (зелёная середина, чёрная рамка 2 px), растянутая на окно
+    const back = new NineSliceSprite({ texture: tex("rubber_back"), leftWidth: 2, rightWidth: 2, topHeight: 2, bottomHeight: 2 });
+    back.width = 400;
+    back.height = 300;
+    box.addChild(back);
+    box.position.set(Math.round((W - 400) / 2), Math.round((H - 300) / 2));
+    // тексты шрифтом root/font/default (BritannicBold14): title жёлтым, desc / money / water белым, по центру окна;
+    // title (136; 10), desc (65; 42) 300×50, water (197; 133), water_price (91; 167) по левому краю
+    const title = pop(t.buy_water.title ?? "Покупка воды", "BritannicBold14", rgb(255, 255, 0), { align: "center", scale: 1.2 });
+    title.position.set(200, 20);
+    const desc = pop(t.buy_water.desc ?? "", "BritannicBold14", COLOR.white, { align: "center", wrap: 300 });
+    desc.position.set(200, 52);
+    const water = pop("", "BritannicBold14", COLOR.white, { align: "center" });
+    water.position.set(200, 138);
+    const priceLabel = pop("", "BritannicBold14", COLOR.white);
+    priceLabel.position.set(91, 172);
     box.addChild(title, desc, water, priceLabel);
     const close = () => {
       layer.destroy({ children: true });
@@ -1079,12 +1080,13 @@ export class Farm extends Container {
       // бочки полны — окно покупки закрывается само, как в оригинале
       if (g.water >= g.waterMax) close();
     };
+    // buy (−1; 203), buy_all (−1; 233), exit (0; 263) — рамки 400×34, текст по центру
     const b1 = textButton(t.buttons.buy_water ?? "Купить литр воды", () => buy(1));
-    b1.position.set(0, 180);
+    b1.position.set(199, 203 + 17);
     const b2 = textButton(t.buttons.buy_water_all ?? "Заполнить Все", () => buy(1e9));
-    b2.position.set(0, 214);
+    b2.position.set(199, 233 + 17);
     const b3 = textButton(t.buttons.buy_water_exit ?? "Закрыть", close);
-    b3.position.set(0, 248);
+    b3.position.set(200, 263 + 17);
     box.addChild(b1, b2, b3);
     shade.on("pointertap", close);
     refresh();

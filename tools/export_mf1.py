@@ -66,6 +66,7 @@ IMAGES = {
     "quest_info": "buttons/quest_info_normal",
     "bq_back": "game/bouquets/bouquets_back",
     "lu_back": "game/level_up/level_up_back",
+    "rubber_back": "game/shop/buy_shop_item_back",
     # «Цветок Стихий»: стручки-полоски умений (10 кадров анимации), рамки выбранного / наведённого умения
     "lu_bob": "game/level_up/bob_prog",
     "lu_bob_inv": "game/level_up/bob_prog_inv",
@@ -685,9 +686,10 @@ def main():
     for n in range(2, nloc + 1):
         rules["locations"][str(n)] = export_location(n, props, xml_dir, items_root, ru, vegetations, products, bugs)
     rules["vegetations"], rules["products"], rules["bugs"] = vegetations, products, bugs
+    # global_map есть в обоих файлах «Цветка Стихий»: города — в properties.xml, фермы (farm_1…5) — в properties_ru.xml
     rules["global_map"] = {c.tag: {"position": vec(c.attrib["position"]), "dimensions": vec(c.attrib["dimensions"]),
                                     "image": c.attrib.get("active_image", "")}
-                           for c in props.find("global_map") if "position" in c.attrib}
+                           for gm in props.findall("global_map") for c in gm if "position" in c.attrib}
 
     # ---------------- опыт, умения, букеты, прогрессы, погода
     rules.update(export_gameplay(props, loc1_props=next(l for l in props.iter("location_1") if l.find("bouquet_set") is not None),

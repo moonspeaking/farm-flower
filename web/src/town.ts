@@ -90,7 +90,7 @@ export class Town extends Container {
     if (!name || !this.people[holder][0].visible) return;
     if (this.nameTip.name !== holder) {
       this.nameTip.removeChildren().forEach((c) => c.destroy());
-      const text = pop(name, "Verdana14", COLOR.white, { align: "center" });
+      const text = pop(name, "Dialog", COLOR.white, { align: "center" }); // show_farm_tt: шрифт Dialog
       text.anchor.set(0.5, 0.5);
       const w = text.textWidth + 24;
       const h = text.textHeight + 12;

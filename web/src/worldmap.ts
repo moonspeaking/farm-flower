@@ -16,7 +16,7 @@ export interface MapEvents {
 
 export class WorldMap extends Container {
   private readonly places: { key: string; spot: Container; hover: Container }[] = [];
-  private readonly tip = pop("", "Verdana14", COLOR.white, { align: "center" });
+  private readonly tip = pop("", "Dialog", COLOR.white, { align: "center" }); // show_town_tt: шрифт Dialog
   private readonly tipBack = new Graphics();
   private readonly fx = new ParticleLayer();
   private sparks: Emitter[] = [];
