@@ -141,6 +141,9 @@ export interface Rules {
   weather: Record<string, { bug_arrive: number; hungry: number; product: number }>;
   texts: {
     title: string;
+    /** Окно заданий: заголовок и разделитель тысяч в числах. */
+    quest_title?: string;
+    delimiter?: string;
     names: Record<string, string>;
     stats: Record<string, string>;
     warnings: Record<string, string>;

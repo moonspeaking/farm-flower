@@ -6,6 +6,7 @@ import type { Rules } from "./rules";
 import type { Game } from "./state";
 import { Talk } from "./talk";
 import { Reminder, type Tutorial } from "./tutorial";
+import { QuestScreen } from "./questscreen";
 import { COLOR, image, pop, roundButton, toast } from "./ui";
 
 export interface TownEvents {
@@ -68,7 +69,11 @@ export class Town extends Container {
     farm.position.set(527 + 103, -110 + 99);
     this.addChild(map, farm);
     // левая панель Айрис — та же, что на ферме
-    this.hud = new Hud(rules, game, { openLevelUp: () => undefined, menu: () => this.events.menu() });
+    this.hud = new Hud(rules, game, {
+      openLevelUp: () => undefined,
+      openQuests: () => this.overlay.addChild(new QuestScreen(game, () => undefined)),
+      menu: () => this.events.menu(),
+    });
     this.hud.blinkOn = false; // в городе умения не улучшаются
     this.addChild(this.hud, this.overlay, this.nameTip);
     this.unsubscribe = game.onChange(() => this.hud.update());

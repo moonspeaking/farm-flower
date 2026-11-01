@@ -14,6 +14,7 @@ import { family, RidgeView } from "./ridge";
 import { fmt, Place, Rules, StorageLevel } from "./rules";
 import type { Game, PlantSave, Weather } from "./state";
 import { Reminder, Tutorial } from "./tutorial";
+import { QuestScreen } from "./questscreen";
 import { COLOR, dialog, floatPoints, H, image, pop, roundButton, shopButton, type ShopButton, tex, textButton, toast, W } from "./ui";
 
 /** Шаги обучения, уже сдвинутые под перенесённые кнопки. */
@@ -165,7 +166,7 @@ export class Farm extends Container {
     this.arriver = new BugArriver((game.arrivers[rules.location] ??= newArriverState()));
     const t = rules.texts;
     this.addChild(image(rules.bg_image), this.objects, this.weatherFx, this.shopLayer, this.top, this.screens, (this.tutorial = new Tutorial(rules, game, () => audio.options.warnings)));
-    this.hud = new Hud(rules, game, { openLevelUp: () => this.openLevelUp(), menu: () => this.openMenu() });
+    this.hud = new Hud(rules, game, { openLevelUp: () => this.openLevelUp(), openQuests: () => this.openQuests(), menu: () => this.openMenu() });
     this.addChild(this.hud, this.ui);
     // подсказки стоят над панелью, чтобы их было видно
     this.addChild(this.tutorial);
@@ -1143,7 +1144,13 @@ export class Farm extends Container {
     this.ui.addChild(screen);
   }
 
-  /** remove_all_vegetations из квестов. */
+  /** Окно заданий; на время окна день стоит на паузе. */
+  openQuests() {
+    if (this.paused) return;
+    this.paused = true;
+    this.ui.addChild(new QuestScreen(this.game, () => (this.paused = false)));
+  }
+
   /** Действие квеста add_vegetation: растение name на первую свободную грядку. */
   addVegetation(name: string) {
     const ridge = this.ridges.find((r) => !r.plant);

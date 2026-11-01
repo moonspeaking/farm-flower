@@ -219,6 +219,16 @@ def walk_dialog(nodes):
             yield from walk_dialog(a["dialog"])
 
 
+def walk_actions(quests):
+    """Все действия квестов: части, ответы и ответы во вложенных диалогах."""
+    for q in quests.values():
+        for sq in q["sub_quests"].values():
+            yield from sq["actions"]
+            for n in walk_dialog(sq["dialog"]):
+                for ans in n.get("answers", []):
+                    yield from ans["actions"]
+
+
 def split_images(rules, bugs, names):
     """Картинки делятся на общие (грузятся при запуске) и по локациям (подгружаются при первом заходе, экономит память):
     спрайты вредителей волн локации, фон фермы и города, ящик, портреты держателей и говорящих. Робин и всё остальное — общие."""
@@ -644,6 +654,9 @@ def main():
     rules["holders"] = holders
     rules["texts"]["characters"] = dict(ru.find("characters").attrib)
     rules["texts"]["global_map"] = dict(ru.find("global_map").attrib)
+    # окно заданий: заголовок quest/header и разделитель тысяч в числах (root/delimiter, «,»)
+    rules["texts"]["quest_title"] = ru.find("quest/header").attrib.get("text", "")
+    rules["texts"]["delimiter"] = ru.find("delimiter").attrib.get("text", ",")
     rules["texts"]["buttons_menu"] = {k: rules["texts"]["buttons"].get(k, "") for k in
                                       ("game_adventure", "options", "menu_highscores", "menu_exit", "new_game", "continue_game")}
 
@@ -736,6 +749,19 @@ def main():
             for d in DIRECTIONS:
                 if (folder / anim / f"{d}.jpg").exists():
                     names[f"bug_{bug['folder']}_{anim}_{d}"] = f"bugs/{bug['folder']}/{anim}/{d}"
+    # окно заданий (quest_screen): фон, стрелки листания, портреты персонажей журнала и значки заданий
+    names["quest_back"] = "game/Quest_back"
+    for d in ("next", "prev"):
+        for st in ("normal", "active", "disabled"):
+            names[f"quest_{d}_{st}"] = f"buttons/quest_{d}_{st}"
+    mini = data_dir / "game/towns/quests/miniimages"
+    journal_acts = [a for qs in all_quests for a in walk_actions(qs)]
+    for person in {a["person"] for a in journal_acts if a["type"] == "add_quest"}:
+        if (mini / f"{person}.jpg").exists():
+            names[f"mini_{person}"] = f"game/towns/quests/miniimages/{person}"
+    for item in {a.get("item", "") for a in journal_acts if a["type"] in ("add_task", "add_task_count")} - {""}:
+        if (mini / "need" / f"{item}.jpg").exists() or (mini / "need" / f"{item}.png").exists():
+            names[f"need_{item}"] = f"game/towns/quests/miniimages/need/{item}"
     for item in {b["items"] for b in bugs.values() if b["items"]}:
         names[f"item_{item}"] = f"quest_items/{item}"
     for icon in ("attack_icon", "pour_icon", "product_icon"):

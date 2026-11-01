@@ -233,7 +233,8 @@ export class QuestEngine {
         }
         case "add_task":
         case "add_task_count": {
-          const e = st.journal?.[`${a.location || here()}/${a.quest_name}`];
+          // exe читает только атрибут item; записи с name= (в loc4 exams) игра пропускает
+          const e = a.item ? st.journal?.[`${a.location || here()}/${a.quest_name}`] : undefined;
           if (e) e.tasks.push(a.type === "add_task" ? { item: a.item } : { item: a.item, count: n });
           break;
         }

@@ -11,6 +11,8 @@ import { COLOR, image, pop, textButton } from "./ui";
 export interface HudEvents {
   /** Нажали на полоску опыта (view_button) — открыть окно умений. */
   openLevelUp(): void;
+  /** Свиток quest_button — окно заданий. */
+  openQuests(): void;
   menu(): void;
 }
 
@@ -75,10 +77,15 @@ export class Hud extends Container {
     });
     this.addChild(hit);
 
-    // quest_button (88;66) 29×28 в зелёном кружке: значок свитка — глиф «q» шрифта quest (стиль quest_small).
-    // Экрана списка квестов в порте нет — значок без действия
+    // quest_button (88;66) 29×28 в зелёном кружке: значок свитка — глиф «q» шрифта quest (стиль quest_small), открывает окно заданий
     const quest = pop("q", "quest", COLOR.white);
     quest.position.set(88, 66);
+    quest.eventMode = "static";
+    quest.cursor = "pointer";
+    quest.on("pointertap", (e) => {
+      e.stopPropagation();
+      events.openQuests();
+    });
     this.addChild(quest);
 
     // «Меню» на шляпке гриба: menu (21;526) 70×25, стиль menu_small
