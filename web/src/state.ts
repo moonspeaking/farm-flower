@@ -46,6 +46,8 @@ export interface FarmState {
   /** Уровень колодца (exe поле фермы +0x7f0: 0 — нет, каждая покупка +1) и разрешена ли покупка (+0x82c, enable_buy_well). */
   wellLevel?: number;
   wellBuy?: boolean;
+  /** Уровень совы фермы (0 — нет). */
+  owlLevel?: number;
   storage: Record<string, number>;
   boughtRidges: number[];
   plants: (PlantSave | null)[];
@@ -169,6 +171,8 @@ export class Game {
   wellLevel = 0;
   /** Покупка и улучшение колодца разрешены (exe +0x82c, по умолчанию да; квест enable_buy_well). */
   wellBuy = true;
+  /** Уровень совы фермы: 0 — нет, покупка или квест add_owl — +1 (exe поле совы +0x24). */
+  owlLevel = 0;
   /** Собранные плоды по имени продукта. */
   storage = new Map<string, number>();
   boughtRidges: number[] = [];
@@ -226,7 +230,7 @@ export class Game {
     return {
       water: this.water, barrels: this.barrels, boxes: this.boxes, well: this.well, storage: Object.fromEntries(this.storage),
       boughtRidges: this.boughtRidges, plants, seeds: this.seeds, bouquets: this.bouquets,
-      dayCur: this.dayCur, dayNext: this.dayNext, wellLevel: this.wellLevel, wellBuy: this.wellBuy,
+      dayCur: this.dayCur, dayNext: this.dayNext, wellLevel: this.wellLevel, wellBuy: this.wellBuy, owlLevel: this.owlLevel,
     };
   }
 
@@ -238,6 +242,7 @@ export class Game {
     // старые сохранения: колодец куплен — первый уровень
     this.wellLevel = f.wellLevel ?? (f.well ? 1 : 0);
     this.wellBuy = f.wellBuy ?? true;
+    this.owlLevel = f.owlLevel ?? 0;
     this.storage = new Map(Object.entries(f.storage));
     this.boughtRidges = f.boughtRidges;
     this.savedPlants = f.plants;
@@ -370,12 +375,13 @@ export class Game {
   }
 
   buyPrice(base: number) {
+    // бесплатное (сова первого уровня, price="0") остаётся бесплатным
+    if (base <= 0) return 0;
     return Math.max(1, Math.round(base * (1 - this.bonus("trade", "buy_goods"))));
   }
 
   // ---------------------------------------------------------------- заказы на букеты
 
-  /** Четыре заказа из bouquet_set по порядку; выполненный заменяется следующим. */
   /**
    * Заказы — 4 места (exe 0x433fc0 при открытии экрана букетов заполняет пустые, 0x434050 — место проданного).
    * Место остаётся пустым (items = []), если букет не собрался: нет нужных цветов на складе.
@@ -486,6 +492,8 @@ export class Game {
         });
         this.mergeOldMarks();
         this.restore(s.farms[s.loc]);
+        // сохранения до уровней совы: add_owl ставил только флаг owl — сова первой фермы первого уровня
+        if (this.owl && !s.farms[1]?.owlLevel && this.loc === 1) this.owlLevel = Math.max(this.owlLevel, 1);
         this.fillOrders();
         return true;
       }

@@ -17,6 +17,7 @@ import { Reminder, Tutorial } from "./tutorial";
 import { QuestScreen } from "./questscreen";
 import type { WellDef } from "./rules";
 import { wellName, wellOffer } from "./well";
+import { Owl } from "./owl";
 import { COLOR, dialog, floatPoints, H, image, pop, roundButton, shopButton, type ShopButton, tex, textButton, toast, W } from "./ui";
 
 /** Шаги обучения, уже сдвинутые под перенесённые кнопки. */
@@ -126,6 +127,9 @@ export class Farm extends Container {
   private readonly boxes: Filled[] = [];
   private readonly well: Sprite;
   private pail: Filled;
+  /** Мудрая сова (есть не на всех фермах) и её показанный уровень. */
+  private owl: Owl | null = null;
+  private owlShown = -1;
   /** Картинки, из которых собрано текущее ведро (меняются с уровнем колодца). */
   private pailKey = "";
   private readonly startBtn: Container;
@@ -186,6 +190,16 @@ export class Farm extends Container {
     this.pail = this.makePail(wl);
     // где стоит ведро — game_screen/well_ctrl/<ведро> (exe 0x4146b0 берёт его по имени ведра), ставит placePail
     this.objects.addChild(this.well, this.pail);
+
+    // ---------------- мудрая сова (root/shop/location_N/owl): нажать, пока горят глаза, — опыт
+    if (rules.owl) {
+      const owl = new Owl(rules.owl);
+      owl.eventMode = "static";
+      owl.on("pointertap", () => this.tapOwl());
+      owl.on("pointerover", () => this.setBuyTarget("owl"));
+      this.owl = owl;
+      this.objects.addChild(owl);
+    }
 
     // ---------------- часы дня (whether_time_ctrl) и круглые кнопки (start_day: 527; -110, to_town: 193; -110)
     const clock = new Container();
@@ -273,6 +287,8 @@ export class Farm extends Container {
       if (free && tut.show("new_ridge", free.position[0] + 24, free.position[1] + 4)) this.setBuyTarget(`ridge:${idx}`);
     }
     if (g.hasMark("shop_well") && !g.well && tut.show("well", 188, 480)) this.setBuyTarget("well");
+    // tutorial/owl: пузырь у совы (680; 200), пока её можно купить
+    if (g.owlLevel === 0 && this.owlCanBuy() && tut.show("owl", 680, 200)) this.setBuyTarget("owl");
   }
 
   private async startDay() {
@@ -434,6 +450,8 @@ export class Farm extends Container {
     this.helper?.update(dt, this.bugs, this.ridges, (r) => this.waterRidge(r, true), () => this.pathGrid(this.helper ?? undefined));
     this.sortObjects();
     this.updateWell(dt);
+    this.owl?.update(dt);
+    if (this.owl) this.owl.cursor = this.owl.active ? "pointer" : "default";
     this.dayLeft -= dt;
     // стрелка часов проходит верхнюю половину циферблата за день
     this.pointer.rotation = CLOCK_ANGLE[0] - (CLOCK_ANGLE[1] - CLOCK_ANGLE[0]) * (1 - Math.max(0, this.dayLeft) / this.game.dayCur);
@@ -448,12 +466,12 @@ export class Farm extends Container {
 
   // ================================================================ опыт и особые умения
 
-  private gainExp(n: number, x: number, y: number) {
+  private gainExp(n: number, x: number, y: number, label = `+${n}`) {
     if (n <= 0) return;
     const before = this.game.level;
     this.game.addExp(n);
     this.expToday += n;
-    floatPoints(this.ui, `+${n}`, x, y);
+    floatPoints(this.ui, label, x, y);
     if (this.game.level > before) {
       audio.play("level_up");
       toast(this.ui, `${this.rules.texts.stats.hero_title} ${this.game.level}`, 400, 200);
@@ -761,6 +779,7 @@ export class Farm extends Container {
     if (this.barrels.length) spread(this.barrels, this.game.waterMax ? this.game.water / this.game.waterMax : 0);
     if (this.boxes.length) spread(this.boxes, this.game.storageMax ? this.game.storageCount() / this.game.storageMax : 0);
     this.syncWell();
+    this.syncOwl();
     this.sortObjects();
   }
 
@@ -963,6 +982,20 @@ export class Farm extends Container {
         },
       });
     }
+    const owlLv = this.rules.owl?.levels[g.owlLevel];
+    const owlAt = this.rules.shop_positions.owl;
+    if (owlLv && owlAt && this.owlCanBuy()) {
+      const cost = g.buyPrice(owlLv.price);
+      buyables.push({
+        key: "owl",
+        at: [owlAt[0] + 50, owlAt[1] + 30],
+        button: () => {
+          const b = shopButton("small", price(cost), (t.buttons.buy_owl ?? "Улучшить").trim(), () => this.buyOwl());
+          b.setEnabled(g.gold >= cost);
+          return b;
+        },
+      });
+    }
     const active = buyables.find((b) => b.key === this.buyTarget) ?? buyables[0];
     this.buyTarget = active?.key ?? null;
     if (active) add(active.button(), ...active.at);
@@ -1071,6 +1104,55 @@ export class Farm extends Container {
     this.game.gold -= price;
     this.game[kind] += 1;
     audio.play(kind === "barrels" ? "bochka_buy" : "box_buy");
+    this.renderStorages();
+    this.afterPurchase();
+  }
+
+  /** Сову можно купить или улучшить (exe 0x4fe0c0): уровень меньше числа уровней и есть метка shop_owl_<уровень+1>. */
+  private owlCanBuy() {
+    const levels = this.rules.owl?.levels.length ?? 0;
+    return this.game.owlLevel < levels && this.game.hasMark(`shop_owl_${this.game.owlLevel + 1}`);
+  }
+
+  /**
+   * Сова видна, когда куплена; пока её можно купить — между днями полупрозрачна (exe 0x4fe260: видна, если уровень > 0
+   * или её можно купить).
+   */
+  private syncOwl() {
+    const owl = this.owl;
+    if (!owl) return;
+    const level = this.game.owlLevel;
+    if (level > 0) {
+      if (this.owlShown !== level) owl.setLevel(level);
+      this.owlShown = level;
+      owl.visible = true;
+      owl.alpha = 1;
+      return;
+    }
+    this.owlShown = 0;
+    owl.visible = this.mode === "shop" && this.owlCanBuy();
+    owl.alpha = 0.5;
+    if (owl.visible) owl.showGhost(1);
+  }
+
+  private tapOwl() {
+    if (!this.owl || this.mode !== "day" || this.paused || this.game.owlLevel === 0) return;
+    const exp = this.owl.tap();
+    if (exp <= 0) return;
+    // «+N Опыт» (root/events/@dropped_item_exp)
+    this.gainExp(exp, this.owl.x + (this.rules.owl?.dimensions[0] ?? 0) / 2, this.owl.y + 20,
+      fmt(this.rules.texts.events?.dropped_item_exp ?? "+%value% Опыт", { value: exp }));
+  }
+
+  private buyOwl() {
+    const lv = this.rules.owl?.levels[this.game.owlLevel];
+    if (!lv || !this.owlCanBuy()) return;
+    const price = this.game.buyPrice(lv.price);
+    if (this.game.gold < price) return this.notEnough();
+    this.game.gold -= price;
+    this.game.owlLevel += 1;
+    audio.play("well_buy");
+    this.syncOwl();
     this.renderStorages();
     this.afterPurchase();
   }

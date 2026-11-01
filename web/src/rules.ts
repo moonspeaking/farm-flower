@@ -74,6 +74,7 @@ export interface LocationRules {
   well: Rules["well"];
   well_object: Rules["well_object"];
   well_items: Rules["well_items"];
+  owl?: Rules["owl"];
   prices: { ridge: number; water: number };
   waves: Rules["waves"];
   wave_delays: number[];
@@ -97,6 +98,23 @@ export type WellDef = Place & {
   pail_pos?: [number, number] | null;
 };
 
+export interface OwlLevel {
+  exp: number;
+  price: number;
+  /** Время покоя и активности: от min до max, с. */
+  stand: [number, number];
+  active: [number, number];
+  offset: [number, number];
+  images: { stand: string; active: string; action: string };
+  action_time: number;
+}
+
+export interface OwlDef {
+  position: [number, number];
+  dimensions: [number, number];
+  levels: OwlLevel[];
+}
+
 export interface Rules {
   /** Имена картинок фона фермы, ящиков и города: у локации 1 — bg, box…, у остальных — farm_bg_N и т. д. */
   bg_image: string;
@@ -107,7 +125,9 @@ export interface Rules {
   /** Номер локации, для которой собраны эти правила. */
   location: number;
   /** Верхние левые углы кнопок «Продать плоды» и «Купить воду» и кнопки колодца (shop_control локации). */
-  shop_positions: { sell_prod: [number, number]; buy_water: [number, number]; well: [number, number] };
+  shop_positions: { sell_prod: [number, number]; buy_water: [number, number]; well: [number, number]; owl?: [number, number] };
+  /** Сова фермы (root/shop/location_N/owl): место и уровни. */
+  owl?: OwlDef | null;
   locations: Record<string, LocationRules>;
   global_map: Record<string, { position: [number, number]; dimensions: [number, number]; image: string }>;
   start: { gold: number; water: number; vegetations: string[] };

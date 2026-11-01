@@ -82,6 +82,7 @@ export interface StoredState {
   boxes: number;
   well: boolean;
   wellLevel: number;
+  owlLevel?: number;
   boughtRidges: number[];
   world: { towns: Record<string, boolean>; farms: Record<string, boolean> };
 }
@@ -212,7 +213,7 @@ export class QuestEngine {
           break;
         case "store_state":
           st.stored = {
-            gold: g.gold, water: g.water, barrels: g.barrels, boxes: g.boxes, well: g.well, wellLevel: g.wellLevel,
+            gold: g.gold, water: g.water, barrels: g.barrels, boxes: g.boxes, well: g.well, wellLevel: g.wellLevel, owlLevel: g.owlLevel,
             boughtRidges: [...g.boughtRidges], world: structuredClone(g.world),
           };
           break;
@@ -220,6 +221,7 @@ export class QuestEngine {
           if (st.stored) {
             const v = st.stored;
             Object.assign(g, { gold: v.gold, water: v.water, barrels: v.barrels, boxes: v.boxes, well: v.well, wellLevel: v.wellLevel ?? (v.well ? 1 : 0) });
+            if (v.owlLevel !== undefined) g.owlLevel = v.owlLevel;
             g.boughtRidges = [...v.boughtRidges];
             g.world = structuredClone(v.world);
           }
@@ -254,8 +256,10 @@ export class QuestEngine {
         case "add_weapon":
           if (!g.weapons.includes(a.name)) g.weapons.push(a.name);
           break;
+        // exe 0x433670: если сова не последнего уровня — бесплатно на уровень выше
         case "add_owl":
           g.owl = true;
+          g.owlLevel = Math.min(g.rules.owl?.levels.length ?? 3, g.owlLevel + 1);
           break;
         // медали дракона — для комнаты трофеев (exe 0x481307, 0x481400); комнаты пока нет, счётчик копится
         case "add_dragon_medal1":

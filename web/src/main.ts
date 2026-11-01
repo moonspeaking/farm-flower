@@ -198,6 +198,7 @@ async function main() {
       menu: () => f.openMenu(),
     }, worldTut!);
     farms[n] = f;
+    if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__farm = f; // отладка в браузере
     towns[n] = t;
     world.addChild(f, t);
   };

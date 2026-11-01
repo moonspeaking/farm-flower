@@ -455,6 +455,29 @@ def wave_group(g, known):
     return {"bugs": [x["name"] for x in specs if x["mode"] != "hardcore"], "specs": specs, "delay": float(g.attrib["delay"])}
 
 
+def farm_owl(props, n):
+    """Сова фермы (root/shop/location_N/owl, exe: загрузка 0x4ff3b0, смена состояний 0x5002f0): место, уровни —
+    опыт, цена, время покоя и активности (min..max), картинки stand / active / action."""
+    loc = props.find(f"shop/location_{n}")
+    owl = loc.find("owl") if loc is not None else None
+    lv = owl.find("levels") if owl is not None else None
+    if lv is None or int(lv.attrib.get("count", 0)) == 0:
+        return None
+    levels = []
+    for i in range(1, int(lv.attrib["count"]) + 1):
+        a = lv.find(f"level_{i}").attrib
+        anims = lv.find(f"level_{i}/animations")
+        levels.append({
+            "exp": int(a["exp"]), "price": int(a["price"]),
+            "stand": [float(a["min_stand_time"]), float(a["max_stand_time"])],
+            "active": [float(a["min_active_time"]), float(a["max_active_time"])],
+            "offset": vec(a.get("image_offset", "0;0")),
+            "images": {an.tag: an.attrib["anim_image"].rsplit("/", 1)[-1] for an in anims},
+            "action_time": float(anims.find("action").attrib.get("play_time", 1)),
+        })
+    return {"position": vec(owl.attrib["position"]), "dimensions": vec(owl.attrib["dimensions"]), "levels": levels}
+
+
 def bouquet_list(bset):
     """Заказы bouquet_set по порядку. exe читает только первые bouquet_count записей (в loc1 — 0: заказы только случайные)."""
     entries = [[x.strip() for x in b.attrib["bouquet"].split(";") if x.strip()] for b in bset]
@@ -542,7 +565,9 @@ def shop_positions(props, n):
     c = locn.find("shop_control/click_obj_buttons")
     return {"sell_prod": vec(c.find("product_storage/sell_prod").attrib["position"]),
             "buy_water": vec(c.find("water_storage/buy_water").attrib["position"]),
-            "well": vec(c.find("well").attrib["position"])}
+            "well": vec(c.find("well").attrib["position"]),
+            # кнопки предметов фермы (сова, алтарь, рог…): у каждой локации свои
+            **{t: vec(c.find(t).attrib["position"]) for t in ("owl", "altar", "neptun", "clock", "horn") if c.find(t) is not None}}
 
 
 def export_location(n, props, xml_dir, items_root, ru, vegetations, products, bugs):
@@ -595,6 +620,7 @@ def export_location(n, props, xml_dir, items_root, ru, vegetations, products, bu
         "arrive_positions": arrive,
         "bouquets": bouquet_list(bset),
         "bouquet_random": bouquet_random(locn.find("bouquet_random_set")),
+        "owl": farm_owl(props, n),
         "obstacles": [{"position": vec(o.attrib["position"]), "dimensions": vec(o.attrib["dimensions"])} for o in farm.findall("obstacle")],
         "quests": quests,
         "holders": holders,
@@ -723,6 +749,10 @@ def main():
     rules["holders"] = holders
     rules["texts"]["characters"] = dict(ru.find("characters").attrib)
     rules["texts"]["global_map"] = dict(ru.find("global_map").attrib)
+    rules["owl"] = farm_owl(props, 1)
+    # названия и описания предметов фермы (root/item_names, root/desc): сова — owl, owl_level2, owl_level3
+    rules["texts"]["item_names"] = dict(ru.find("item_names").attrib) if ru.find("item_names") is not None else {}
+    rules["texts"]["item_desc"] = dict(ru.find("desc").attrib) if ru.find("desc") is not None else {}
     # окно заданий: заголовок quest/header и разделитель тысяч в числах (root/delimiter, «,»)
     rules["texts"]["quest_title"] = ru.find("quest/header").attrib.get("text", "")
     rules["texts"]["delimiter"] = ru.find("delimiter").attrib.get("text", ",")
@@ -819,6 +849,10 @@ def main():
                 if (folder / anim / f"{d}.jpg").exists():
                     names[f"bug_{bug['folder']}_{anim}_{d}"] = f"bugs/{bug['folder']}/{anim}/{d}"
     names["bq_big"] = "game/bouquets/big-flowers"
+    for loc in [rules] + list(rules["locations"].values()):
+        for lv in (loc.get("owl") or {}).get("levels", []):
+            for img in lv["images"].values():
+                names[img] = f"obstacles/{img}"
     # окно заданий (quest_screen): фон, стрелки листания, портреты персонажей журнала и значки заданий
     names["quest_back"] = "game/Quest_back"
     for d in ("next", "prev"):
