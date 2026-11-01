@@ -15,6 +15,7 @@ import { fmt, Place, Rules, StorageLevel } from "./rules";
 import type { Game, PlantSave, Weather } from "./state";
 import { Reminder, Tutorial } from "./tutorial";
 import { QuestScreen } from "./questscreen";
+import type { WellDef } from "./rules";
 import { wellName, wellOffer } from "./well";
 import { COLOR, dialog, floatPoints, H, image, pop, roundButton, shopButton, type ShopButton, tex, textButton, toast, W } from "./ui";
 
@@ -124,7 +125,9 @@ export class Farm extends Container {
   private readonly barrels: Filled[] = [];
   private readonly boxes: Filled[] = [];
   private readonly well: Sprite;
-  private readonly pail: Filled;
+  private pail: Filled;
+  /** Картинки, из которых собрано текущее ведро (меняются с уровнем колодца). */
+  private pailKey = "";
   private readonly startBtn: Container;
   private readonly townBtn: Container;
   /** «Закончить День» — досрочное завершение, на месте кнопки «Начать День». */
@@ -180,16 +183,8 @@ export class Farm extends Container {
     this.well.on("pointertap", () => this.tapWell());
     this.well.on("pointerover", () => this.setBuyTarget("well"));
     // вода в ведре — тот же Filled, что у бочки: картинка воды опускается на pail_height при пустом ведре (0x40d110)
-    this.pail = new Filled("pail", "pail_water", "pail_mask", wl.pail_height);
-    // картинка ведра 70 × 60 стоит в skin_ru.xml → game_screen/well_ctrl/well_pail_00: 240; 440 (exe 0x4146b0 берёт её по имени ведра) —
-    // на 10 px левее и на 30 px выше препятствия ведра. Имя ведра на всех фермах одно, а на ферме 3 колодец сдвинут, поэтому
-    // сдвиг считаем от препятствия: на фермах 1, 2, 4 это ровно 240; 440, на ферме 3 ведро остаётся у колодца
-    this.pail.position.set(wl.pail.position[0] - 10, wl.pail.position[1] - 30);
-    this.pail.level = 1;
-    this.pail.sortKey = this.well.y + this.well.height + 1; // ведро стоит у колодца и рисуется поверх его картинки
-    this.pail.eventMode = "static";
-    this.pail.cursor = "default";
-    this.pail.on("pointertap", () => this.tapWell());
+    this.pail = this.makePail(wl);
+    // где стоит ведро — game_screen/well_ctrl/<ведро> (exe 0x4146b0 берёт его по имени ведра), ставит placePail
     this.objects.addChild(this.well, this.pail);
 
     // ---------------- часы дня (whether_time_ctrl) и круглые кнопки (start_day: 527; -110, to_town: 193; -110)
@@ -777,13 +772,45 @@ export class Farm extends Container {
     const owned = this.game.well;
     const w = this.wellDef();
     const name = owned ? this.wellName() : this.wellOffer().name;
-    this.well.texture = tex(this.wellImage(name));
+    const img = w.image === undefined ? this.wellImage(name) : w.image;
+    if (img) this.well.texture = tex(img);
     this.well.position.set(w.position[0] + w.image_offset[0], w.position[1] + w.image_offset[1]);
-    this.pail.position.set(w.pail.position[0] - 10, w.pail.position[1] - 30);
-    this.pail.sortKey = this.well.y + this.well.height + 1;
-    this.well.visible = owned || (this.mode === "shop" && this.game.hasMark("shop_well"));
+    // ведро своё у каждого уровня (у 2–5-й локаций оно и есть фонтан / родник / акведук) — пересобираем при смене
+    const key = (w.pail_images ?? []).join();
+    if (key !== this.pailKey) {
+      const old = this.pail;
+      this.pail = this.makePail(w);
+      this.pail.level = old.level;
+      this.objects.addChildAt(this.pail, this.objects.getChildIndex(old));
+      old.destroy({ children: true });
+    }
+    const shown = owned || (this.mode === "shop" && this.game.hasMark("shop_well"));
+    this.well.visible = shown && !!img;
     this.well.alpha = owned ? 1 : 0.5;
-    this.pail.visible = owned;
+    // пока колодец не куплен, ведро видно только там, где оно и есть колодец (нет своей картинки) — полупрозрачным
+    this.pail.visible = owned || (shown && !img);
+    this.pail.alpha = owned ? 1 : 0.5;
+    this.placePail(w);
+  }
+
+  /** Ведро уровня: картинки root/<ведро>/pail|water|mask; без данных — ведро первой фермы. */
+  private makePail(w: WellDef) {
+    const [base, water, mask] = w.pail_images?.length ? w.pail_images : ["pail", "pail_water", "pail_mask"];
+    this.pailKey = (w.pail_images ?? []).join();
+    const p = new Filled(base, water, mask, w.pail_height);
+    p.level = 1;
+    p.eventMode = "static";
+    p.cursor = "default";
+    p.on("pointertap", () => this.tapWell());
+    p.on("pointerover", () => this.setBuyTarget("well"));
+    return p;
+  }
+
+  /** Ведро стоит в game_screen/well_ctrl/<ведро>; рисуется поверх колодца (у 2–5-й — по своему нижнему краю). */
+  private placePail(w: WellDef) {
+    if (w.pail_pos) this.pail.position.set(...w.pail_pos);
+    else this.pail.position.set(w.pail.position[0] - 10, w.pail.position[1] - 30);
+    this.pail.sortKey = this.well.visible ? this.well.y + this.well.height + 1 : null;
   }
 
   private wellOffer() {

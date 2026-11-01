@@ -90,6 +90,11 @@ export interface LocationRules {
 
 export type WellDef = Place & {
   image_offset: [number, number]; pail: Place; delay: number; fill_time: number; water_capacity: number; price: number; pail_height: number;
+  /** Картинка колодца (resource.xml root/obstacles/<имя>; у 2–5-й локаций пусто — виден только «ведро»-фонтан). */
+  image?: string;
+  /** «Ведро»: картинка, вода, маска (root/<ведро>/pail|water|mask) и где оно стоит (game_screen/well_ctrl/<ведро>). */
+  pail_images?: string[];
+  pail_pos?: [number, number] | null;
 };
 
 export interface Rules {

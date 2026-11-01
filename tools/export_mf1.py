@@ -476,6 +476,19 @@ def bouquet_random(rs):
     return {"products": [x.strip() for x in rs.attrib.get("products", "").split(";") if x.strip()], "entries": entries}
 
 
+def resource_paths(path):
+    """resource.xml: id картинки → путь без расширения (с учётом SetDefaults path)."""
+    base, out = "", {}
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        m = re.search(r'<SetDefaults\s+path="([^"]*)"', line)
+        if m:
+            base = m.group(1).removeprefix("data/")
+        m = re.search(r'<Image\s+id="([^"]+)"\s+path="([^"]+)"', line)
+        if m:
+            out[m.group(1)] = f"{base}/{m.group(2)}" if base else m.group(2)
+    return out
+
+
 def well_levels(farm, objects, items_root):
     """Уровни колодца (exe 0x4f32e0): атрибуты well_object фермы (well / well_N, pail / pail_N) и свойства колодцев
     items/wells/<имя> с их препятствиями на ферме. Какой уровень брать — решает игра (web/src/farm.ts, wellAt)."""
@@ -487,7 +500,7 @@ def well_levels(farm, objects, items_root):
             continue
         a = it.attrib
         pail = a.get("pail", "")
-        items[name] = {**objects[name], "pail": objects.get(pail, objects[name]),
+        items[name] = {**objects[name], "pail": objects.get(pail, objects[name]), "pail_name": pail,
                        **{k: float(a[k]) for k in ("delay", "fill_time", "water_capacity", "price", "pail_height")}}
     return {"well_object": wo, "well_items": items}
 
@@ -819,11 +832,26 @@ def main():
     for item in {a.get("item", "") for a in journal_acts if a["type"] in ("add_task", "add_task_count")} - {""}:
         if (mini / "need" / f"{item}.jpg").exists() or (mini / "need" / f"{item}.png").exists():
             names[f"need_{item}"] = f"game/towns/quests/miniimages/need/{item}"
-    # картинки колодцев всех уровней (obstacles/<имя>), если они есть
+    # картинки колодцев по resource.xml: root/obstacles/<колодец> (у 2–5-й локаций — empty) и «ведро» root/<ведро>/pail|water|mask
+    # (у 2–5-й локаций это и есть видимый фонтан, родник, акведук). Где ведро стоит — game_screen/well_ctrl/<ведро>.
+    res = resource_paths(xml_dir / "resource.xml")
+    well_ctrl = next(e for e in props.iter("well_ctrl") if len(e))
     for loc in [rules] + list(rules["locations"].values()):
-        for name in loc.get("well_items", {}):
-            if (data_dir / "obstacles" / f"{name}.jpg").exists():
-                names[f"wellimg_{name}"] = f"obstacles/{name}"
+        for name, it in loc.get("well_items", {}).items():
+            src = res.get(f"root/obstacles/{name}", "")
+            it["image"] = ""
+            if src and not src.endswith("/empty") and (data_dir / f"{src}.jpg").exists():
+                it["image"] = f"wellimg_{name}"
+                names[it["image"]] = src
+            pn = it.pop("pail_name", "")
+            parts = [res.get(f"root/{pn}/{k}", "") for k in ("pail", "water", "mask")]
+            it["pail_images"] = []
+            if all(parts):
+                it["pail_images"] = [f"pail{k}_{pn}" for k in ("", "w", "m")]
+                for nm, src in zip(it["pail_images"], parts):
+                    names[nm] = src
+            ctrl = well_ctrl.find(pn)
+            it["pail_pos"] = vec(ctrl.attrib["position"]) if ctrl is not None else None
     for item in {b["items"] for b in bugs.values() if b["items"]}:
         names[f"item_{item}"] = f"quest_items/{item}"
     for icon in ("attack_icon", "pour_icon", "product_icon"):
