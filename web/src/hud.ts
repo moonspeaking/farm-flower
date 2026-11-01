@@ -1,6 +1,6 @@
 // Левая панель Айрис (stat_control + game_screen/item_stat «Цветка Стихий»): опыт, склад, вода, деньги, день, «Меню».
 import { Container, Graphics } from "pixi.js";
-import type { FontName, PopLabel } from "./popfont";
+import type { PopLabel } from "./popfont";
 import { rgb } from "./popfont";
 import type { Rules } from "./rules";
 import type { Game } from "./state";
@@ -44,24 +44,24 @@ export class Hud extends Container {
     title(st.money_title, 11, 378, 80, 30);
     title(st.day_title, 104, 16, 80, 30);
 
-    // значения — stat_control_fonts_2 с наклоном angle из XML (рад). Как в первой игре (там product_count (54;214) стоял
-    // центром на x = 54 при рамке 85 px), x позиции — центр надписи, y — её верх; поворот вокруг этой точки.
-    // product_count (77;235) наклон 0.2; water_count (32;350) −0.2, цвет 255;255;160; money_count (83;468) 0.2; day_count (106;35) align left
-    const value = (x: number, y: number, angle: number, color: number, align: "left" | "center" = "center", font: FontName = "stat_control_fonts_2", scale = 1) => {
-      const l = pop("", font, color, { align, scale });
+    // значения — stat_control_fonts_2 (буквы своего тёмного цвета). Как в первой игре (там product_count (54;214) стоял
+    // центром на x = 54 при рамке 85 px), x позиции — центр надписи, y — её верх.
+    // product_count (77;235), water_count (32;350) цвет 255;255;160, money_count (83;468), day_count (106;35) align left.
+    // angle в XML (0.2 / −0.2) на скриншоте оригинала не виден — числа стоят ровно, поэтому не поворачиваем
+    const value = (x: number, y: number, color: number) => {
+      const l = pop("", "stat_control_fonts_2", color, { align: "center" });
       l.position.set(x, y);
-      l.rotation = angle;
       this.addChild(l);
       return l;
     };
     this.values = {
-      storage: value(77, 235, 0.2, COLOR.white),
-      water: value(32, 350, -0.2, rgb(255, 255, 160)),
-      money: value(83, 468, 0.2, COLOR.white),
+      storage: value(77, 235, COLOR.white),
+      water: value(32, 350, rgb(255, 255, 160)),
+      money: value(83, 468, COLOR.white),
       // день — по скриншоту под словом «День», по его центру (в XML day_count (106;35) 30×30, align left)
-      day: value(144, 38, 0, COLOR.white),
-      // уровень — float_points в жёлтом кружке слева от полоски опыта (в XML experience вынесен за экран; место — по скриншоту оригинала)
-      level: value(44, 108, 0, COLOR.white, "center", "float_points", 0.85),
+      day: value(144, 38, COLOR.white),
+      // уровень — тем же тёмным шрифтом в жёлтом кружке слева от полоски опыта (в XML experience вынесен за экран; место и шрифт — по скриншоту оригинала)
+      level: value(44, 108, COLOR.white),
     };
 
     // полоска опыта exp (56;110) 60×10; при свободных очках умений мигает. Нажатие — view_button (19;94) 90×25
@@ -99,8 +99,8 @@ export class Hud extends Container {
       if (now.money !== this.shown.money) this.particles.start("money-changes", 120, 478);
     }
     this.shown = now;
-    this.values.storage.text = `${g.storageCount()} / ${g.storageMax}`;
-    this.values.water.text = `${g.water} / ${g.waterMax}`;
+    this.values.storage.text = `${g.storageCount()}/${g.storageMax}`;
+    this.values.water.text = `${g.water}/${g.waterMax}`;
     this.values.money.text = String(g.gold);
     this.values.day.text = String(g.day);
     this.values.level.text = String(g.level);
