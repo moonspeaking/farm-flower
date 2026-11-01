@@ -81,6 +81,7 @@ export interface LocationRules {
   wave_loop: number;
   arrive_positions: [number, number][];
   bouquets: string[][];
+  bouquet_random: Rules["bouquet_random"];
   shop_positions: Rules["shop_positions"];
   obstacles: Place[];
   quests: Record<string, Quest>;
@@ -153,6 +154,10 @@ export interface Rules {
   skills: Record<string, Record<string, number>[]>;
   skill_events: Record<string, ({ value: number } & Record<string, number>)[]>;
   bouquets: string[][];
+  /** Случайные букеты bouquet_random_set: цветы-кандидаты и записи по дням (вероятности размеров 3/4/5, веса цветов). */
+  /** Размеры букетов: множитель цены и картинка большого кулька со сдвигом (bouquets/size_N). */
+  bouquet_sizes?: Record<string, { price_k: number; offset: [number, number]; image: string }>;
+  bouquet_random?: { products: string[]; entries: { day: number; sizes: [number, number, number]; weights: Record<string, number> }[] } | null;
   bouquet_price_k: number;
   progresses: Record<string, { image: string; max: number; offset: [number, number] }>;
   strong_heart: number;

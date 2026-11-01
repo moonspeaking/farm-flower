@@ -376,18 +376,71 @@ export class Game {
   // ---------------------------------------------------------------- заказы на букеты
 
   /** Четыре заказа из bouquet_set по порядку; выполненный заменяется следующим. */
+  /**
+   * Заказы — 4 места (exe 0x433fc0 при открытии экрана букетов заполняет пустые, 0x434050 — место проданного).
+   * Место остаётся пустым (items = []), если букет не собрался: нет нужных цветов на складе.
+   */
   fillOrders() {
     const b = this.bouquets;
-    while (b.orders.length < 4) {
-      const items = this.rules.bouquets[b.next % this.rules.bouquets.length];
-      b.next += 1;
-      b.orders.push({ items: [...items], placed: items.map(() => null) });
+    while (b.orders.length < 4) b.orders.push({ items: [], placed: [] });
+    for (let i = 0; i < 4; i++) {
+      if (b.orders[i].items.length) continue;
+      const items = this.nextOrderItems();
+      if (!items) continue;
+      b.orders[i] = { items, placed: items.map(() => null) };
     }
+  }
+
+  /**
+   * Следующий заказ (exe 0x434270): сначала bouquet_set по порядку; когда он кончился — случайный букет, а если тот не
+   * собрался (или случайных нет) — номер в bouquet_set становится половиной длины списка и заказ берётся оттуда.
+   */
+  private nextOrderItems(): string[] | null {
+    const b = this.bouquets;
+    const fixed = this.rules.bouquets ?? [];
+    if (b.next >= fixed.length) {
+      const items = this.rules.bouquet_random?.entries.length ? this.randomBouquet() : null;
+      if (items) return items;
+      b.next = fixed.length >> 1;
+    }
+    if (!fixed.length) return null;
+    return [...fixed[b.next++]];
+  }
+
+  /**
+   * Случайный букет (exe 0x434580). Кандидаты — цветы products, которые сейчас есть на складе. Запись — последняя с day
+   * не больше текущего дня. Размер: r = rand · (p3 + p4 + p5); r ≤ p3 — 3 цветка, r ≤ p3 + p4 — 4, иначе 5.
+   * Каждый цветок — по весам p_<цветок> среди кандидатов; если кандидатов нет, букет не собирается.
+   */
+  private randomBouquet(): string[] | null {
+    const rs = this.rules.bouquet_random!;
+    const avail = new Set(rs.products.filter((p) => (this.storage.get(p) ?? 0) > 0));
+    let cur: (typeof rs.entries)[number] | undefined;
+    for (const e of rs.entries) {
+      if (e.day > this.day) break;
+      cur = e;
+    }
+    if (!cur) return null;
+    const [p3, p4, p5] = cur.sizes;
+    const r = Math.random() * (p3 + p4 + p5);
+    const size = r <= p3 ? 3 : r <= p3 + p4 ? 4 : 5;
+    const weights = Object.entries(cur.weights).filter(([p]) => avail.has(p));
+    const total = weights.reduce((a, [, w]) => a + w, 0);
+    const out: string[] = [];
+    for (let i = 0; i < size; i++) {
+      let x = Math.random() * total;
+      const hit = weights.find(([, w]) => (x <= w ? true : ((x -= w), false)));
+      if (!hit) return null;
+      out.push(hit[0]);
+    }
+    return out;
   }
 
   orderPrice(o: BouquetOrder) {
     const sum = o.items.reduce((a, p) => a + (this.rules.products[p]?.price ?? 0), 0);
-    return this.sellPrice(sum * this.rules.bouquet_price_k);
+    // exe 0x4d1d5d: цена букета ещё умножается на price_k его размера (4 цветка — 1.15, 5 — 1.25)
+    const k = this.rules.bouquet_sizes?.[String(o.items.length)]?.price_k ?? 1;
+    return this.sellPrice(sum * this.rules.bouquet_price_k * k);
   }
 
   // ---------------------------------------------------------------- сохранение

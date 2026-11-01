@@ -2356,39 +2356,6 @@
    "price": 250.0,
    "pail_height": 17.0
   },
-  "well_01": {
-   "position": [
-    140.0,
-    420.0
-   ],
-   "dimensions": [
-    110.0,
-    120.0
-   ],
-   "image_offset": [
-    -70.0,
-    -100.0
-   ],
-   "pail": {
-    "position": [
-     250.0,
-     470.0
-    ],
-    "dimensions": [
-     41.0,
-     30.0
-    ],
-    "image_offset": [
-     0.0,
-     0.0
-    ]
-   },
-   "delay": 22.0,
-   "fill_time": 6.0,
-   "water_capacity": 4.0,
-   "price": 150.0,
-   "pail_height": 17.0
-  },
   "well_00": {
    "position": [
     140.0,
@@ -2453,6 +2420,39 @@
    "fill_time": 5.0,
    "water_capacity": 5.0,
    "price": 200.0,
+   "pail_height": 17.0
+  },
+  "well_01": {
+   "position": [
+    140.0,
+    420.0
+   ],
+   "dimensions": [
+    110.0,
+    120.0
+   ],
+   "image_offset": [
+    -70.0,
+    -100.0
+   ],
+   "pail": {
+    "position": [
+     250.0,
+     470.0
+    ],
+    "dimensions": [
+     41.0,
+     30.0
+    ],
+    "image_offset": [
+     0.0,
+     0.0
+    ]
+   },
+   "delay": 22.0,
+   "fill_time": 6.0,
+   "water_capacity": 4.0,
+   "price": 150.0,
    "pail_height": 17.0
   }
  },
@@ -9192,39 +9192,6 @@
      "price": 750.0,
      "pail_height": 17.0
     },
-    "well_22": {
-     "position": [
-      570.0,
-      200.0
-     ],
-     "dimensions": [
-      160.0,
-      130.0
-     ],
-     "image_offset": [
-      -49.0,
-      -49.0
-     ],
-     "pail": {
-      "position": [
-       570.0,
-       200.0
-      ],
-      "dimensions": [
-       130.0,
-       130.0
-      ],
-      "image_offset": [
-       -49.0,
-       -49.0
-      ]
-     },
-     "delay": 5.0,
-     "fill_time": 40.0,
-     "water_capacity": 12.0,
-     "price": 1000.0,
-     "pail_height": 17.0
-    },
     "well_21": {
      "position": [
       570.0,
@@ -9256,6 +9223,39 @@
      "fill_time": 40.0,
      "water_capacity": 8.0,
      "price": 900.0,
+     "pail_height": 17.0
+    },
+    "well_22": {
+     "position": [
+      570.0,
+      200.0
+     ],
+     "dimensions": [
+      160.0,
+      130.0
+     ],
+     "image_offset": [
+      -49.0,
+      -49.0
+     ],
+     "pail": {
+      "position": [
+       570.0,
+       200.0
+      ],
+      "dimensions": [
+       130.0,
+       130.0
+      ],
+      "image_offset": [
+       -49.0,
+       -49.0
+      ]
+     },
+     "delay": 5.0,
+     "fill_time": 40.0,
+     "water_capacity": 12.0,
+     "price": 1000.0,
      "pail_height": 17.0
     }
    },
@@ -10958,28 +10958,41 @@
      550.0
     ]
    ],
-   "bouquets": [
-    [
+   "bouquets": [],
+   "bouquet_random": {
+    "products": [
      "p_klubnika_1",
-     "p_klubnika_1",
-     "p_klubnika_1"
-    ],
-    [
-     "p_klubnika_1",
-     "p_klubnika_1",
-     "p_klubnika_1"
-    ],
-    [
-     "p_klubnika_1",
-     "p_klubnika_1",
-     "p_bell_1"
-    ],
-    [
+     "p_klubnika_2",
+     "p_klubnika_3",
      "p_bell_1",
-     "p_bell_1",
-     "p_klubnika_1"
+     "p_bell_2",
+     "p_bell_3",
+     "p_heart_1",
+     "p_heart_2",
+     "p_heart_3"
+    ],
+    "entries": [
+     {
+      "day": 0,
+      "sizes": [
+       1.0,
+       0.3,
+       0.1
+      ],
+      "weights": {
+       "p_bell_1": 3.0,
+       "p_bell_2": 2.0,
+       "p_bell_3": 1.0,
+       "p_heart_1": 3.0,
+       "p_heart_2": 2.0,
+       "p_heart_3": 1.0,
+       "p_klubnika_1": 3.0,
+       "p_klubnika_2": 2.0,
+       "p_klubnika_3": 1.0
+      }
+     }
     ]
-   ],
+   },
    "obstacles": [
     {
      "position": [
@@ -14702,7 +14715,7 @@
     "pail_3": "well_pail_32"
    },
    "well_items": {
-    "well_3": {
+    "well_32": {
      "position": [
       342.0,
       0.0
@@ -14729,10 +14742,10 @@
        0.0
       ]
      },
-     "delay": 14.0,
+     "delay": 7.0,
      "fill_time": 1.0,
      "water_capacity": 1.0,
-     "price": 75.0,
+     "price": 300.0,
      "pail_height": 17.0
     },
     "well_31": {
@@ -14768,7 +14781,7 @@
      "price": 175.0,
      "pail_height": 17.0
     },
-    "well_32": {
+    "well_3": {
      "position": [
       342.0,
       0.0
@@ -14795,10 +14808,10 @@
        0.0
       ]
      },
-     "delay": 7.0,
+     "delay": 14.0,
      "fill_time": 1.0,
      "water_capacity": 1.0,
-     "price": 300.0,
+     "price": 75.0,
      "pail_height": 17.0
     }
    },
@@ -16621,29 +16634,41 @@
      580.0
     ]
    ],
-   "bouquets": [
-    [
+   "bouquets": [],
+   "bouquet_random": {
+    "products": [
      "p_pineapple_1",
-     "p_pineapple_1",
-     "p_pineapple_1"
+     "p_pineapple_2",
+     "p_pineapple_3",
+     "p_cactus_1",
+     "p_cactus_2",
+     "p_cactus_3",
+     "p_nopal_1",
+     "p_nopal_2",
+     "p_nopal_3"
     ],
-    [
-     "p_pineapple_1",
-     "p_pineapple_1",
-     "p_pineapple_1",
-     "p_pineapple_1"
-    ],
-    [
-     "p_pineapple_1",
-     "p_pineapple_1",
-     "p_pineapple_1"
-    ],
-    [
-     "p_pineapple_1",
-     "p_pineapple_1",
-     "p_pineapple_1"
+    "entries": [
+     {
+      "day": 0,
+      "sizes": [
+       1.0,
+       0.3,
+       0.1
+      ],
+      "weights": {
+       "p_cactus_1": 3.0,
+       "p_cactus_2": 2.0,
+       "p_cactus_3": 1.0,
+       "p_nopal_1": 3.0,
+       "p_nopal_2": 2.0,
+       "p_nopal_3": 1.0,
+       "p_pineapple_1": 3.0,
+       "p_pineapple_2": 2.0,
+       "p_pineapple_3": 1.0
+      }
+     }
     ]
-   ],
+   },
    "obstacles": [
     {
      "position": [
@@ -20361,39 +20386,6 @@
     "pail_3": "well_pail_42"
    },
    "well_items": {
-    "well_41": {
-     "position": [
-      632.0,
-      100.0
-     ],
-     "dimensions": [
-      155.0,
-      180.0
-     ],
-     "image_offset": [
-      0.0,
-      0.0
-     ],
-     "pail": {
-      "position": [
-       632.0,
-       100.0
-      ],
-      "dimensions": [
-       155.0,
-       180.0
-      ],
-      "image_offset": [
-       0.0,
-       0.0
-      ]
-     },
-     "delay": 22.0,
-     "fill_time": 4.0,
-     "water_capacity": 4.0,
-     "price": 900.0,
-     "pail_height": 17.0
-    },
     "well_42": {
      "position": [
       632.0,
@@ -20458,6 +20450,39 @@
      "fill_time": 3.0,
      "water_capacity": 3.0,
      "price": 750.0,
+     "pail_height": 17.0
+    },
+    "well_41": {
+     "position": [
+      632.0,
+      100.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       632.0,
+       100.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 22.0,
+     "fill_time": 4.0,
+     "water_capacity": 4.0,
+     "price": 900.0,
      "pail_height": 17.0
     }
    },
@@ -23252,28 +23277,41 @@
      580.0
     ]
    ],
-   "bouquets": [
-    [
+   "bouquets": [],
+   "bouquet_random": {
+    "products": [
      "p_tiger_1",
-     "p_tiger_1",
-     "p_tiger_1"
+     "p_tiger_2",
+     "p_tiger_3",
+     "p_fern_1",
+     "p_fern_2",
+     "p_fern_3",
+     "p_fire_1",
+     "p_fire_2",
+     "p_fire_3"
     ],
-    [
-     "p_fern_1",
-     "p_fern_1",
-     "p_fern_1"
-    ],
-    [
-     "p_fern_1",
-     "p_fern_1",
-     "p_tiger_1"
-    ],
-    [
-     "p_tiger_1",
-     "p_tiger_1",
-     "p_fern_1"
+    "entries": [
+     {
+      "day": 0,
+      "sizes": [
+       1.0,
+       0.3,
+       0.1
+      ],
+      "weights": {
+       "p_fern_1": 3.0,
+       "p_fern_2": 2.0,
+       "p_fern_3": 1.0,
+       "p_fire_1": 3.0,
+       "p_fire_2": 2.0,
+       "p_fire_3": 1.0,
+       "p_tiger_1": 3.0,
+       "p_tiger_2": 2.0,
+       "p_tiger_3": 1.0
+      }
+     }
     ]
-   ],
+   },
    "obstacles": [
     {
      "position": [
@@ -28209,7 +28247,7 @@
     "pail_3": "well_pail_52"
    },
    "well_items": {
-    "well_51": {
+    "well_52": {
      "position": [
       98.0,
       391.0
@@ -28237,9 +28275,9 @@
       ]
      },
      "delay": 20.0,
-     "fill_time": 3.0,
-     "water_capacity": 3.0,
-     "price": 225.0,
+     "fill_time": 5.0,
+     "water_capacity": 5.0,
+     "price": 350.0,
      "pail_height": 17.0
     },
     "well_5": {
@@ -28275,7 +28313,7 @@
      "price": 100.0,
      "pail_height": 17.0
     },
-    "well_52": {
+    "well_51": {
      "position": [
       98.0,
       391.0
@@ -28303,9 +28341,9 @@
       ]
      },
      "delay": 20.0,
-     "fill_time": 5.0,
-     "water_capacity": 5.0,
-     "price": 350.0,
+     "fill_time": 3.0,
+     "water_capacity": 3.0,
+     "price": 225.0,
      "pail_height": 17.0
     }
    },
@@ -30507,31 +30545,65 @@
      580.0
     ]
    ],
-   "bouquets": [
-    [
+   "bouquets": [],
+   "bouquet_random": {
+    "products": [
+     "p_blue_fruit_1",
+     "p_blue_fruit_2",
+     "p_yellow_fruit_3",
+     "p_yellow_fruit_1",
+     "p_yellow_fruit_2",
+     "p_yellow_fruit_3",
+     "p_red_fruit_1",
+     "p_red_fruit_2",
+     "p_red_fruit_3",
+     "p_green_fruit_1",
+     "p_green_fruit_2",
+     "p_green_fruit_3",
+     "p_ice_1",
+     "p_ice_2",
+     "p_ice_3",
      "p_spiral_1",
-     "p_spiral_1",
-     "p_spiral_1",
-     "p_spiral_1"
-    ],
-    [
-     "p_spiral_1",
-     "p_spiral_1",
-     "p_spiral_1",
-     "p_spiral_1",
-     "p_spiral_1"
-    ],
-    [
-     "p_spiral_1",
-     "p_spiral_1",
-     "p_spiral_1"
-    ],
-    [
-     "p_spiral_1",
+     "p_spiral_2",
+     "p_spiral_3",
      "p_bush_1",
-     "p_spiral_1"
+     "p_bush_2",
+     "p_bush_3"
+    ],
+    "entries": [
+     {
+      "day": 0,
+      "sizes": [
+       1.0,
+       0.5,
+       0.2
+      ],
+      "weights": {
+       "p_blue_fruit_1": 3.0,
+       "p_blue_fruit_2": 2.0,
+       "p_blue_fruit_3": 1.0,
+       "p_bush_1": 9.0,
+       "p_bush_2": 6.0,
+       "p_bush_3": 3.0,
+       "p_green_fruit_1": 3.0,
+       "p_green_fruit_2": 2.0,
+       "p_green_fruit_3": 1.0,
+       "p_ice_1": 9.0,
+       "p_ice_2": 6.0,
+       "p_ice_3": 3.0,
+       "p_red_fruit_1": 3.0,
+       "p_red_fruit_2": 2.0,
+       "p_red_fruit_3": 1.0,
+       "p_spiral_1": 9.0,
+       "p_spiral_2": 6.0,
+       "p_spiral_3": 3.0,
+       "p_yellow_fruit_1": 3.0,
+       "p_yellow_fruit_2": 2.0,
+       "p_yellow_fruit_3": 1.0
+      }
+     }
     ]
-   ],
+   },
    "obstacles": [
     {
      "position": [
@@ -33332,30 +33404,76 @@
    }
   ]
  },
- "bouquets": [
-  [
-   "p_romashka_1",
-   "p_romashka_1",
-   "p_romashka_1"
-  ],
-  [
-   "p_romashka_1",
-   "p_romashka_1",
-   "p_romashka_1"
-  ],
-  [
-   "p_romashka_1",
-   "p_romashka_1",
-   "p_romashka_1",
-   "p_romashka_1"
-  ],
-  [
-   "p_romashka_1",
-   "p_romashka_1",
-   "p_romashka_1"
-  ]
- ],
+ "bouquets": [],
  "bouquet_price_k": 2.0,
+ "bouquet_random": {
+  "products": [
+   "p_romashka_1",
+   "p_romashka_2",
+   "p_romashka_3",
+   "p_tree_1",
+   "p_tree_2",
+   "p_tree_3",
+   "p_rose_1",
+   "p_rose_2",
+   "p_rose_3"
+  ],
+  "entries": [
+   {
+    "day": 0,
+    "sizes": [
+     1.0,
+     0.3,
+     0.1
+    ],
+    "weights": {
+     "p_romashka_1": 3.0,
+     "p_romashka_2": 2.0,
+     "p_romashka_3": 1.0,
+     "p_rose_1": 3.0,
+     "p_rose_2": 2.0,
+     "p_rose_3": 1.0,
+     "p_tree_1": 3.0,
+     "p_tree_2": 2.0,
+     "p_tree_3": 1.0
+    }
+   }
+  ]
+ },
+ "bouquet_sizes": {
+  "0": {
+   "price_k": 1.0,
+   "offset": [
+    0.0,
+    0.0
+   ],
+   "image": ""
+  },
+  "3": {
+   "price_k": 1.0,
+   "offset": [
+    0.0,
+    0.0
+   ],
+   "image": ""
+  },
+  "4": {
+   "price_k": 1.15,
+   "offset": [
+    -20.0,
+    0.0
+   ],
+   "image": "bq_big"
+  },
+  "5": {
+   "price_k": 1.25,
+   "offset": [
+    -20.0,
+    0.0
+   ],
+   "image": "bq_big"
+  }
+ },
  "progresses": {
   "attack_bug": {
    "image": "heart_small",
@@ -33450,6 +33568,7 @@
   "box_mask_4",
   "box_mask_5",
   "bq_back",
+  "bq_big",
   "broken_ship",
   "bug_boar_eat_down",
   "bug_boar_eat_right",
@@ -34138,6 +34257,7 @@
   "bell_2",
   "bell_3",
   "bq_back",
+  "bq_big",
   "broken_ship",
   "bug_helper_move_down",
   "bug_helper_move_right",

@@ -69,6 +69,8 @@ export class BouquetScreen extends Container {
   ) {
     super();
     const t = rules.texts;
+    // при открытии экрана пустые места заказов заполняются (exe 0x433fc0)
+    game.fillOrders();
     this.addChild(image("bq_back"), this.slots, this.orders, this.basket, this.drag);
     this.eventMode = "static";
     this.hitArea = new Rectangle(0, 0, 800, 600);
@@ -251,12 +253,20 @@ export class BouquetScreen extends Container {
     this.orders.removeChildren().forEach((c) => c.destroy({ children: true }));
     this.ghosts = [];
     this.game.bouquets.orders.slice(0, 4).forEach((o, oi) => {
+      if (!o.items.length) return; // пустое место: букет не собрался
       const [cx, cy] = CONES[oi];
       const price = this.game.orderPrice(o);
       // цена букета: в «Цветке Стихий» раздел bouquets_shop — шрифт root/font/default (BritannicBold14), цвет 255;255;255
       // (в первой игре этого раздела нет, и там цена чёрная)
       const tag = pop(fmt(this.rules.texts.shop.price, { price }), "BritannicBold14", COLOR.white, { align: "center", scale: 1.1 });
       tag.position.set(cx - 18, cy - 62);
+      // букет на 4–5 цветов — в большом кульке big-flowers со сдвигом из bouquets/size_N (exe 0x4d1800)
+      const size = this.rules.bouquet_sizes?.[String(o.items.length)];
+      if (size?.image) {
+        const big = image(size.image);
+        big.position.set(BP[oi][0] + size.offset[0], BP[oi][1] + size.offset[1]);
+        this.orders.addChild(big);
+      }
       o.items.forEach((product, si) => {
         const s = image(o.placed[si] ?? product);
         s.anchor.set(0.5);
@@ -288,11 +298,9 @@ export class BouquetScreen extends Container {
     const price = this.game.orderPrice(order);
     this.game.gold += price;
     this.game.bouquets.done += 1;
-    this.game.bouquets.orders.splice(oi, 1);
+    // место освобождается, новый заказ встаёт на него (exe 0x434050)
+    this.game.bouquets.orders[oi] = { items: [], placed: [] };
     this.game.fillOrders();
-    // новый заказ встаёт на место выполненного, а не в конец очереди
-    const fresh = this.game.bouquets.orders.pop()!;
-    this.game.bouquets.orders.splice(oi, 0, fresh);
     audio.play("bouquet_submited");
     this.hooks.completed?.();
     const [cx, cy] = CONES[oi];

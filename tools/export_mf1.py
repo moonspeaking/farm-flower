@@ -364,7 +364,7 @@ def export_gameplay(props, loc1_props, skills_xml):
     for ev in char.find("events"):
         events[ev.tag] = [{"value": int(lv.attrib["value"]), **{k.tag: float(k.attrib["k"]) for k in lv}} for lv in ev]
     bset = loc1_props.find("bouquet_set")
-    bouquets = [[x.strip() for x in b.attrib["bouquet"].split(";") if x.strip()] for b in bset]
+    bouquets = bouquet_list(bset)
     prog = props.find("progresses")
     progresses = {c.tag: {"image": c.attrib["image"].rsplit("/", 1)[-1], "max": int(c.attrib["max_hearts"]),
                           "offset": vec(c.attrib["center_offset"])} for c in prog}
@@ -374,6 +374,11 @@ def export_gameplay(props, loc1_props, skills_xml):
     return {
         "exp_levels": levels, "skill_limits": limits, "skills": skills, "skill_events": events,
         "bouquets": bouquets, "bouquet_price_k": float(common["bouquet_price_k"]),
+        "bouquet_random": bouquet_random(loc1_props.find("bouquet_random_set")),
+        # размеры букетов (properties.xml bouquets/size_N): множитель цены, картинка большого кулька и её сдвиг (exe 0x4d1800)
+        "bouquet_sizes": {sz.tag[5:]: {"price_k": float(sz.attrib["price_k"]), "offset": vec(sz.attrib["offset"]),
+                                       "image": "bq_big" if sz.attrib.get("image") else ""}
+                          for sz in props.find("bouquets") if sz.tag.startswith("size_")},
         "progresses": progresses, "strong_heart": float(prog.attrib["strong_heart"]), "weather": weather,
         "marks_by_day": marks,
     }
@@ -448,6 +453,27 @@ def wave_group(g, known):
         mode = {"hardocre": "hardcore"}.get(m.group(1), m.group(1)) or "any"
         specs.append({"name": m.group(2), "mode": mode, "mods": m.group(3)})
     return {"bugs": [x["name"] for x in specs if x["mode"] != "hardcore"], "specs": specs, "delay": float(g.attrib["delay"])}
+
+
+def bouquet_list(bset):
+    """Заказы bouquet_set по порядку. exe читает только первые bouquet_count записей (в loc1 — 0: заказы только случайные)."""
+    entries = [[x.strip() for x in b.attrib["bouquet"].split(";") if x.strip()] for b in bset]
+    return entries[:int(bset.attrib["bouquet_count"])] if "bouquet_count" in bset.attrib else entries
+
+
+def bouquet_random(rs):
+    """Случайные букеты (bouquet_random_set, exe 0x42cec0): цветы-кандидаты и записи по дням — вероятности размеров
+    p_size3/4/5 и веса цветов p_*. Читаются первые bouquet_count записей."""
+    if rs is None:
+        return None
+    num = lambda v: float(v.rstrip("f"))
+    entries = []
+    for b in list(rs)[:int(rs.attrib.get("bouquet_count", len(rs)))]:
+        a = b.attrib
+        entries.append({"day": int(a.get("day", 0)), "sizes": [num(a.get(f"p_size{k}", "0")) for k in (3, 4, 5)],
+                        "weights": {k: num(v) for k, v in a.items() if k.startswith("p_") and not k.startswith("p_size")}})
+    entries.sort(key=lambda e: e["day"])
+    return {"products": [x.strip() for x in rs.attrib.get("products", "").split(";") if x.strip()], "entries": entries}
 
 
 def well_levels(farm, objects, items_root):
@@ -554,7 +580,8 @@ def export_location(n, props, xml_dir, items_root, ru, vegetations, products, bu
         # ключ волны (key у wave.) и wave_loop — с какой волны начинать круг заново (exe 0x41c400)
         **wave_keys(next(l for l in props.iter(f"location_{n}") if l.find("bug_arriver") is not None).find("bug_arriver")),
         "arrive_positions": arrive,
-        "bouquets": [[x.strip() for x in b.attrib["bouquet"].split(";") if x.strip()] for b in bset],
+        "bouquets": bouquet_list(bset),
+        "bouquet_random": bouquet_random(locn.find("bouquet_random_set")),
         "obstacles": [{"position": vec(o.attrib["position"]), "dimensions": vec(o.attrib["dimensions"])} for o in farm.findall("obstacle")],
         "quests": quests,
         "holders": holders,
@@ -778,6 +805,7 @@ def main():
             for d in DIRECTIONS:
                 if (folder / anim / f"{d}.jpg").exists():
                     names[f"bug_{bug['folder']}_{anim}_{d}"] = f"bugs/{bug['folder']}/{anim}/{d}"
+    names["bq_big"] = "game/bouquets/big-flowers"
     # окно заданий (quest_screen): фон, стрелки листания, портреты персонажей журнала и значки заданий
     names["quest_back"] = "game/Quest_back"
     for d in ("next", "prev"):
