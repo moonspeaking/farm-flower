@@ -62,6 +62,10 @@ export interface BugDef {
 /** Что отличает ферму и город локации 2–4 от локации 1 (корень rules.json описывает локацию 1). */
 export interface LocationRules {
   day_time: number;
+  /** Длина дня: первая — day_min, после каждого дня запас растёт на day_inc, не выше day_max. */
+  day_min: number;
+  day_max: number;
+  day_inc: number;
   seeds: string[];
   ridges: Place[];
   ridges_for_sale: Place[];
@@ -96,6 +100,10 @@ export interface Rules {
   global_map: Record<string, { position: [number, number]; dimensions: [number, number]; image: string }>;
   start: { gold: number; water: number; vegetations: string[] };
   day_time: number;
+  /** Длина дня: первая — day_min, после каждого дня запас растёт на day_inc, не выше day_max. */
+  day_min: number;
+  day_max: number;
+  day_inc: number;
   seeds: string[];
   vegetations: Record<string, Vegetation>;
   products: Record<string, Product>;

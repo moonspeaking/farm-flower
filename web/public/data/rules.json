@@ -7,6 +7,9 @@
   ]
  },
  "day_time": 40.0,
+ "day_min": 35.0,
+ "day_max": 50.0,
+ "day_inc": 1.0,
  "seeds": [
   "romashka",
   "tree",
@@ -8699,6 +8702,9 @@
  "locations": {
   "2": {
    "day_time": 60.0,
+   "day_min": 50.0,
+   "day_max": 70.0,
+   "day_inc": 1.0,
    "seeds": [
     "klubnika_1",
     "bell_1",
@@ -14130,6 +14136,9 @@
   },
   "3": {
    "day_time": 40.0,
+   "day_min": 35.0,
+   "day_max": 60.0,
+   "day_inc": 1.0,
    "seeds": [
     "pineapple_1",
     "cactus_1",
@@ -19677,6 +19686,9 @@
   },
   "4": {
    "day_time": 60.0,
+   "day_min": 50.0,
+   "day_max": 80.0,
+   "day_inc": 1.0,
    "seeds": [
     "tiger_1",
     "fern_1",
@@ -27383,6 +27395,9 @@
   },
   "5": {
    "day_time": 60.0,
+   "day_min": 50.0,
+   "day_max": 80.0,
+   "day_inc": 1.0,
    "seeds": [
     "spiral",
     "bush",

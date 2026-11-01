@@ -450,6 +450,13 @@ def wave_group(g, known):
     return {"bugs": [x["name"] for x in specs if x["mode"] != "hardcore"], "specs": specs, "delay": float(g.attrib["delay"])}
 
 
+def day_times(farm):
+    """Без атрибутов — как в exe: min и max равны time, прибавка 0."""
+    t = float(farm.attrib["time"])
+    return {"day_min": float(farm.attrib.get("min_time", t)), "day_max": float(farm.attrib.get("max_time", t)),
+            "day_inc": float(farm.attrib.get("inc_time", 0))}
+
+
 def wave_keys(arriver):
     return {"wave_keys": [w.attrib.get("key", "") for w in arriver.find("waves")],
             "wave_loop": int(arriver.attrib.get("wave_loop", 0))}
@@ -513,6 +520,8 @@ def export_location(n, props, xml_dir, items_root, ru, vegetations, products, bu
     bset = locn.find("bouquet_set")
     return {
         "day_time": float(farm.attrib["time"]),
+        # длина дня «Цветка Стихий»: от min_time, каждый день + inc_time, не больше max_time (exe 0x42aaa8, 0x42f1f0)
+        **day_times(farm),
         "seeds": seeds,
         "ridges": ridge_list(ridges.find("at_start")),
         "ridges_for_sale": ridge_list(ridges.find("not_installed")),
@@ -603,6 +612,8 @@ def main():
         "start": {"gold": int(common["gold_at_start"]), "water": int(common["water_at_start"]),
                   "vegetations": [common["vegetations_at_start"]]},
         "day_time": float(farm.attrib["time"]),
+        # длина дня «Цветка Стихий»: от min_time, каждый день + inc_time, не больше max_time (exe 0x42aaa8, 0x42f1f0)
+        **day_times(farm),
         "seeds": seeds,
         "vegetations": vegetations,
         "products": products,

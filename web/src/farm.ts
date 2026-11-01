@@ -300,7 +300,7 @@ export class Farm extends Container {
     }
     this.tutorial.hide();
     this.mode = "day";
-    this.dayLeft = this.rules.day_time;
+    this.dayLeft = this.game.dayCur;
     this.harvestedToday = 0;
     this.expToday = 0;
     this.lastTick = -1;
@@ -392,6 +392,7 @@ export class Farm extends Container {
     }
     const day = this.game.day;
     this.game.day += 1;
+    this.game.advanceDayLength();
     this.events.dayEnded();
     this.game.changed();
     // итоги дня — только если включены в опциях (в оригинале после «Закончить День» сразу начинается подготовка)
@@ -440,7 +441,7 @@ export class Farm extends Container {
     this.updateWell(dt);
     this.dayLeft -= dt;
     // стрелка часов проходит верхнюю половину циферблата за день
-    this.pointer.rotation = CLOCK_ANGLE[0] - (CLOCK_ANGLE[1] - CLOCK_ANGLE[0]) * (1 - Math.max(0, this.dayLeft) / this.rules.day_time);
+    this.pointer.rotation = CLOCK_ANGLE[0] - (CLOCK_ANGLE[1] - CLOCK_ANGLE[0]) * (1 - Math.max(0, this.dayLeft) / this.game.dayCur);
     // последние пять секунд тикают часы (звук tick.ogg)
     const left = Math.ceil(this.dayLeft);
     if (left <= 5 && left > 0 && left !== this.lastTick) {

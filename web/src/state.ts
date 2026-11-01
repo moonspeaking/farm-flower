@@ -48,6 +48,9 @@ export interface FarmState {
   plants: (PlantSave | null)[];
   seeds: string[];
   bouquets: { next: number; orders: BouquetOrder[]; done: number };
+  /** Длина текущего дня и запас на следующий (у каждой фермы свои, exe +0x50 и +0x4c). */
+  dayCur?: number;
+  dayNext?: number;
 }
 
 /** Что открыто на карте мира (квесты: enable_town / enable_farm). */
@@ -151,6 +154,12 @@ export class Game {
   /** Куплено бочек и ящиков: первый уровень в XML стоит 0 и есть с начала игры. */
   barrels = 1;
   boxes = 1;
+  /**
+   * Длина дня фермы, с (exe: при загрузке +0x4c = +0x50 = min_time; когда день кончается — 0x42f1f0 —
+   * следующий день берёт запас, а запас растёт на inc_time, но не выше max_time).
+   */
+  dayCur: number;
+  dayNext: number;
   /** Колодец нужно купить (в магазине он полупрозрачен, пока не куплен). */
   well = false;
   /** Собранные плоды по имени продукта. */
@@ -188,6 +197,7 @@ export class Game {
     this.gold = base.start.gold;
     this.water = base.start.water;
     this.seeds = [...base.seeds];
+    this.dayCur = this.dayNext = base.day_min ?? base.day_time;
     this.questStates[1] = newQuestState(base.quests);
     this.fillOrders();
   }
@@ -209,6 +219,7 @@ export class Game {
     return {
       water: this.water, barrels: this.barrels, boxes: this.boxes, well: this.well, storage: Object.fromEntries(this.storage),
       boughtRidges: this.boughtRidges, plants, seeds: this.seeds, bouquets: this.bouquets,
+      dayCur: this.dayCur, dayNext: this.dayNext,
     };
   }
 
@@ -222,6 +233,17 @@ export class Game {
     this.savedPlants = f.plants;
     this.seeds = f.seeds;
     this.bouquets = f.bouquets;
+    const first = this.rules.day_min ?? this.rules.day_time;
+    this.dayCur = f.dayCur ?? first;
+    this.dayNext = f.dayNext ?? first;
+  }
+
+  /** Конец дня: следующий день берёт запас, запас растёт (exe 0x42f1f0). */
+  advanceDayLength() {
+    const r = this.rules;
+    this.dayCur = this.dayNext;
+    this.dayNext += r.day_inc ?? 0;
+    if (this.dayNext > (r.day_max ?? r.day_time)) this.dayNext = r.day_max ?? r.day_time;
   }
 
   /** Переход в локацию n: состояние текущей фермы откладывается, подгружается состояние n (или начальное). */
