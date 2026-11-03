@@ -259,6 +259,7 @@ export class Farm extends Container {
 
     // ---------------- сохранение
     this.buildRidges();
+    game.countPlants = (n) => this.ridges.filter((r) => r.plant?.name === n).length;
     game.savedPlants.forEach((p, i) => p && this.ridges[i]?.setPlant(p.name, p));
     // дерево-идол и ветки стоят с начала игры (veg_name в ridges/at_start)
     for (const r of this.ridges) if (r.place.veg && !r.plant && this.rules.vegetations[r.place.veg]) r.setPlant(r.place.veg);
@@ -1600,6 +1601,7 @@ export class Farm extends Container {
 
   /** Ферма снова на экране (после города): обновить магазин и цифры. */
   refresh() {
+    this.game.countPlants = (n) => this.ridges.filter((r) => r.plant?.name === n).length;
     this.syncRidges();
     this.syncHelper();
     this.syncMarks();

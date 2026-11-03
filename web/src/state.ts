@@ -329,6 +329,9 @@ export class Game {
     return n;
   }
 
+  /** Сколько растений name стоит на грядках текущей фермы (ветка третьей стадии — предмет квеста); задаёт ферма при показе. */
+  countPlants: (name: string) => number = () => 0;
+
   /** Сложность: при выборе (exe 0x44b2e0) снимается метка старой и ставится метка новой — casual / hardcore. */
   difficulty: Difficulty = "casual";
 

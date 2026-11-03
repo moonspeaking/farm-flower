@@ -142,6 +142,8 @@ export class QuestEngine {
   private count(name: string) {
     if (name === "money") return this.game.gold;
     if (this.game.storage.has(name)) return this.game.storage.get(name) ?? 0;
+    // ветка дерева-идола считается предметом, когда выросла (have_items green_branch_3)
+    if (this.game.rules.vegetations[name]) return this.game.countPlants(name);
     return this.game.items[name] ?? 0;
   }
 

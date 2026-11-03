@@ -90,6 +90,7 @@ export class QuestScreen extends Container {
     const g = this.game;
     if (item === "money") return g.gold;
     if (g.storage.has(item)) return g.storage.get(item) ?? 0;
+    if (g.rules.vegetations[item]) return g.countPlants(item);
     return g.items[item] ?? 0;
   }
 
