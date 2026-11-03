@@ -186,9 +186,34 @@ export class BouquetScreen extends Container {
     if (!product || o.placed[si] || (this.game.storage.get(product) ?? 0) <= 0) return false;
     this.game.storage.set(product, (this.game.storage.get(product) ?? 0) - 1);
     const idx = this.loose.findIndex((l) => l.product === product);
-    if (idx >= 0) this.loose.splice(idx, 1)[0].sprite.destroy();
+    // полёт цветка из корзины на место в букете (exe 0x511060)
+    const ghost = this.ghosts.find((g) => g.order === oi && g.slot === si)?.sprite;
+    if (idx >= 0) {
+      const from = this.loose[idx].sprite;
+      if (ghost) this.flyFlower(product, [from.x, from.y], [ghost.x, ghost.y]);
+      this.loose.splice(idx, 1)[0].sprite.destroy();
+    }
     o.placed[si] = product;
     return true;
+  }
+
+  /** Цветок перелетает по прямой за 0,35 с; точная кривая полёта в exe не разобрана (**допущение**). */
+  private flyFlower(product: string, from: [number, number], to: [number, number]) {
+    const s = image(product);
+    s.anchor.set(0.5);
+    s.position.set(...from);
+    this.addChild(s);
+    let t = 0;
+    const step = () => {
+      if (s.destroyed) return;
+      t += 1 / 60;
+      const k = Math.min(1, t / 0.35);
+      const e = 1 - (1 - k) * (1 - k);
+      s.position.set(from[0] + (to[0] - from[0]) * e, from[1] + (to[1] - from[1]) * e - Math.sin(Math.PI * k) * 30);
+      if (k >= 1) return void s.destroy();
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
   }
 
   private afterAuto(oi: number) {

@@ -773,6 +773,8 @@ export class Farm extends Container {
     if (!it || i < 0) return;
     this.prizes.splice(i, 1);
     const { x, y } = entry.sprite;
+    // приз летит к своему счётчику на панели за effects/prizes time = 0,6 с (опыт — полоска, золото — монеты, вода — бочки)
+    this.flyToPanel(`prize_${it.image}`, x, y, it.kind === "exp" ? [86, 115] : it.kind === "gold" ? [83, 475] : [32, 355]);
     entry.sprite.destroy();
     const ev = this.rules.texts.events ?? {};
     const color = rgb(...it.color);
@@ -792,6 +794,30 @@ export class Farm extends Container {
     }
     g.changed();
     this.renderStorages();
+  }
+
+  /**
+   * Полёт значка к панели (effects: prizes / product time = 0,6 с, interpolator_k 75 / 85 — **допущение**: плавное ускорение
+   * к цели вместо точной кривой интерполятора, который в exe не разобран). По прилёте значок гаснет.
+   */
+  private flyToPanel(name: string, x: number, y: number, to: [number, number], time = 0.6) {
+    const s = image(name);
+    s.anchor.set(0.5, 0.8);
+    s.position.set(x, y);
+    this.ui.addChild(s);
+    let t = 0;
+    const step = () => {
+      if (s.destroyed) return;
+      t += 1 / 60;
+      const k = Math.min(1, t / time);
+      const e = k * k;
+      s.position.set(x + (to[0] - x) * e, y + (to[1] - y) * e);
+      s.scale.set(1 - 0.5 * e);
+      s.alpha = 1 - 0.3 * e;
+      if (k >= 1) return void s.destroy();
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
   }
 
   /** Предмет выпадает, только пока квест разрешил (enable_bug_item count). */

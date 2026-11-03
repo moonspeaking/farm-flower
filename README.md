@@ -73,7 +73,7 @@ npm ci && npx vite
 «резина» rubber_back: зелёная середина, чёрная рамка, как у пузырей обучения).
 
 Не сделано (подробности и допущения — `docs/TODO_LOC1.md`):
-- ветки и цветение дерева-идола (`*_branch_N`, `idol_tree_flowers`), жажда Робина по образцу растений (место в exe не найдено);
-- полёт приза к панели и цветка при автопереносе букета, надписи «Комбо N» / «Урон xM»;
+- ветки и сам `idol_tree` (грядки 6–10 в `location_5.xml` с `veg_name`, `*_branch_N`, `idol_tree_flowers`), жажда Робина: в exe нажатие ускоряет Робина, а как его поят — не найдено;
+- точные кривые полёта приза и цветка и частицы `particles/prizes`;
 - флаг `open_next_sub_quest` (+0x58), `trophy_room_rect` комнаты трофеев, смысл `set_ridges` / `enable_manual_work` проверен только по данным квестов;
 - `docs/MF1_EXE_NOTES.md` (скопирован из `Farm`) — адреса для `Magic Farm_fixed.exe`, у `game.exe` они другие; свежие адреса `game.exe` — в `docs/TODO_LOC1.md`.
