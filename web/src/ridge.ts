@@ -43,6 +43,8 @@ interface Plant extends PlantSave {
 export interface RidgeEvents {
   /** Нажатие по лунке или растению (ферма решает, что делать). */
   tap(ridge: RidgeView): void;
+  /** Может ли игрок сам собирать плоды (enable_manual_work). */
+  manual(): boolean;
   /** Курсор над лункой или растением. */
   hover(ridge: RidgeView): void;
   say(text: string, x: number, y: number): void;
@@ -340,6 +342,7 @@ export class RidgeView extends Container {
     s.cursor = "gather_product";
     s.on("pointertap", (e) => {
       e.stopPropagation();
+      if (!this.events.manual()) return;
       this.collect(i);
     });
     this.fx.addChildAt(s, 0);

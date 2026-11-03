@@ -258,8 +258,7 @@ export class Farm extends Container {
     this.top.addChild(this.startBtn, this.townBtn, clock);
 
     // ---------------- сохранение
-    rules.ridges.forEach((p) => this.addRidge(p));
-    game.boughtRidges.forEach((i) => this.addRidge(rules.ridges_for_sale[i]));
+    this.buildRidges();
     game.savedPlants.forEach((p, i) => p && this.ridges[i]?.setPlant(p.name, p));
     if (!game.savedPlants.length && rules.location === 1) {
       // vegetations_at_start: стартовое растение уже растёт на первой грядке
@@ -270,6 +269,30 @@ export class Farm extends Container {
     this.syncMarks();
     this.unsubscribe = game.onChange(() => this.renderStats());
     this.enterShop();
+  }
+
+  /** Грядки фермы: начальные (set_ridges может оставить только часть) и купленные. */
+  private ridgeKey() {
+    return `${this.game.quests.ridgeCap ?? ""}|${this.game.boughtRidges.join(",")}`;
+  }
+
+  private builtRidgeKey = "";
+
+  private buildRidges() {
+    const { rules, game } = this;
+    rules.ridges.slice(0, game.quests.ridgeCap ?? rules.ridges.length).forEach((p) => this.addRidge(p));
+    game.boughtRidges.forEach((i) => this.addRidge(rules.ridges_for_sale[i]));
+    this.builtRidgeKey = this.ridgeKey();
+  }
+
+  /** Квест (set_ridges) поменял число грядок — ферма перестраивается; растения остаются на грядках, что уцелели. */
+  private syncRidges() {
+    if (this.builtRidgeKey === this.ridgeKey()) return;
+    const saved = this.ridges.map((r) => r.savePlant());
+    for (const r of this.ridges) r.destroy({ children: true });
+    this.ridges.length = 0;
+    this.buildRidges();
+    saved.forEach((p, i) => p && this.ridges[i]?.setPlant(p.name, p));
   }
 
   // ================================================================ режимы
@@ -308,7 +331,7 @@ export class Farm extends Container {
       const nb = this.rules.product_storage[g.boxes];
       if (tut.show("box", nb.position[0] + 70, nb.position[1] + 40)) this.setBuyTarget("box");
     }
-    if (g.hasMark("shop_ridges") && g.boughtRidges.length < this.rules.ridges_for_sale.length) {
+    if (g.hasMark("shop_ridges") && g.boughtRidges.length < Math.min(this.rules.ridges_for_sale.length, g.quests.saleCap ?? Infinity)) {
       const idx = this.rules.ridges_for_sale.findIndex((_, i) => !g.boughtRidges.includes(i));
       const free = this.rules.ridges_for_sale[idx];
       if (free && tut.show("new_ridge", free.position[0] + 24, free.position[1] + 4)) this.setBuyTarget(`ridge:${idx}`);
@@ -556,6 +579,7 @@ export class Farm extends Container {
   private addRidge(place: Place) {
     const r = new RidgeView(place, this.rules, this.game, {
       tap: (ridge) => this.tapRidge(ridge),
+      manual: () => this.game.quests.manualWork !== false,
       hover: (ridge) => {
         // кнопки «Посадить растение» и «Продать» по одной: стоят на грядке под курсором, пока курсор не перейдёт на другую
         if (this.mode !== "shop") return;
@@ -850,6 +874,8 @@ export class Farm extends Container {
       return;
     }
     if (this.mode !== "day") return;
+    // enable_manual_work = false (экзамен в 3-й локации): поливает только Робин
+    if (this.game.quests.manualWork === false) return;
     this.waterRidge(r);
   }
 
@@ -1093,7 +1119,7 @@ export class Farm extends Container {
     };
 
     // места под новые грядки (с 10-го дня, метка shop_ridges)
-    if (g.hasMark("shop_ridges")) {
+    if (g.hasMark("shop_ridges") && g.boughtRidges.length < (g.quests.saleCap ?? Infinity)) {
       this.rules.ridges_for_sale.forEach((place, i) => {
         if (g.boughtRidges.includes(i)) return;
         const ghost = image("ridge");
@@ -1118,7 +1144,7 @@ export class Farm extends Container {
 
     // бочка (с 5-го дня), ящик (с 6-го), колодец (с 12-го)
     const nextBarrel = this.rules.water_storage[g.barrels];
-    if (nextBarrel && g.hasMark("shop_barrel")) {
+    if (nextBarrel && g.hasMark("shop_barrel") && g.barrels < (g.quests.maxBarrels ?? Infinity)) {
       const ghost = image("barrel");
       ghost.alpha = 0.4;
       ghost.position.set(...nextBarrel.position);
@@ -1136,7 +1162,7 @@ export class Farm extends Container {
       });
     }
     const nextBox = this.rules.product_storage[g.boxes];
-    if (nextBox && g.hasMark("shop_box")) {
+    if (nextBox && g.hasMark("shop_box") && g.boxes < (g.quests.maxBoxes ?? Infinity)) {
       const ghost = image(this.rules.box_image);
       ghost.alpha = 0.4;
       ghost.position.set(...nextBox.position);
@@ -1186,7 +1212,7 @@ export class Farm extends Container {
 
     // «Купить Воду» (433; 32) и «Продать Цветы» (547; 86) — средние кнопки
     // нечего покупать (бочки полны) и нечего продавать (нет плодов и собранных букетов) — кнопок нет
-    if (g.water < g.waterMax) {
+    if (g.water < g.waterMax && g.quests.waterBuy !== false) {
       const water = shopButton("medium", fmt(t.buttons.shop_button_buy_water ?? "Купить\nВоду"), null, () => this.openBuyWater());
       // в XML (433; 32), но «Начать День» сдвинута влево от часов и кнопка заходила бы под неё — «Купить Воду» сдвинута левее на 32 px
       add(water, this.rules.shop_positions.buy_water[0] + 50 - 32, this.rules.shop_positions.buy_water[1] + 30);
@@ -1537,6 +1563,7 @@ export class Farm extends Container {
 
   /** Ферма снова на экране (после города): обновить магазин и цифры. */
   refresh() {
+    this.syncRidges();
     this.syncHelper();
     this.syncMarks();
     this.renderShop();

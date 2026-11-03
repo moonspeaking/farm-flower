@@ -97,7 +97,8 @@ export class QuestScreen extends Container {
   private header(e: JournalEntry) {
     const n = Number(e.location.replace("location_", ""));
     const quests = n === 1 ? this.game.base.quests : this.game.base.locations[`${n}`]?.quests;
-    return quests?.[e.quest]?.header ?? "";
+    const quest = quests?.[e.quest];
+    return (e.titleFrom && quest?.sub_quests[e.titleFrom]?.header) || quest?.header || "";
   }
 
   private entries(): JournalEntry[] {

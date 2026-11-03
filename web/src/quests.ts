@@ -55,6 +55,16 @@ export interface QuestState {
   bugsOff?: string[];
   /** enable_helper: Робин живёт на ферме. */
   helper?: boolean;
+  /** enable_buy_water: можно ли покупать воду (по умолчанию да). */
+  waterBuy?: boolean;
+  /** enable_manual_work: могут ли игрок поливать и собирать плоды сам (false — работает только Робин; экзамен в 3-й локации). */
+  manualWork?: boolean;
+  /** set_max_barrels / set_max_boxes: сколько уровней бочек и ящиков можно докупить (до этого числа включительно). */
+  maxBarrels?: number;
+  maxBoxes?: number;
+  /** set_ridges: сколько грядок из начальных остаётся (installed) и сколько всего можно докупить (installed + not_installed). */
+  ridgeCap?: number;
+  saleCap?: number;
   /**
    * Журнал заданий (экран квестов): add_quest заводит запись «локация/квест» у персонажа, add_task / add_task_count —
    * строки заданий, remove_quest / remove_all_task их убирают. На ход квестов журнал не влияет (exe 0x482a6e…0x4837bb).
@@ -72,6 +82,8 @@ export interface JournalEntry {
   quest: string;
   /** item = "talk" — «поговорить»; иначе принести count штук item (прогресс — сколько их есть). */
   tasks: { item: string; count?: number }[];
+  /** update_quest_title: заголовок берётся у этой части квеста. */
+  titleFrom?: string;
 }
 
 /** Что сохраняет store_state: деньги, вода и уровни хранилищ, колодец, грядки, открытые города и фермы. */
@@ -254,6 +266,60 @@ export class QuestEngine {
         }
         case "remove_quest":
           if (st.journal) delete st.journal[`${a.location || here()}/${a.quest_name}`];
+          break;
+        // перестройка фермы на этапах квестов (3-я и 4-я локации: store_state → set_* → exams): exe 0x4837bb…
+        case "set_barrels":
+          g.barrels = n;
+          break;
+        case "set_boxes":
+          g.boxes = n;
+          break;
+        case "set_max_barrels":
+          st.maxBarrels = n;
+          break;
+        case "set_max_boxes":
+          st.maxBoxes = n;
+          break;
+        // remove_well без count убирает колодец совсем, с count — на столько уровней; add_well ставит колодец (+1 уровень)
+        case "remove_well":
+          g.wellLevel = a.count ? Math.max(0, g.wellLevel - n) : 0;
+          g.well = g.wellLevel > 0;
+          break;
+        case "add_well":
+          g.wellLevel += 1;
+          g.well = true;
+          break;
+        case "enable_buy_water":
+          st.waterBuy = a.enable !== "false";
+          break;
+        case "enable_manual_work":
+          st.manualWork = a.enable !== "false";
+          break;
+        case "set_ridges": {
+          // installed — сколько грядок стоит (начальные + купленные), not_installed — сколько ещё можно докупить
+          const at = g.rules.ridges.length;
+          const installed = Number(a.installed ?? 0);
+          st.ridgeCap = Math.min(at, installed);
+          st.saleCap = Math.max(0, installed - at) + Number(a.not_installed ?? 0);
+          g.boughtRidges = Array.from({ length: Math.max(0, Math.min(installed - at, g.rules.ridges_for_sale.length)) }, (_, i) => i);
+          break;
+        }
+        // **допущение**: предмет из вредителей (item) забывается — квест выдаёт его заново
+        case "reset_bug_item":
+          g.items[a.item] = 0;
+          break;
+        case "update_quest_title": {
+          const e = st.journal?.[`${a.location || here()}/${a.quest_name}`];
+          if (e) e.titleFrom = a.title_from;
+          break;
+        }
+        case "change_quest_person": {
+          const e = st.journal?.[`${a.location || here()}/${a.quest_name}`];
+          if (e) e.person = a.person;
+          break;
+        }
+        case "add_dragon_medal3":
+          g.trophyBook.award("dragon_medal", 3);
           break;
         case "add_weapon":
           if (!g.weapons.includes(a.name)) g.weapons.push(a.name);
