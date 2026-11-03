@@ -76,5 +76,5 @@ npm ci && npx vite
 - в 5-й локации валюта — кристаллы (`buy_water_loc5`: «Кристаллы: %money%», `stats.crystals_title`, своя панель `stat_control_loc5`);
 - большие букеты на 4–5 цветов рисуются картинкой `big-flowers` (bouquets/size_4, size_5) — пока обычный конус;
 - новые механики из `docs/DIFF_FROM_MF1.md` (сложность, серии ударов, призы, автобукеты, сова/часы/рог, уровни колодца,
-  длина дня min→max, трофеи, дерево-идол, выбор квестов) не реализованы;
+  длина дня min→max, дерево-идол, выбор квестов) не реализованы;
 - `Farm/docs/EXE_REVERSE_NOTES.md` (скопирован как `docs/MF1_EXE_NOTES.md`) — адреса для `Magic Farm_fixed.exe`, у `game.exe` они другие.

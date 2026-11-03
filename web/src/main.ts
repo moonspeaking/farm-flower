@@ -16,7 +16,7 @@ import { Town } from "./town";
 import { Tutorial } from "./tutorial";
 import { WorldMap } from "./worldmap";
 import { loadFonts } from "./popfont";
-import { aboutScreen, gameMenu, highscoresScreen, optionsScreen, pauseOverlay, recordScore } from "./screens";
+import { aboutScreen, gameMenu, highscoresScreen, optionsScreen, pauseOverlay, recordScore, trophyAwardPopup, trophyRoomScreen } from "./screens";
 import { H, hasImages, loadImages, setSharp, toast, unloadImages, W } from "./ui";
 
 async function main() {
@@ -223,10 +223,16 @@ async function main() {
     if (scene === "town") towns[n].entered();
   };
 
+  const levelsOf = (g: Game) => Object.fromEntries(Object.entries(g.trophies).map(([k, v]) => [k, v.level]));
   const menu = new Menu(rules, {
     hasSave: () => Game.hasSave(),
     options: () => optionsScreen(world, rules, () => undefined),
     highscores: () => highscoresScreen(world, rules, () => undefined),
+    trophies: () => {
+      const saved = new Game(rules);
+      if (Game.hasSave()) saved.load();
+      void trophyRoomScreen(world, rules, levelsOf(saved), () => undefined);
+    },
     about: () => void aboutScreen(world, rules),
     play: (fresh) => void start(fresh),
     userName: () => currentProfile()?.name ?? null,
@@ -244,6 +250,7 @@ async function main() {
     for (const k of Object.keys(towns)) delete towns[Number(k)];
     for (const k of Object.keys(questsLeft)) delete questsLeft[Number(k)];
     game = g;
+    g.onTrophy = (name, level) => void trophyAwardPopup(world, rules, name, level);
     worldTut?.destroy({ children: true });
     worldTut = new Tutorial(rules, g, () => audio.options.warnings);
     build(g, g.loc);

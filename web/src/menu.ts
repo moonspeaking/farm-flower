@@ -11,6 +11,7 @@ export interface MenuEvents {
   hasSave(): boolean;
   options(): void;
   highscores(): void;
+  trophies(): void;
   about(): void;
   /** Имя текущего игрока и переход к выбору игрока (main_change_user). */
   userName(): string | null;
@@ -60,8 +61,9 @@ export class Menu extends Container {
     item(b.game_adventure || "Кампания", 104, 234, () => void this.adventure());
     item(b.options || "Опции", 106, 273, () => this.events.options());
     item(b.menu_highscores || "Результаты", 117, 308, () => this.events.highscores());
-    // на месте «Трофеев» (118; 344) пока «Об игре»: комнаты трофеев ещё нет; «Выход» (118; 383) в браузере не нужен
-    item("Об игре", 118, 344, () => this.events.about());
+    item(b.menu_trophy_room || "Награды", 118, 344, () => this.events.trophies());
+    // на месте «Выхода» (118; 383), которого в браузере нет, — «Об игре»
+    item("Об игре", 118, 383, () => this.events.about());
     this.addChild(this.overlay);
   }
 

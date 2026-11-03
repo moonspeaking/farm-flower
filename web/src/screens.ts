@@ -3,7 +3,7 @@ import { Container, Graphics, Rectangle } from "pixi.js";
 import { audio } from "./audio";
 import { rgb } from "./popfont";
 import type { Rules } from "./rules";
-import { COLOR, dialog, H, image, pop, roundButton, textButton, W } from "./ui";
+import { COLOR, dialog, H, hasImage, image, loadImages, pop, roundButton, textButton, W } from "./ui";
 
 function shade(onTap?: () => void) {
   const s = new Graphics().rect(0, 0, W, H).fill({ color: 0x000000, alpha: 0.45 });
@@ -326,4 +326,105 @@ export async function aboutScreen(parent: Container, rules: Rules) {
     else if (r === "prev") page -= 1;
     else return;
   }
+}
+
+// ---------------------------------------------------------------- комната трофеев
+
+/** Картинки награды: ступень 0 — пустое место, дальше — полученные; _o — с подсветкой под курсором. */
+function trophyImages(rules: Rules, name: string, level: number) {
+  const def = rules.trophies?.[name];
+  const lv = Math.min(level, (def?.images ?? 1) - 1);
+  return { lv, normal: `tr_${name}_${lv}`, over: `tr_${name}_${lv}_o` };
+}
+
+/** Картинки наград: обычные обязательны, подсвеченные есть не у всех ступеней — отсутствующие молча пропускаются. */
+async function loadTrophyImages(rules: Rules) {
+  const defs = Object.entries(rules.trophies ?? {});
+  await loadImages(defs.flatMap(([name, d]) => Array.from({ length: d.images }, (_, i) => `tr_${name}_${i}`)));
+  await Promise.all(defs.flatMap(([name, d]) => Array.from({ length: d.images }, (_, i) => loadImages([`tr_${name}_${i}_o`]).catch(() => undefined))));
+}
+
+/**
+ * Комната трофеев (trophy_room_screen): фон trophy_room_back, награды на местах из medals (position/dimensions),
+ * неполученные — пустые места ступени 0. Под курсором награда подсвечивается (_overed) и внизу появляется её описание
+ * (trophy_room_rect в XML — 97×194 в (50; 35), по смыслу не ясен; описание поставлено по центру внизу — допущение).
+ * «Назад» — back (358; 567).
+ */
+export async function trophyRoomScreen(parent: Container, rules: Rules, levels: Record<string, number>, onClose: () => void) {
+  await loadImages(["trophy_back"]);
+  await loadTrophyImages(rules);
+  const layer = new Container();
+  layer.addChild(image("trophy_back"));
+  const caption = pop("", "stat_control_fonts_1", COLOR.white, { align: "center", wrap: 640 });
+  caption.anchor.set(0.5, 0.5);
+  caption.position.set(W / 2, 520);
+  // подложка под описанием: на тёмном сукне и полу белая надпись иначе не читается
+  const plate = new Graphics();
+  const setCaption = (text: string) => {
+    caption.text = text;
+    plate.clear();
+    if (text) plate.roundRect(W / 2 - 330, 520 - caption.textHeight / 2 - 8, 660, caption.textHeight + 16, 8).fill({ color: 0x000000, alpha: 0.6 });
+  };
+  layer.addChild(plate);
+  const medals = rules.texts.medals ?? {};
+  for (const [name, def] of Object.entries(rules.trophies ?? {})) {
+    const { lv, normal, over } = trophyImages(rules, name, levels[name] ?? 0);
+    const holder = new Container();
+    const base = image(normal);
+    holder.addChild(base);
+    holder.position.set(def.position[0], def.position[1]);
+    holder.eventMode = "static";
+    holder.hitArea = new Rectangle(0, 0, base.width, base.height);
+    const hover = tryImage(over);
+    if (hover) {
+      hover.visible = false;
+      holder.addChild(hover);
+    }
+    holder.on("pointerover", () => {
+      if (hover) hover.visible = true;
+      setCaption((medals[`${name}_${lv}`] ?? "").replace(/\\n/g, "\n"));
+    });
+    holder.on("pointerout", () => {
+      if (hover) hover.visible = false;
+      setCaption("");
+    });
+    layer.addChild(holder);
+  }
+  layer.addChild(caption);
+  const back = textButton(rules.texts.buttons.back ?? "Назад", () => {
+    layer.destroy({ children: true });
+    onClose();
+  });
+  back.position.set(W / 2, 580);
+  layer.addChild(back);
+  parent.addChild(layer);
+}
+
+function tryImage(name: string) {
+  try {
+    return hasImage(name) ? image(name) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** «Вы получили награду!» (medal_header_text): медаль новой ступени и её описание; закрывается щелчком. */
+export async function trophyAwardPopup(parent: Container, rules: Rules, name: string, level: number) {
+  const { normal } = trophyImages(rules, name, level);
+  await loadImages([normal]);
+  const layer = new Container();
+  layer.addChild(shade());
+  const header = pop(rules.texts.medal_header || "Вы получили награду!", "stat_control_fonts_menu_normal", COLOR.white, { align: "center" });
+  header.anchor.set(0.5, 0.5);
+  header.position.set(W / 2, 150);
+  const medal = image(normal);
+  medal.anchor.set(0.5, 0.5);
+  medal.position.set(W / 2, 300);
+  const text = pop(((rules.texts.medals ?? {})[`${name}_${Math.min(level, (rules.trophies?.[name]?.images ?? 1) - 1)}`] ?? "").replace(/\\n/g, "\n"), "stat_control_fonts_1", COLOR.white, { align: "center", wrap: 560 });
+  text.anchor.set(0.5, 0);
+  text.position.set(W / 2, 420);
+  const ok = textButton(rules.texts.buttons.ok ?? "OK", () => layer.destroy({ children: true }));
+  ok.position.set(W / 2, 540);
+  layer.addChild(header, medal, text, ok);
+  parent.addChild(layer);
 }
