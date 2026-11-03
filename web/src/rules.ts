@@ -28,6 +28,10 @@ export interface Product {
 export interface Place {
   position: [number, number];
   dimensions: [number, number];
+  /** Растение, которое стоит на грядке с начала игры (дерево-идол и ветки в 5-й локации). */
+  veg?: string;
+  /** Грядка без картинки: игрок на ней ничего не сажает, продаёт и улучшает (дерево-идол и ветки). */
+  plain?: boolean;
 }
 
 export interface StorageLevel extends Place {

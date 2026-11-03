@@ -1506,6 +1506,389 @@
     2.0,
     1.0
    ]
+  },
+  "idol_tree": {
+   "price_buy": 10,
+   "price_sell": 5,
+   "life": 10,
+   "hunger_min": 999999999.0,
+   "hunger_max": 999999999.0,
+   "min_product_delay": 5.0,
+   "max_product_delay": 25.0,
+   "upgrade": -1,
+   "image_offset": [
+    0.0,
+    0.0
+   ],
+   "exp_for_pour": 20,
+   "nodes": [
+    [
+     4.0,
+     -205.0
+    ]
+   ],
+   "products": [
+    "p_idol_tree"
+   ],
+   "probabilities": [
+    1.0
+   ]
+  },
+  "red_branch_1": {
+   "price_buy": 10,
+   "price_sell": 5,
+   "life": 25,
+   "hunger_min": 25.0,
+   "hunger_max": 70.0,
+   "min_product_delay": 20.0,
+   "max_product_delay": 35.0,
+   "upgrade": 3,
+   "upgrade_to_vegetation": "red_branch_2",
+   "image_offset": [
+    -65.0,
+    -170.0
+   ],
+   "exp_for_pour": 10,
+   "nodes": [
+    [
+     75.0,
+     70.0
+    ]
+   ],
+   "products": [
+    "p_red_fruit_1"
+   ],
+   "probabilities": [
+    1.0
+   ]
+  },
+  "blue_branch_1": {
+   "price_buy": 250,
+   "price_sell": 125,
+   "life": 25,
+   "hunger_min": 35.0,
+   "hunger_max": 65.0,
+   "min_product_delay": 20.0,
+   "max_product_delay": 35.0,
+   "upgrade": 3,
+   "upgrade_to_vegetation": "blue_branch_2",
+   "image_offset": [
+    -30.0,
+    -140.0
+   ],
+   "exp_for_pour": 10,
+   "nodes": [
+    [
+     30.0,
+     60.0
+    ]
+   ],
+   "products": [
+    "p_blue_fruit_1"
+   ],
+   "probabilities": [
+    1.0
+   ]
+  },
+  "yellow_branch_1": {
+   "price_buy": 250,
+   "price_sell": 125,
+   "life": 25,
+   "hunger_min": 25.0,
+   "hunger_max": 50.0,
+   "min_product_delay": 25.0,
+   "max_product_delay": 35.0,
+   "upgrade": 3,
+   "upgrade_to_vegetation": "yellow_branch_2",
+   "image_offset": [
+    -68.0,
+    -155.0
+   ],
+   "exp_for_pour": 10,
+   "nodes": [
+    [
+     73.0,
+     71.0
+    ]
+   ],
+   "products": [
+    "p_yellow_fruit_1"
+   ],
+   "probabilities": [
+    1.0
+   ]
+  },
+  "green_branch_1": {
+   "price_buy": 250,
+   "price_sell": 125,
+   "life": 25,
+   "hunger_min": 25.0,
+   "hunger_max": 65.0,
+   "min_product_delay": 25.0,
+   "max_product_delay": 35.0,
+   "upgrade": 3,
+   "upgrade_to_vegetation": "green_branch_2",
+   "image_offset": [
+    -68.0,
+    -155.0
+   ],
+   "exp_for_pour": 10,
+   "nodes": [
+    [
+     75.0,
+     75.0
+    ]
+   ],
+   "products": [
+    "p_green_fruit_1"
+   ],
+   "probabilities": [
+    1.0
+   ]
+  },
+  "red_branch_2": {
+   "price_buy": 10,
+   "price_sell": 5,
+   "life": 30,
+   "hunger_min": 25.0,
+   "hunger_max": 50.0,
+   "min_product_delay": 20.0,
+   "max_product_delay": 30.0,
+   "upgrade": 3,
+   "upgrade_to_vegetation": "red_branch_3",
+   "image_offset": [
+    -65.0,
+    -170.0
+   ],
+   "exp_for_pour": 10,
+   "nodes": [
+    [
+     105.0,
+     70.0
+    ]
+   ],
+   "products": [
+    "p_red_fruit_1",
+    "p_red_fruit_2"
+   ],
+   "probabilities": [
+    3.0,
+    1.0
+   ]
+  },
+  "blue_branch_2": {
+   "price_buy": 250,
+   "price_sell": 125,
+   "life": 30,
+   "hunger_min": 35.0,
+   "hunger_max": 55.0,
+   "min_product_delay": 20.0,
+   "max_product_delay": 30.0,
+   "upgrade": 3,
+   "upgrade_to_vegetation": "blue_branch_3",
+   "image_offset": [
+    -30.0,
+    -140.0
+   ],
+   "exp_for_pour": 10,
+   "nodes": [
+    [
+     40.0,
+     45.0
+    ]
+   ],
+   "products": [
+    "p_blue_fruit_2",
+    "p_blue_fruit_1"
+   ],
+   "probabilities": [
+    1.0,
+    1.0
+   ]
+  },
+  "yellow_branch_2": {
+   "price_buy": 10,
+   "price_sell": 5,
+   "life": 30,
+   "hunger_min": 25.0,
+   "hunger_max": 50.0,
+   "min_product_delay": 20.0,
+   "max_product_delay": 30.0,
+   "upgrade": 3,
+   "upgrade_to_vegetation": "yellow_branch_3",
+   "image_offset": [
+    -68.0,
+    -155.0
+   ],
+   "exp_for_pour": 10,
+   "nodes": [
+    [
+     83.0,
+     51.0
+    ]
+   ],
+   "products": [
+    "p_yellow_fruit_1",
+    "p_yellow_fruit_2"
+   ],
+   "probabilities": [
+    3.0,
+    1.0
+   ]
+  },
+  "green_branch_2": {
+   "price_buy": 10,
+   "price_sell": 5,
+   "life": 30,
+   "hunger_min": 25.0,
+   "hunger_max": 55.0,
+   "min_product_delay": 20.0,
+   "max_product_delay": 30.0,
+   "upgrade": 3,
+   "upgrade_to_vegetation": "green_branch_3",
+   "image_offset": [
+    -68.0,
+    -155.0
+   ],
+   "exp_for_pour": 10,
+   "nodes": [
+    [
+     75.0,
+     75.0
+    ]
+   ],
+   "products": [
+    "p_green_fruit_1",
+    "p_green_fruit_2"
+   ],
+   "probabilities": [
+    3.0,
+    1.0
+   ]
+  },
+  "red_branch_3": {
+   "price_buy": 10,
+   "price_sell": 5,
+   "life": 50,
+   "hunger_min": 25.0,
+   "hunger_max": 50.0,
+   "min_product_delay": 15.0,
+   "max_product_delay": 25.0,
+   "upgrade": -1,
+   "image_offset": [
+    -65.0,
+    -170.0
+   ],
+   "exp_for_pour": 11,
+   "nodes": [
+    [
+     105.0,
+     70.0
+    ]
+   ],
+   "products": [
+    "p_red_fruit_1",
+    "p_red_fruit_2",
+    "p_red_fruit_3"
+   ],
+   "probabilities": [
+    4.0,
+    2.0,
+    1.0
+   ]
+  },
+  "blue_branch_3": {
+   "price_buy": 250,
+   "price_sell": 125,
+   "life": 50,
+   "hunger_min": 35.0,
+   "hunger_max": 45.0,
+   "min_product_delay": 15.0,
+   "max_product_delay": 25.0,
+   "upgrade": -1,
+   "image_offset": [
+    -32.0,
+    -135.0
+   ],
+   "exp_for_pour": 11,
+   "nodes": [
+    [
+     40.0,
+     15.0
+    ]
+   ],
+   "products": [
+    "p_blue_fruit_3",
+    "p_blue_fruit_2",
+    "p_blue_fruit_1"
+   ],
+   "probabilities": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "yellow_branch_3": {
+   "price_buy": 10,
+   "price_sell": 5,
+   "life": 50,
+   "hunger_min": 25.0,
+   "hunger_max": 50.0,
+   "min_product_delay": 15.0,
+   "max_product_delay": 25.0,
+   "upgrade": -1,
+   "image_offset": [
+    -68.0,
+    -155.0
+   ],
+   "exp_for_pour": 11,
+   "nodes": [
+    [
+     77.0,
+     41.0
+    ]
+   ],
+   "products": [
+    "p_yellow_fruit_1",
+    "p_yellow_fruit_2",
+    "p_yellow_fruit_3"
+   ],
+   "probabilities": [
+    4.0,
+    2.0,
+    1.0
+   ]
+  },
+  "green_branch_3": {
+   "price_buy": 10,
+   "price_sell": 5,
+   "life": 50,
+   "hunger_min": 25.0,
+   "hunger_max": 45.0,
+   "min_product_delay": 15.0,
+   "max_product_delay": 25.0,
+   "upgrade": -1,
+   "image_offset": [
+    -68.0,
+    -155.0
+   ],
+   "exp_for_pour": 11,
+   "nodes": [
+    [
+     58.0,
+     73.0
+    ]
+   ],
+   "products": [
+    "p_green_fruit_1",
+    "p_green_fruit_2",
+    "p_green_fruit_3"
+   ],
+   "probabilities": [
+    4.0,
+    2.0,
+    1.0
+   ]
   }
  },
  "products": {
@@ -1902,6 +2285,123 @@
    "offset": [
     -30.0,
     -45.0
+   ],
+   "bonuses": ""
+  },
+  "p_idol_tree": {
+   "price": 15000,
+   "exp": 1,
+   "offset": [
+    -55.0,
+    -80.0
+   ],
+   "bonuses": ""
+  },
+  "p_red_fruit_1": {
+   "price": 11,
+   "exp": 1,
+   "offset": [
+    -10.0,
+    -20.0
+   ],
+   "bonuses": ""
+  },
+  "p_blue_fruit_1": {
+   "price": 15,
+   "exp": 1,
+   "offset": [
+    -20.0,
+    -30.0
+   ],
+   "bonuses": ""
+  },
+  "p_yellow_fruit_1": {
+   "price": 15,
+   "exp": 1,
+   "offset": [
+    -22.0,
+    -25.0
+   ],
+   "bonuses": ""
+  },
+  "p_green_fruit_1": {
+   "price": 16,
+   "exp": 1,
+   "offset": [
+    -23.0,
+    -23.0
+   ],
+   "bonuses": ""
+  },
+  "p_red_fruit_2": {
+   "price": 22,
+   "exp": 1,
+   "offset": [
+    -30.0,
+    -45.0
+   ],
+   "bonuses": ""
+  },
+  "p_blue_fruit_2": {
+   "price": 20,
+   "exp": 1,
+   "offset": [
+    -32.0,
+    -28.0
+   ],
+   "bonuses": ""
+  },
+  "p_yellow_fruit_2": {
+   "price": 23,
+   "exp": 1,
+   "offset": [
+    -22.0,
+    -35.0
+   ],
+   "bonuses": ""
+  },
+  "p_green_fruit_2": {
+   "price": 22,
+   "exp": 1,
+   "offset": [
+    -23.0,
+    -35.0
+   ],
+   "bonuses": ""
+  },
+  "p_red_fruit_3": {
+   "price": 27,
+   "exp": 1,
+   "offset": [
+    -30.0,
+    -25.0
+   ],
+   "bonuses": ""
+  },
+  "p_blue_fruit_3": {
+   "price": 25,
+   "exp": 1,
+   "offset": [
+    -40.0,
+    -50.0
+   ],
+   "bonuses": ""
+  },
+  "p_yellow_fruit_3": {
+   "price": 26,
+   "exp": 1,
+   "offset": [
+    -25.0,
+    -35.0
+   ],
+   "bonuses": ""
+  },
+  "p_green_fruit_3": {
+   "price": 27,
+   "exp": 1,
+   "offset": [
+    -30.0,
+    -35.0
    ],
    "bonuses": ""
   }
@@ -31078,7 +31578,9 @@
      "dimensions": [
       50.0,
       40.0
-     ]
+     ],
+     "veg": "idol_tree",
+     "plain": true
     },
     {
      "position": [
@@ -31128,7 +31630,9 @@
      "dimensions": [
       60.0,
       150.0
-     ]
+     ],
+     "veg": "red_branch_1",
+     "plain": true
     },
     {
      "position": [
@@ -31138,7 +31642,9 @@
      "dimensions": [
       60.0,
       100.0
-     ]
+     ],
+     "veg": "blue_branch_1",
+     "plain": true
     },
     {
      "position": [
@@ -31148,7 +31654,9 @@
      "dimensions": [
       60.0,
       100.0
-     ]
+     ],
+     "veg": "yellow_branch_1",
+     "plain": true
     },
     {
      "position": [
@@ -31158,7 +31666,9 @@
      "dimensions": [
       60.0,
       100.0
-     ]
+     ],
+     "veg": "green_branch_1",
+     "plain": true
     }
    ],
    "ridges_for_sale": [
@@ -37003,6 +37513,9 @@
   "bell_2",
   "bell_3",
   "bg",
+  "blue_branch_1",
+  "blue_branch_2",
+  "blue_branch_3",
   "box",
   "box_2",
   "box_3",
@@ -37438,6 +37951,9 @@
   "flower",
   "game_menu_bg",
   "global_map_back",
+  "green_branch_1",
+  "green_branch_2",
+  "green_branch_3",
   "heart_1",
   "heart_2",
   "heart_3",
@@ -37473,6 +37989,7 @@
   "ice",
   "ice_2",
   "ice_3",
+  "idol_tree",
   "in_game",
   "item_crab_claw",
   "item_etti_club",
@@ -37623,6 +38140,9 @@
   "p_bell_1",
   "p_bell_2",
   "p_bell_3",
+  "p_blue_fruit_1",
+  "p_blue_fruit_2",
+  "p_blue_fruit_3",
   "p_bush_1",
   "p_bush_2",
   "p_bush_3",
@@ -37635,12 +38155,16 @@
   "p_fire_1",
   "p_fire_2",
   "p_fire_3",
+  "p_green_fruit_1",
+  "p_green_fruit_2",
+  "p_green_fruit_3",
   "p_heart_1",
   "p_heart_2",
   "p_heart_3",
   "p_ice_1",
   "p_ice_2",
   "p_ice_3",
+  "p_idol_tree",
   "p_klubnika_1",
   "p_klubnika_2",
   "p_klubnika_3",
@@ -37650,6 +38174,9 @@
   "p_pineapple_1",
   "p_pineapple_2",
   "p_pineapple_3",
+  "p_red_fruit_1",
+  "p_red_fruit_2",
+  "p_red_fruit_3",
   "p_romashka_1",
   "p_romashka_2",
   "p_romashka_3",
@@ -37665,6 +38192,9 @@
   "p_tree_1",
   "p_tree_2",
   "p_tree_3",
+  "p_yellow_fruit_1",
+  "p_yellow_fruit_2",
+  "p_yellow_fruit_3",
   "pail",
   "pail_mask",
   "pail_water",
@@ -37782,6 +38312,9 @@
   "quest_prev_active",
   "quest_prev_disabled",
   "quest_prev_normal",
+  "red_branch_1",
+  "red_branch_2",
+  "red_branch_3",
   "ridge",
   "romashka",
   "romashka_2",
@@ -37925,7 +38458,10 @@
   "well",
   "wellimg_well_00",
   "wellimg_well_02",
-  "wellimg_well_03"
+  "wellimg_well_03",
+  "yellow_branch_1",
+  "yellow_branch_2",
+  "yellow_branch_3"
  ],
  "core_images": [
   "ab_auto_bouquet_level_1",
@@ -39018,6 +39554,9 @@
    "town_bg_4"
   ],
   "5": [
+   "blue_branch_1",
+   "blue_branch_2",
+   "blue_branch_3",
    "box_5",
    "box_content_5",
    "box_mask_5",
@@ -39088,10 +39627,14 @@
    "bug_spirit_stand_right_up",
    "bug_spirit_stand_up",
    "farm_bg_5",
+   "green_branch_1",
+   "green_branch_2",
+   "green_branch_3",
    "holder_explorer",
    "holder_father",
    "holder_pirate_leader",
    "holder_shaman",
+   "idol_tree",
    "item_ghost_weight",
    "item_lemur",
    "mark_idol-tree-00",
@@ -39100,13 +39643,32 @@
    "mark_idol-tree-03",
    "mark_idol-tree-04",
    "mark_idol-tree-05",
+   "p_blue_fruit_1",
+   "p_blue_fruit_2",
+   "p_blue_fruit_3",
+   "p_green_fruit_1",
+   "p_green_fruit_2",
+   "p_green_fruit_3",
+   "p_idol_tree",
+   "p_red_fruit_1",
+   "p_red_fruit_2",
+   "p_red_fruit_3",
+   "p_yellow_fruit_1",
+   "p_yellow_fruit_2",
+   "p_yellow_fruit_3",
+   "red_branch_1",
+   "red_branch_2",
+   "red_branch_3",
    "stat_panel_5",
    "talker_explorer",
    "talker_father",
    "talker_parents",
    "talker_pirate_leader",
    "talker_shaman",
-   "town_bg_5"
+   "town_bg_5",
+   "yellow_branch_1",
+   "yellow_branch_2",
+   "yellow_branch_3"
   ]
  },
  "audio": [

@@ -99,6 +99,8 @@ export class RidgeView extends Container {
     this.ground.position.set(...this.anchorPoint);
     this.ground.eventMode = "static";
     this.ground.cursor = "default";
+    // грядки дерева-идола и веток нарисованы самим растением
+    if (place.plain) this.ground.visible = false;
     this.ground.on("pointertap", () => this.events.tap(this));
     this.ground.on("pointerover", () => this.events.hover(this));
     this.addChild(this.ground, this.plantLayer, this.fx, this.drops, this.lives);

@@ -260,6 +260,8 @@ export class Farm extends Container {
     // ---------------- сохранение
     this.buildRidges();
     game.savedPlants.forEach((p, i) => p && this.ridges[i]?.setPlant(p.name, p));
+    // дерево-идол и ветки стоят с начала игры (veg_name в ridges/at_start)
+    for (const r of this.ridges) if (r.place.veg && !r.plant && this.rules.vegetations[r.place.veg]) r.setPlant(r.place.veg);
     if (!game.savedPlants.length && rules.location === 1) {
       // vegetations_at_start: стартовое растение уже растёт на первой грядке
       rules.start.vegetations.forEach((v, i) => this.ridges[i]?.setPlant(v));
@@ -887,7 +889,7 @@ export class Farm extends Container {
 
   /** Условие квеста have_empty_ridge. */
   hasEmptyRidge() {
-    return this.ridges.some((r) => !r.plant);
+    return this.ridges.some((r) => !r.plant && !r.place.plain);
   }
 
   private tapRidge(r: RidgeView) {
@@ -1117,6 +1119,7 @@ export class Farm extends Container {
     const seller = this.sellTarget && planted.includes(this.sellTarget) ? this.sellTarget : (planted[0] ?? null);
     this.sellTarget = seller;
     for (const r of this.ridges) {
+      if (r.place.plain) continue; // дерево-идол и ветки не продаются и не улучшаются за деньги
       const [ax, ay] = [r.x + r.anchorPoint[0], r.y + r.anchorPoint[1]];
       if (!r.plant) {
         if (r !== target) continue;
@@ -1569,7 +1572,15 @@ export class Farm extends Container {
 
   /** Действие квеста add_vegetation: растение name на первую свободную грядку. */
   addVegetation(name: string) {
-    const ridge = this.ridges.find((r) => !r.plant);
+    // ветка дерева-идола садится на свою особую грядку (та же ветка другого цвета — нет): add_vegetation blue_branch_1 → blue_branch_*
+    const family = name.replace(/_\d+$/, "");
+    const own = this.ridges.find((r) => r.place.plain && r.place.veg?.replace(/_\d+$/, "") === family);
+    if (own && this.rules.vegetations[name]) {
+      own.setPlant(name);
+      this.afterPurchase();
+      return true;
+    }
+    const ridge = this.ridges.find((r) => !r.plant && !r.place.plain);
     if (!ridge || !this.rules.vegetations[name]) return false;
     ridge.setPlant(name);
     this.afterPurchase();
@@ -1583,7 +1594,7 @@ export class Farm extends Container {
   }
 
   removeAllPlants() {
-    for (const r of this.ridges) r.clearPlant();
+    for (const r of this.ridges) if (!r.place.plain) r.clearPlant();
     this.afterPurchase();
   }
 

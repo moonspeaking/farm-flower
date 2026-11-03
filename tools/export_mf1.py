@@ -209,7 +209,11 @@ def farm_objects(farm):
 
 def ridge_list(el):
     count = int(el.attrib.get("ridges_count", len(el)))
-    return [{"position": vec(r.attrib["position"]), "dimensions": vec(r.attrib["dimensions"])}
+    # veg_name — растение, которое стоит на грядке с начала игры (дерево-идол и его ветки в 5-й локации);
+    # без image (plain) грядка не рисуется и игрок на неё ничего не сажает
+    return [{"position": vec(r.attrib["position"]), "dimensions": vec(r.attrib["dimensions"]),
+             **({"veg": r.attrib["veg_name"]} if r.attrib.get("veg_name") else {}),
+             **({"plain": True} if not r.attrib.get("image") else {})}
             for r in list(el)[:count]]
 
 
@@ -654,8 +658,10 @@ def export_location(n, props, xml_dir, items_root, ru, vegetations, products, bu
     farm = read_xml(xml_dir / "locations" / f"location_{n}.xml")
     locn = next(l for l in props.iter(f"location_{n}") if l.find("farm") is not None)
     seeds = [x.strip() for x in farm.find("buy_vegetation_set").attrib["vegetations"].split(";") if x.strip()]
-    collect_vegetations(seeds, props.find("vegetations"), props.find("products"), vegetations, products)
     ridges = locn.find("farm/ridges")
+    # растения, которые стоят на грядках с начала игры (дерево-идол и ветки) и все ступени веток, которые сажают квесты
+    placed = [r.attrib["veg_name"] for r in ridges.find("at_start") if r.attrib.get("veg_name")]
+    collect_vegetations(seeds + placed, props.find("vegetations"), props.find("products"), vegetations, products)
     objects = farm_objects(farm)
 
     def levels(tag):
