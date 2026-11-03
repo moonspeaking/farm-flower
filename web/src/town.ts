@@ -7,7 +7,7 @@ import type { Game } from "./state";
 import { Talk } from "./talk";
 import { Reminder, type Tutorial } from "./tutorial";
 import { QuestScreen } from "./questscreen";
-import { COLOR, image, pop, roundButton, toast } from "./ui";
+import { COLOR, dialog, image, pop, roundButton, toast } from "./ui";
 
 export interface TownEvents {
   toFarm(): void;
@@ -143,16 +143,30 @@ export class Town extends Container {
       const name = this.rules.texts.characters[holder] ?? "";
       return toast(this.overlay, `${name}: заданий пока нет`);
     }
+    // у персонажа несколько заданий сразу — окно выбора (SelectQuestDialogScreen, exe 0x543b69: кнопки по подзаданиям)
+    let pick = list[0];
+    if (list.length > 1) {
+      const v = await dialog(this.overlay, {
+        title: this.rules.texts.quest_title || "Задания",
+        stack: true,
+        buttons: [
+          ...list.map((q, i) => ({ text: q.data.header || this.rules.quests[q.quest]?.header || q.quest, value: String(i) })),
+          { text: this.rules.texts.buttons.return || "Вернуться", value: "cancel" },
+        ],
+      });
+      if (v === "cancel") return;
+      pick = list[Number(v)];
+    }
     // первый разговор: персонаж выходит на передний план (крупный портрет, фигура в городе скрыта) и показывается town_talker_large;
     // сам разговор начинается после закрытия подсказки
     const sprite = this.people[holder]?.[0];
-    const first = this.tut.show("town_talker_large", 0, 0, false, () => void this.startTalk(holder, list[0]));
+    const first = this.tut.show("town_talker_large", 0, 0, false, () => void this.startTalk(holder, pick));
     if (first) {
       if (sprite) sprite.visible = false;
       this.nameTip.visible = false;
       return;
     }
-    void this.startTalk(holder, list[0]);
+    void this.startTalk(holder, pick);
   }
 
   private async startTalk(holder: string, { quest, sub, data }: ReturnType<QuestEngine["available"]>[number]) {
