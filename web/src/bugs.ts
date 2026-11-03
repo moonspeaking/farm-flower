@@ -383,6 +383,26 @@ export class Helper extends Actor {
   private hungerTotal = Infinity;
   private away = false;
   private readonly drops: IconRow;
+  /**
+   * Ускорение по нажатию (exe 0x4c8020): 5 секунд после нажатия (0x4c8130) скорость полёта растёт на 0,5 к множителю задачи
+   * (0x4c7870) и удар вдвое сильнее (0x4c7d10); снова нажать можно, когда с прошлого нажатия прошло больше 15 с (0x4c7fa0)
+   * и Робин не хочет пить. **Допущение**: в начале дня счётчик на нуле — первые 5 с Робин ускорен, нажимать можно с 15-й секунды.
+   */
+  private sinceBoost = 0;
+
+  get boosted() {
+    return this.sinceBoost < 5;
+  }
+
+  get canBoost() {
+    return !this.thirsty && !this.away && this.sinceBoost > 15;
+  }
+
+  boost() {
+    this.sinceBoost = 0;
+    audio.play("helper_click");
+  }
+
   /** Нажали на Робина — Farm решает, можно ли напоить (нужна вода). */
   onClick: () => void = () => undefined;
 
@@ -440,6 +460,7 @@ export class Helper extends Actor {
   update(dt: number, bugs: Bug[], ridges: RidgeView[], onWater: (r: RidgeView) => void, grid: () => PathGrid) {
     const h = this.rules.helper;
     if (this.away) return;
+    this.sinceBoost += dt;
     this.advance(dt);
     this.hungerIn -= dt;
     if (this.hungerIn <= 0) {
@@ -490,7 +511,7 @@ export class Helper extends Actor {
         this.play("stand", bug.x - this.x, 0);
         if (this.cooldown <= 0) {
           // exe 0x456820: урон = attack · значение(helper_attack), таймер удара каждый раз заново = attack_period (умение его не ускоряет)
-          bug.hit(h.attack * (1 + this.game.bonus("helper_attack", "helper_attack")), true);
+          bug.hit(h.attack * (this.boosted ? 2 : 1) * (1 + this.game.bonus("helper_attack", "helper_attack")), true);
           this.cooldown = h.attack_period;
         }
         return;
@@ -529,6 +550,7 @@ export class Helper extends Actor {
     this.rest();
     this.cooldown = 0;
     this.away = false;
+    this.sinceBoost = 0;
     this.rollHunger();
   }
 
@@ -567,7 +589,7 @@ export class Helper extends Actor {
     const skill = t?.kind === "pour" ? this.game.bonus("helper_pour", "helper_pour_speed")
       : t?.kind === "product" ? this.game.bonus("helper_product", "helper_product_speed")
       : t?.kind === "attack" ? this.game.bonus("helper_attack", "helper_attack_speed") : 0;
-    return this.rules.helper.speed * (1 + skill);
+    return this.rules.helper.speed * (1 + skill + (this.boosted ? 0.5 : 0));
   }
 
   /**

@@ -869,7 +869,8 @@ export class Farm extends Container {
     helper.visible = this.mode === "day";
     // нажатие по жаждущему Робину поит его (exe 0x430370 → 0x4c80b0): расходуется вода, срок жажды заводится заново
     helper.onClick = () => {
-      if (this.mode !== "day" || !helper.thirsty) return;
+      if (this.mode !== "day") return;
+      if (!helper.thirsty) return helper.canBoost ? helper.boost() : undefined;
       if (this.game.water <= 0) return toast(this.ui, this.rules.texts.events?.no_water ?? "Нет воды", helper.x, helper.y - 80);
       this.game.water -= 1;
       this.game.changed();
