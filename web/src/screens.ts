@@ -510,3 +510,53 @@ export function selectDifficultyScreen(parent: Container, rules: Rules): Promise
     parent.addChild(layer);
   });
 }
+
+// ---------------------------------------------------------------- комиксы между локациями и концовки
+
+/** Подпись под комиксом: description в (29; 539) 600×150, чёрным шрифтом Dialog (в XML лежит как root/font/default_text). */
+export function comicsCaption(rules: Rules, key: string) {
+  const text = (rules.texts.comics?.[key] ?? "").replace(/\\n/g, "\n");
+  let l = pop(text, "Dialog", COLOR.black, { wrap: 600 });
+  // под картинкой остаётся полоса 61 px: длинная подпись (концовки) уменьшается, чтобы влезть
+  if (l.textHeight > 58) {
+    const k = 58 / l.textHeight;
+    l.destroy();
+    l = pop(text, "Dialog", COLOR.black, { wrap: 600 / k, scale: k });
+  }
+  l.position.set(29, 539);
+  return l;
+}
+
+/**
+ * Комикс целиком (location_N_comix при первом приходе в локацию N, win_var_N_comics в концовке): картинка 800×600, подпись
+ * и круглая кнопка «Продолжить» (ok (611; 517) 206×199, как у вступительного комикса). Разрешается, когда кнопку нажали.
+ */
+export async function comicsScreen(parent: Container, rules: Rules, key: string): Promise<void> {
+  await loadImages([`comics_${key}`]);
+  return new Promise((resolve) => {
+    const layer = new Container();
+    layer.addChild(image(`comics_${key}`), comicsCaption(rules, key));
+    layer.eventMode = "static";
+    const ok = roundButton(rules.texts.buttons_menu.continue_game || "Продолжить", () => {
+      layer.destroy({ children: true });
+      resolve();
+    });
+    ok.position.set(611 + 103, 517 + 99);
+    // подложка перевёрнута (ободок снизу), подпись лежит в видимой части экрана — как у вступительного комикса
+    ok.children[0].rotation = Math.PI;
+    ok.children[1].y = -36;
+    ok.children[1].scale.set(1.15);
+    layer.addChild(ok);
+    layer.alpha = 0;
+    parent.addChild(layer);
+    // плавное появление за 0,7 с
+    let t = 0;
+    const tick = () => {
+      if (layer.destroyed) return;
+      t += 1 / 60;
+      layer.alpha = Math.min(1, t / 0.7);
+      if (layer.alpha < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+}

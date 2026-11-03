@@ -4,7 +4,7 @@ import type { PopLabel } from "./popfont";
 import { rgb } from "./popfont";
 import type { Rules } from "./rules";
 import { fmt } from "./rules";
-import { selectDifficultyScreen } from "./screens";
+import { comicsCaption, selectDifficultyScreen } from "./screens";
 import type { Difficulty } from "./state";
 import { COLOR, dialog, H, image, pop, roundButton, textButton, W } from "./ui";
 
@@ -142,6 +142,10 @@ export class Menu extends Container {
       layer.addChild(c);
       return c;
     });
+    // подпись лежит на нижней полосе и появляется, когда начался нижний ряд кадров
+    const caption = comicsCaption(this.rules, "1");
+    caption.alpha = 0;
+    layer.addChild(caption);
     const ok = roundButton(this.rules.texts.buttons_menu.continue_game || "Продолжить", () => {
       layer.destroy({ children: true });
       this.events.play(true, difficulty);
@@ -187,6 +191,7 @@ export class Menu extends Container {
       last = now;
       t += dt;
       if (shown < panels.length && t >= COMICS_GAP) next();
+      caption.alpha = shown >= 4 ? 1 : 0;
       for (let i = 0; i < shown; i++) panels[i].alpha = i < shown - 1 ? 1 : Math.min(1, t / COMICS_FADE);
       // комикс закончился (последний кадр проявился) — после короткой паузы плавно появляется кнопка, сразу в нормальном размере
       if (shown === panels.length) {

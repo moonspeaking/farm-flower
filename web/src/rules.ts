@@ -226,6 +226,8 @@ export interface Rules {
     tooltips?: Record<string, string>;
     medals?: Record<string, string>;
     medal_header?: string;
+    /** Подписи комиксов: 1 — вступление, 2–5 — между локациями, win_var_1/2 — концовки. */
+    comics?: Record<string, string>;
     delimiter?: string;
     names: Record<string, string>;
     stats: Record<string, string>;

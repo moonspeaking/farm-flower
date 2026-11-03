@@ -861,6 +861,9 @@ def main():
     rules["trophies"] = trophies
     trophy_names["trophy_back"] = "trophy_room/trophy_room_back"
     rules["texts"]["medals"] = dict(ru.find("medals").attrib)
+    rules["texts"]["comics"] = {k: ru.find(tag).attrib["description"] for k, tag in
+                                [("1", "first_comics"), ("2", "location_2_comix"), ("3", "location_3_comix"), ("4", "location_4_comix"),
+                                 ("5", "location_5_comix"), ("win_var_1", "win_var_1_comics"), ("win_var_2", "win_var_2_comics")]}
     rules["texts"]["medal_header"] = ru.find("medal_header_text").attrib.get("text", "")
     # сложность (difficult, exe 0x425c90): множители цен покупки и продажи, жизни вредителей, порогов опыта (exp_levels) и полива
     rules["difficulty"] = {d.tag.split("_", 2)[2]: {k: float(v) for k, v in d.attrib.items()} for d in props.find("difficult")}
@@ -975,6 +978,9 @@ def main():
         for m in loc.get("marks_obstacle", []):
             if m["image"]:
                 names[m["image"]] = "tree/" + m["image"][len("mark_"):]
+    # комиксы между локациями (location_N_comix) и концовки (win_var_N_comics)
+    for k, f in [("2", "comics-1-2"), ("3", "comics-2-3"), ("4", "comics-3-4"), ("5", "comics-4-5"), ("win_var_1", "comics-fin-1"), ("win_var_2", "comics-fin-2")]:
+        names[f"comics_{k}"] = f"main_menu/{f}"
     names["stat_panel_5"] = "game/stat_control_loc5"
     names["bq_back_5"] = "game/bouquets/bouquets_back_loc5"
     names["bq_big"] = "game/bouquets/big-flowers"

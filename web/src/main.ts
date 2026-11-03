@@ -16,7 +16,7 @@ import { Town } from "./town";
 import { Tutorial } from "./tutorial";
 import { WorldMap } from "./worldmap";
 import { loadFonts } from "./popfont";
-import { aboutScreen, gameMenu, highscoresScreen, optionsScreen, pauseOverlay, recordScore, trophyAwardPopup, trophyRoomScreen } from "./screens";
+import { aboutScreen, comicsScreen, gameMenu, highscoresScreen, optionsScreen, pauseOverlay, recordScore, trophyAwardPopup, trophyRoomScreen } from "./screens";
 import { H, hasImages, loadImages, setSharp, toast, unloadImages, W } from "./ui";
 
 async function main() {
@@ -179,7 +179,11 @@ async function main() {
     const quests = new QuestEngine(lr.quests, g, {
       removeAllVegetations: () => f.removeAllPlants(),
       notify: (s) => toast(world, s),
-      marked: (m) => m === "win" && worldTut?.show("game_fin", 400, 300),
+      marked: (m) => {
+        // концовка: комикс win_var_N, потом подсказка game_fin
+        if (m === "win_var_1" || m === "win_var_2") comicsQueue = comicsQueue.then(() => comicsScreen(world, rules, m));
+        if (m === "win") void comicsQueue.then(() => worldTut?.show("game_fin", 400, 300));
+      },
       hasEmptyRidge: () => f.hasEmptyRidge(),
       addVegetation: (v) => f.addVegetation(v),
       removeVegetation: (v) => f.removeVegetation(v),
@@ -205,6 +209,8 @@ async function main() {
 
   /** Переход в локацию n: ферма текущей сохраняется, состояние игры переключается. */
   let entering = false;
+  /** Комиксы показываются по очереди. */
+  let comicsQueue: Promise<void> = Promise.resolve();
   const enter = async (g: Game, n: number, scene: "farm" | "town") => {
     if (entering) return;
     entering = true;
@@ -221,6 +227,11 @@ async function main() {
     farms[n].refresh();
     towns[n].refresh();
     if (scene === "town") towns[n].entered();
+    // первый приход в локацию 2–5 — комикс location_N_comix (метка comix_N, чтобы не показывать снова)
+    if (n >= 2 && !g.marks.includes(`comix_${n}`)) {
+      g.marks.push(`comix_${n}`);
+      comicsQueue = comicsQueue.then(() => comicsScreen(world, rules, String(n)));
+    }
   };
 
   const levelsOf = (g: Game) => Object.fromEntries(Object.entries(g.trophies).map(([k, v]) => [k, v.level]));
