@@ -987,6 +987,10 @@ def main():
     # комиксы между локациями (location_N_comix) и концовки (win_var_N_comics)
     for k, f in [("2", "comics-1-2"), ("3", "comics-2-3"), ("4", "comics-3-4"), ("5", "comics-4-5"), ("win_var_1", "comics-fin-1"), ("win_var_2", "comics-fin-2")]:
         names[f"comics_{k}"] = f"main_menu/{f}"
+    # эффекты полёта к панели (effects/prizes, effects/product): частицы с картинкой приза / плода из data/particles/{prizes,products}
+    for kind, tag in (("prizes", "pp"), ("products", "pq")):
+        for f in sorted((data_dir / "particles" / kind).glob("*.jpg")):
+            names[f"{tag}_{f.stem.lower()}"] = f"particles/{kind}/{f.stem}"
     names["stat_panel_5"] = "game/stat_control_loc5"
     names["bq_back_5"] = "game/bouquets/bouquets_back_loc5"
     names["bq_big"] = "game/bouquets/big-flowers"

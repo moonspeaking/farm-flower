@@ -63,6 +63,10 @@ export class Emitter {
   /** Накопленная дробная часть эмиссии (rate·dt). */
   acc = 0;
   active = true;
+  /** Своя картинка частицы (приз, плод) вместо звёздочки по умолчанию. */
+  texture?: string;
+  /** Полёт эмиттера к цели: effects/prizes и effects/product, time = 0,6 с (exe 0x427930: позиция по пути в момент elapsed). */
+  path?: { from: [number, number]; to: [number, number]; time: number };
 
   constructor(readonly name: string, readonly cfg: PsiConfig, public x: number, public y: number) {}
 
@@ -87,6 +91,18 @@ export class ParticleLayer extends Container {
     if (!cfg) return null;
     const e = new Emitter(name, cfg, x, y);
     this.emitters.push(e);
+    return e;
+  }
+
+  /**
+   * Эмиттер name летит из from в to за time секунд, сыпля частицы с картинкой texture. **Допущение**: путь — плавное ускорение
+   * по прямой (в exe позицию даёт объект пути 0x46aab0, а interpolator_k задаёт множитель скорости частиц к остатку времени).
+   */
+  fly(name: string, texture: string, from: [number, number], to: [number, number], time = 0.6) {
+    const e = this.start(name, from[0], from[1]);
+    if (!e) return null;
+    e.texture = texture;
+    e.path = { from, to, time };
     return e;
   }
 
@@ -131,6 +147,13 @@ export class ParticleLayer extends Container {
     for (let i = this.emitters.length - 1; i >= 0; i--) {
       const e = this.emitters[i];
       const finite = e.cfg.duration >= 0;
+      if (e.path) {
+        const k = Math.min(1, e.elapsed / e.path.time);
+        const m = k * k;
+        e.x = e.path.from[0] + (e.path.to[0] - e.path.from[0]) * m;
+        e.y = e.path.from[1] + (e.path.to[1] - e.path.from[1]) * m;
+        if (k >= 1) e.active = false;
+      }
       if (e.active) {
         e.elapsed += dt;
         if (finite && e.elapsed >= e.cfg.duration) e.active = false;
@@ -156,7 +179,7 @@ export class ParticleLayer extends Container {
     const color = c.color_start.map((s, i) => rand(s, s + (c.color_end[i] - s) * c.color_var[i === 3 ? 1 : 0]));
     const x = e.x + rand(-2, 2);
     const y = e.y + rand(-2, 2);
-    const s = new Sprite(tex(TEXTURE[e.name] ?? "particle_star"));
+    const s = new Sprite(tex(e.texture ?? TEXTURE[e.name] ?? "particle_star"));
     s.anchor.set(0.5);
     s.blendMode = "add";
     // частица рождается после шага обновления и до отрисовки — без начального вида она один кадр мигает в углу (0; 0) слоя

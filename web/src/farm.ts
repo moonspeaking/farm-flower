@@ -19,8 +19,9 @@ import type { WellDef } from "./rules";
 import { wellName, wellOffer } from "./well";
 import { Statue } from "./statue";
 import { rollPrize } from "./prizes";
+import { ParticleLayer } from "./particles";
 import { bugForDifficulty, parseBugSpec } from "./bugs";
-import { COLOR, dialog, floatPoints, H, image, pop, roundButton, shopButton, type ShopButton, tex, textButton, toast, W } from "./ui";
+import { COLOR, dialog, floatPoints, H, image, loadImages, pop, roundButton, shopButton, type ShopButton, tex, textButton, toast, W } from "./ui";
 
 /** Шаги обучения, уже сдвинутые под перенесённые кнопки. */
 const shiftedSteps = new WeakSet<object>();
@@ -130,6 +131,8 @@ export class Farm extends Container {
   private readonly top = new Container();
   private readonly screens = new Container();
   readonly ui = new Container();
+  /** Частицы, летящие к панели: приз (effects/prizes) и плод (effects/product). */
+  private readonly flyFx = new ParticleLayer();
   private readonly hud: Hud;
   private readonly tutorial: Tutorial;
   private readonly barrels: Filled[] = [];
@@ -201,6 +204,7 @@ export class Farm extends Container {
     });
     this.addChild(ground, this.markLayer, this.objects, this.weatherFx, this.shopLayer, this.top, this.screens, (this.tutorial = new Tutorial(rules, game, () => audio.options.warnings)));
     this.hud = new Hud(rules, game, { openLevelUp: () => this.openLevelUp(), openQuests: () => this.openQuests(), menu: () => this.openMenu() });
+    this.ui.addChild(this.flyFx);
     this.addChild(this.hud, this.ui);
     // подсказки стоят над панелью, чтобы их было видно
     this.addChild(this.tutorial);
@@ -489,6 +493,7 @@ export class Farm extends Container {
   update(dt: number) {
     this.hud.blinkOn = this.mode !== "day"; // умения улучшаются только между днями — днём рамка не мигает
     this.hud.tick(dt);
+    this.flyFx.update(dt);
     // днём окно подсказки с затемнением ставит игру на паузу до «Закрыть» (exe 0x476cd0); простой пузырь — нет, он гаснет через 10 с
     const waiting = this.mode === "day" && this.tutorial.blocking;
     this.tutorial.update(dt);
@@ -601,6 +606,7 @@ export class Farm extends Container {
       },
       harvested: (_ridge, product, x, y, ripeFor) => {
         audio.play("product_harvest");
+        this.flyToPanel("pq", product, x, y, [77, 240]);
         const base = this.rules.products[product]?.exp ?? 0;
         const exp = this.bonusEvent("gather", ripeFor, x, y - 40, base);
         this.harvestedToday += 1;
@@ -777,7 +783,7 @@ export class Farm extends Container {
     this.prizes.splice(i, 1);
     const { x, y } = entry.sprite;
     // приз летит к своему счётчику на панели за effects/prizes time = 0,6 с (опыт — полоска, золото — монеты, вода — бочки)
-    this.flyToPanel(`prize_${it.image}`, x, y, it.kind === "exp" ? [86, 115] : it.kind === "gold" ? [83, 475] : [32, 355]);
+    this.flyToPanel("pp", it.image, x, y, it.kind === "exp" ? [86, 115] : it.kind === "gold" ? [83, 475] : [32, 355]);
     entry.sprite.destroy();
     const ev = this.rules.texts.events ?? {};
     const color = rgb(...it.color);
@@ -800,27 +806,12 @@ export class Farm extends Container {
   }
 
   /**
-   * Полёт значка к панели (effects: prizes / product time = 0,6 с, interpolator_k 75 / 85 — **допущение**: плавное ускорение
-   * к цели вместо точной кривой интерполятора, который в exe не разобран). По прилёте значок гаснет.
+   * Приз или плод летит к счётчику панели за 0,6 с (effects: prizes / product time) частицами effect.psi с картинкой
+   * data/particles/{prizes,products}/<имя>. Кривая полёта — **допущение** (см. ParticleLayer.fly).
    */
-  private flyToPanel(name: string, x: number, y: number, to: [number, number], time = 0.6) {
-    const s = image(name);
-    s.anchor.set(0.5, 0.8);
-    s.position.set(x, y);
-    this.ui.addChild(s);
-    let t = 0;
-    const step = () => {
-      if (s.destroyed) return;
-      t += 1 / 60;
-      const k = Math.min(1, t / time);
-      const e = k * k;
-      s.position.set(x + (to[0] - x) * e, y + (to[1] - y) * e);
-      s.scale.set(1 - 0.5 * e);
-      s.alpha = 1 - 0.3 * e;
-      if (k >= 1) return void s.destroy();
-      requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
+  private flyToPanel(tag: "pp" | "pq", name: string, x: number, y: number, to: [number, number]) {
+    const img = `${tag}_${name.toLowerCase()}`;
+    void loadImages([img]).then(() => this.flyFx.fly("effect", img, [x, y], to)).catch(() => undefined);
   }
 
   /** Предмет выпадает, только пока квест разрешил (enable_bug_item count). */
