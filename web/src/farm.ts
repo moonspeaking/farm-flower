@@ -190,7 +190,13 @@ export class Farm extends Container {
     super();
     this.arriver = new BugArriver((game.arrivers[rules.location] ??= newArriverState()));
     const t = rules.texts;
-    this.addChild(image(rules.bg_image), this.objects, this.weatherFx, this.shopLayer, this.top, this.screens, (this.tutorial = new Tutorial(rules, game, () => audio.options.warnings)));
+    // нажатие по пустой земле днём — «лишний клик» (награда target_clicks)
+    const ground = image(rules.bg_image);
+    ground.eventMode = "static";
+    ground.on("pointertap", () => {
+      if (this.mode === "day" && !this.paused) this.game.trophyBook.missClick();
+    });
+    this.addChild(ground, this.objects, this.weatherFx, this.shopLayer, this.top, this.screens, (this.tutorial = new Tutorial(rules, game, () => audio.options.warnings)));
     this.hud = new Hud(rules, game, { openLevelUp: () => this.openLevelUp(), openQuests: () => this.openQuests(), menu: () => this.openMenu() });
     this.addChild(this.hud, this.ui);
     // подсказки стоят над панелью, чтобы их было видно
@@ -343,6 +349,7 @@ export class Farm extends Container {
     this.slow = 1;
     this.slowLeft = 0;
     this.hitCombo = 0;
+    this.game.trophyBook.dayStarted(this.ridges.filter((r) => r.plant).length);
     this.wellCooldown = 0;
     this.wellProgress = this.wellDef().fill_time;
     this.pail.level = 1;
@@ -382,6 +389,7 @@ export class Farm extends Container {
     const n = this.combo[kind];
     this.combo[kind] = n + 1;
     this.showBonus(`fast_${kind}${tier.suffix}`, x, y, n);
+    this.game.trophyBook.fastAction();
     return baseExp * tier.mult;
   }
 
@@ -429,6 +437,7 @@ export class Farm extends Container {
       r.clearProducts();
     }
     const day = this.game.day;
+    this.game.trophyBook.dayEnded();
     this.game.day += 1;
     this.game.advanceDayLength();
     this.events.dayEnded();
@@ -563,6 +572,7 @@ export class Farm extends Container {
         const base = this.rules.products[product]?.exp ?? 0;
         const exp = this.bonusEvent("gather", ripeFor, x, y - 40, base);
         this.harvestedToday += 1;
+        this.game.trophyBook.gathered(product);
         this.renderStorages();
         this.gainExp(exp, x, y - 10);
         const fam = family(product);
@@ -580,6 +590,7 @@ export class Farm extends Container {
         audio.play("vegetation_die");
         const at = { x: ridge.x + ridge.anchorPoint[0], y: ridge.y - 20 }; // координаты фермы (toGlobal дал бы экранные)
         toast(this.ui, reason === "thirst" ? "Растение засохло" : "Растение съедено", at.x, at.y);
+        this.game.trophyBook.plantDied(reason);
       },
       grew: () => audio.play("vegetation_upgrade"),
       hungry: (ridge) => {
@@ -641,6 +652,7 @@ export class Farm extends Container {
         const def = this.rules.bugs[b.kind];
         const key = def.folder;
         this.gainExp(b.exp, b.x, b.y - 40);
+        this.game.trophyBook.bugKilled();
         // призы (exe 0x410300): $N — N гарантированных из всех ступеней, иначе один бросок по prizes_set фермы
         if (b.prizes > 0) for (let i = 0; i < b.prizes; i++) this.dropPrize(b.prizeMul, true, b.x, b.y);
         else this.dropPrize(b.prizeMul, false, b.x, b.y);

@@ -1,5 +1,6 @@
 // Состояние фермы, опыт и умения Айрис, заказы на букеты; сохранение между запусками.
 import { newQuestState, QuestState } from "./quests";
+import { Trophies, type TrophyState } from "./trophies";
 import { locationRules } from "./rules";
 import { currentProfile, saveKey } from "./profiles";
 import type { ArriverState } from "./bugs";
@@ -84,6 +85,7 @@ interface SaveV3 {
   weapons?: string[];
   owl?: boolean;
   medals?: Record<string, number>;
+  trophies?: Record<string, TrophyState>;
   questStates: Record<number, QuestState>;
   world: WorldState;
   marks?: string[];
@@ -205,6 +207,11 @@ export class Game {
   weapons: string[] = [];
   owl = false;
   medals: Record<string, number> = {};
+  /** Награды комнаты трофеев: ступень и счётчик к следующей (общие для игрока, exe — в GameHolder). */
+  trophies: Record<string, TrophyState> = {};
+  /** События наград и показ «Вы получили награду!» (onTrophy ставит игра). */
+  readonly trophyBook = new Trophies(this, (name, level) => this.onTrophy?.(name, level));
+  onTrophy?: (name: string, level: number) => void;
   /** Волны вредителей по локациям (BugArriver фермы): живут, пока идёт игра, в сохранение не пишутся — как в exe. */
   arrivers: Record<number, ArriverState> = {};
   loc = 1;
@@ -471,7 +478,7 @@ export class Game {
       kills: this.kills, gathered: this.gathered, attackSpecific: this.attackSpecific, productSpecific: this.productSpecific,
       tutorial: this.tutorial, loc: this.loc, farms: { ...this.farms, [this.loc]: this.snapshot(plants) },
       questStates: this.questStates, world: this.world, marks: this.marks, items: this.items, bugItems: this.bugItems,
-      weapons: this.weapons, owl: this.owl, medals: this.medals,
+      weapons: this.weapons, owl: this.owl, medals: this.medals, trophies: this.trophies,
     };
     try {
       localStorage.setItem(saveKey(KEY3, this.profile), JSON.stringify(data));
@@ -501,7 +508,7 @@ export class Game {
           day: s.day, gold: s.gold, exp: s.exp, skills: s.skills, kills: s.kills, gathered: s.gathered,
           attackSpecific: s.attackSpecific, productSpecific: s.productSpecific, tutorial: s.tutorial,
           questStates: s.questStates, world: s.world, farms: s.farms, loc: s.loc, marks: s.marks ?? [], items: s.items ?? {}, bugItems: s.bugItems ?? {},
-          weapons: s.weapons ?? [], owl: !!s.owl, medals: s.medals ?? {},
+          weapons: s.weapons ?? [], owl: !!s.owl, medals: s.medals ?? {}, trophies: s.trophies ?? {},
         });
         this.mergeOldMarks();
         this.restore(s.farms[s.loc]);

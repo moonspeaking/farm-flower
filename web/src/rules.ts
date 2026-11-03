@@ -150,6 +150,8 @@ export interface Rules {
     thresholds: number[]; position: [number, number]; dimensions: [number, number]; complete: string;
     levels: { level_image: string; level_pos: [number, number]; progress_image: string; progress_pos: [number, number] }[];
   } | null;
+  /** Награды комнаты трофеев: место, пороги ступеней, число картинок (ступень 0 — пустое место). */
+  trophies?: Record<string, { position: [number, number]; dimensions: [number, number]; thresholds: number[]; images: number }>;
   /** Серии ударов (combo_set): с какого удара подряд какой множитель урона. */
   combo_set?: { count: number; damage: number }[];
   /** Призы (root/dropped_items): вид, значение, картинка, цвет надписи, сложности. */
@@ -218,6 +220,8 @@ export interface Rules {
     /** Окно заданий: заголовок и разделитель тысяч в числах. */
     quest_title?: string;
     tooltips?: Record<string, string>;
+    medals?: Record<string, string>;
+    medal_header?: string;
     delimiter?: string;
     names: Record<string, string>;
     stats: Record<string, string>;

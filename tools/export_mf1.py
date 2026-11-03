@@ -834,6 +834,26 @@ def main():
     rules["auto_bouquet"] = auto_bouquet(props, 1)
     rules["prizes_set"] = prizes_set(next(l for l in props.iter("location_1") if l.find("farm/prizes_set") is not None))
     rules["dropped_items"] = dropped_items(props.find("dropped_items"))
+    # комната трофеев (trophy_room_screen/medals): место, пороги ступеней, сколько картинок (ступень 0 — пустое место)
+    trophies, trophy_names = {}, {}
+    sized = data_dir / "trophy_room" / "sized"
+    for m in props.find("trophy_room_screen/medals"):
+        if m.tag == "trophy_room_rect":
+            continue
+        levels = [lv for lv in m if lv.tag.startswith("level_")]
+        thresholds = [int(next(iter(lv.attrib.values()))) for lv in levels]
+        count = 0
+        while (sized / f"{m.tag}_{count}.jpg").exists():
+            trophy_names[f"tr_{m.tag}_{count}"] = f"trophy_room/sized/{m.tag}_{count}"
+            if (sized / f"{m.tag}_{count}_overed.jpg").exists():
+                trophy_names[f"tr_{m.tag}_{count}_o"] = f"trophy_room/sized/{m.tag}_{count}_overed"
+            count += 1
+        trophies[m.tag] = {"position": vec(m.attrib["position"]), "dimensions": vec(m.attrib["dimensions"]),
+                           "thresholds": thresholds, "images": count}
+    rules["trophies"] = trophies
+    trophy_names["trophy_back"] = "trophy_room/trophy_room_back"
+    rules["texts"]["medals"] = dict(ru.find("medals").attrib)
+    rules["texts"]["medal_header"] = ru.find("medal_header_text").attrib.get("text", "")
     # серии ударов (combo_set, exe 0x44a6d0): с какого удара подряд какой множитель урона
     cs = props.find("combo_set")
     rules["combo_set"] = [{"count": int(c.attrib["comobos_count"]), "damage": float(c.attrib["damage"])}
@@ -908,6 +928,7 @@ def main():
     out_img = web / "public" / "img"
     out_img.mkdir(parents=True, exist_ok=True)
     names = dict(IMAGES)
+    names.update(trophy_names)
     for v in vegetations:
         names[v] = f"vegetations/{v}"
     for p in products:

@@ -250,6 +250,7 @@ export class BouquetScreen extends Container {
     const price = this.game.sellPrice(this.rules.products[product]?.price ?? 0);
     this.game.storage.set(product, have - k);
     this.game.gold += k * price;
+    this.game.trophyBook.sold(k * price);
     audio.play(k > 1 ? "sell_all" : "sell_one");
     floatPoints(this, `+${k * price}`, 469, 230, rgb(255, 230, 90));
     // убираем с корзины нужное число цветов
@@ -411,6 +412,8 @@ export class BouquetScreen extends Container {
     const price = this.game.orderPrice(order);
     this.game.gold += price;
     this.game.bouquets.done += 1;
+    this.game.trophyBook.bouquetSold();
+    this.game.trophyBook.sold(price);
     // автосборка: в счёт идут цветы проданного букета (exe 0x434078 — число цветов в нём)
     this.game.autoSold += order.items.length;
     this.renderAutoBar();
