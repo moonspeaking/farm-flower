@@ -48,7 +48,7 @@ export class LevelUp extends Container {
   private selected: SkillName | null = null;
   private hover: SkillName | null = null;
   private readonly box = new Container();
-  private readonly desc: PopLabel;
+  private desc: PopLabel;
   private readonly marks = new Container();
   private readonly buttonHolder = new Container();
 
@@ -125,6 +125,24 @@ export class LevelUp extends Container {
     return this.rules.skills[skill]?.length ?? 5;
   }
 
+  /** Описание на доске 220×85: длинное уменьшается, чтобы не вылезать за доску. */
+  private setDesc(text: string) {
+    const make = (k: number) => {
+      const l = pop(text, "stat_control_fonts_1", 0xd2d2d2, { wrap: 220 / k, lineOffset: -4, scale: k });
+      l.position.set(98, 301);
+      return l;
+    };
+    let l = make(1);
+    if (l.textHeight > 85) {
+      const k = 85 / l.textHeight;
+      l.destroy();
+      l = make(Math.max(0.5, k));
+    }
+    this.desc.destroy();
+    this.desc = l;
+    this.box.addChild(l);
+  }
+
   private render() {
     const g = this.game;
     this.marks.removeChildren().forEach((c) => c.destroy());
@@ -157,8 +175,7 @@ export class LevelUp extends Container {
 
     const t = this.rules.texts;
     const points = g.skillPoints;
-    if (this.selected) this.desc.text = fmt(t.skill_desc[this.selected]);
-    else this.desc.text = points > 0 ? fmt(t.tutorial.level_up) : `${t.stats.hero_title}: ${g.level}`;
+    this.setDesc(this.selected ? fmt(t.skill_desc[this.selected]) : points > 0 ? fmt(t.tutorial.level_up) : `${t.stats.hero_title}: ${g.level}`);
 
     // level_up_button (271; 417) 50×33 и ok (283; 417) 26×24 — на одном листе, видна одна из них; стиль normal_small
     this.buttonHolder.removeChildren().forEach((c) => c.destroy({ children: true }));

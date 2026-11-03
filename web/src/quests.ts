@@ -97,6 +97,8 @@ export interface StoredState {
   owlLevel?: number;
   statues?: Record<string, number>;
   boughtRidges: number[];
+  /** Ключ вредителей и ограничения магазина, которые меняют квесты этапов (exe: снимок шире, 0x47ef60). */
+  limits?: Pick<QuestState, "pestsKey" | "ridgeCap" | "saleCap" | "maxBarrels" | "maxBoxes" | "waterBuy" | "manualWork"> & { wellBuy: boolean };
   world: { towns: Record<string, boolean>; farms: Record<string, boolean> };
 }
 
@@ -228,6 +230,10 @@ export class QuestEngine {
           st.stored = {
             gold: g.gold, water: g.water, barrels: g.barrels, boxes: g.boxes, well: g.well, wellLevel: g.wellLevel, statues: { ...g.statues },
             boughtRidges: [...g.boughtRidges], world: structuredClone(g.world),
+            limits: {
+              pestsKey: st.pestsKey, ridgeCap: st.ridgeCap, saleCap: st.saleCap, maxBarrels: st.maxBarrels, maxBoxes: st.maxBoxes,
+              waterBuy: st.waterBuy, manualWork: st.manualWork, wellBuy: g.wellBuy,
+            },
           };
           break;
         case "restore_state":
@@ -238,6 +244,11 @@ export class QuestEngine {
             else if (v.owlLevel !== undefined) g.owlLevel = v.owlLevel;
             g.boughtRidges = [...v.boughtRidges];
             g.world = structuredClone(v.world);
+            if (v.limits) {
+              const { wellBuy, ...rest } = v.limits;
+              g.wellBuy = wellBuy;
+              Object.assign(st, { pestsKey: undefined, ridgeCap: undefined, saleCap: undefined, maxBarrels: undefined, maxBoxes: undefined, waterBuy: undefined, manualWork: undefined }, rest);
+            }
           }
           break;
         // exe 0x483b35: запрет или разрешение покупать колодец (поле фермы +0x82c)
