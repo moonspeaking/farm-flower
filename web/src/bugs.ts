@@ -374,9 +374,10 @@ export class Helper extends Actor {
   private replan = 0;
   private readonly icon: Sprite;
   /**
-   * Жажда Робина на сложном (тип загрузки: «Робин может испытывать жажду, и если его не напоить, улетает до конца дня»).
-   * hunger_min…hunger_max секунд до жизни без воды; хочет пить, когда осталось меньше половины (как у растений),
-   * на нуле улетает до конца дня. **Допущение**: правило по образцу растений, точное место в exe не найдено.
+   * Жажда Робина (exe: Helper 0x4c7670 обновление, 0x4c87b0 новый срок, 0x4c80b0 «напоить»). Срок — случайное целое
+   * round(hunger_min) … round(hunger_max) секунд, на лёгком уровне ×10 (дольше дня, поэтому на лёгком Робин жаждет редко);
+   * хочет пить, когда осталось меньше половины срока (поле +0xe1), на нуле улетает до конца дня (+0xe2); срок заводится заново
+   * каждый день (0x4c75a0) и когда его напоили.
    */
   private hungerIn = Infinity;
   private hungerTotal = Infinity;
@@ -424,7 +425,9 @@ export class Helper extends Actor {
 
   private rollHunger() {
     const h = this.rules.helper;
-    this.hungerTotal = Math.round(h.hunger_min) + Math.random() * (Math.round(h.hunger_max) - Math.round(h.hunger_min));
+    const lo = Math.round(h.hunger_min);
+    const hi = Math.round(h.hunger_max);
+    this.hungerTotal = (lo + Math.floor(Math.random() * (hi - lo + 1))) * (this.game.difficulty === "casual" ? 10 : 1);
     this.hungerIn = this.hungerTotal;
     this.drops.set(0);
   }
@@ -438,19 +441,17 @@ export class Helper extends Actor {
     const h = this.rules.helper;
     if (this.away) return;
     this.advance(dt);
-    if (this.game.difficulty === "hardcore") {
-      this.hungerIn -= dt;
-      if (this.hungerIn <= 0) {
-        // не напоили — улетает до конца дня
-        this.away = true;
-        this.task = null;
-        this.path = [];
-        this.drops.set(0);
-        this.showIcon(null);
-        return;
-      }
-      if (this.thirsty) this.drops.setValue(this.hungerIn, this.hungerTotal / 10);
+    this.hungerIn -= dt;
+    if (this.hungerIn <= 0) {
+      // не напоили — улетает до конца дня
+      this.away = true;
+      this.task = null;
+      this.path = [];
+      this.drops.set(0);
+      this.showIcon(null);
+      return;
     }
+    if (this.thirsty) this.drops.setValue(this.hungerIn, this.hungerTotal / 10);
     this.cooldown = Math.max(0, this.cooldown - dt);
     this.retry -= dt;
     this.replan -= dt;
@@ -528,11 +529,7 @@ export class Helper extends Actor {
     this.rest();
     this.cooldown = 0;
     this.away = false;
-    if (this.game.difficulty === "hardcore") this.rollHunger();
-    else {
-      this.hungerIn = this.hungerTotal = Infinity;
-      this.drops.set(0);
-    }
+    this.rollHunger();
   }
 
   /** Начинает задачу: строит путь по сетке (как у вредителей); если пути нет, задача отбрасывается и выбор повторится через полсекунды. */

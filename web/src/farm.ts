@@ -876,7 +876,7 @@ export class Farm extends Container {
     if (!this.game.quests.helper || this.helper) return;
     const helper = (this.helper = new Helper(this.rules, this.game, [255, 285]));
     helper.visible = this.mode === "day";
-    // сложный уровень: нажатие по жаждущему Робину поит его за литр воды из запаса (допущение, как полив растения)
+    // нажатие по жаждущему Робину поит его (exe 0x430370 → 0x4c80b0): расходуется вода, срок жажды заводится заново
     helper.onClick = () => {
       if (this.mode !== "day" || !helper.thirsty) return;
       if (this.game.water <= 0) return toast(this.ui, this.rules.texts.events?.no_water ?? "Нет воды", helper.x, helper.y - 80);
