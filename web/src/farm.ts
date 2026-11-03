@@ -164,6 +164,9 @@ export class Farm extends Container {
   private readonly startReminder = new Reminder();
   // состояние волн хранится в игре (по локации): между днями и при уходе с фермы не сбрасывается
   private readonly arriver: BugArriver;
+  /** Картинка метки-препятствия (дерево-идол 5-й локации растёт по меткам treemark_N). */
+  private readonly markLayer = new Container();
+  private markShown = "";
   private helper: Helper | null = null;
   /** Колодец: секунды до готовности следующего ведра. */
   /** Колодец (WellControl, 0x4afac0): пауза после использования и наполнение ведра в секундах (0 … fill_time). */
@@ -196,7 +199,7 @@ export class Farm extends Container {
     ground.on("pointertap", () => {
       if (this.mode === "day" && !this.paused) this.game.trophyBook.missClick();
     });
-    this.addChild(ground, this.objects, this.weatherFx, this.shopLayer, this.top, this.screens, (this.tutorial = new Tutorial(rules, game, () => audio.options.warnings)));
+    this.addChild(ground, this.markLayer, this.objects, this.weatherFx, this.shopLayer, this.top, this.screens, (this.tutorial = new Tutorial(rules, game, () => audio.options.warnings)));
     this.hud = new Hud(rules, game, { openLevelUp: () => this.openLevelUp(), openQuests: () => this.openQuests(), menu: () => this.openMenu() });
     this.addChild(this.hud, this.ui);
     // подсказки стоят над панелью, чтобы их было видно
@@ -264,6 +267,7 @@ export class Farm extends Container {
     }
     this.renderStorages();
     this.syncHelper();
+    this.syncMarks();
     this.unsubscribe = game.onChange(() => this.renderStats());
     this.enterShop();
   }
@@ -621,6 +625,8 @@ export class Farm extends Container {
   private pathGrid(self?: Bug | Helper) {
     const grid = new PathGrid();
     for (const o of this.rules.obstacles) grid.add(o);
+    const mark = this.activeMark();
+    if (mark?.image) grid.add(mark);
     const g = this.game;
     if (g.well) {
       grid.add(this.wellDef());
@@ -785,6 +791,26 @@ export class Farm extends Container {
     };
     requestAnimationFrame(fly);
     toast(this.ui, `+1 (${g.items[item]})`, x, y - 60);
+  }
+
+  /**
+   * Метки-препятствия (marks_obstacle): показывается картинка последней поставленной метки списка; пока ни одна не поставлена —
+   * первая (**допущение**: treemark_1 в квестах нигде не ставится, а дерево-идол в 5-й локации с самого начала — росток).
+   */
+  private activeMark() {
+    const list = this.rules.marks_obstacle ?? [];
+    return [...list].reverse().find((m) => this.game.hasMark(m.mark)) ?? list[0] ?? null;
+  }
+
+  private syncMarks() {
+    const m = this.activeMark();
+    if ((m?.mark ?? "") === this.markShown) return;
+    this.markShown = m?.mark ?? "";
+    this.markLayer.removeChildren().forEach((c) => c.destroy());
+    if (!m?.image) return;
+    const s = image(m.image);
+    s.position.set(...m.position);
+    this.markLayer.addChild(s);
   }
 
   /** Робин появляется после квеста слуги (enable_helper). */
@@ -1512,6 +1538,7 @@ export class Farm extends Container {
   /** Ферма снова на экране (после города): обновить магазин и цифры. */
   refresh() {
     this.syncHelper();
+    this.syncMarks();
     this.renderShop();
     this.renderStats();
     this.persist();

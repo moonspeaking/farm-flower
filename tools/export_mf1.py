@@ -706,6 +706,10 @@ def export_location(n, props, xml_dir, items_root, ru, vegetations, products, bu
         "prizes_set": prizes_set(locn),
         "auto_bouquet": auto_bouquet(props, n),
         "obstacles": [{"position": vec(o.attrib["position"]), "dimensions": vec(o.attrib["dimensions"])} for o in farm.findall("obstacle")],
+        # метки-препятствия (marks_obstacle): картинка, которая встаёт на ферму, когда поставлена метка (дерево-идол в 5-й локации)
+        "marks_obstacle": [{"mark": m.attrib["mark"], "position": vec(m.attrib["position"]), "dimensions": vec(m.attrib["dimensions"]),
+                            "image": "mark_" + m.attrib["image"].rsplit("/", 1)[-1] if m.attrib["image"] else ""}
+                           for m in farm.findall("marks_obstacle/mark") if m.attrib["mark"]],
         "quests": quests,
         "holders": holders,
         "shop_positions": shop_positions(props, n),
@@ -967,6 +971,10 @@ def main():
                 if (folder / anim / f"{d}.jpg").exists():
                     names[f"bug_{bug['folder']}_{anim}_{d}"] = f"bugs/{bug['folder']}/{anim}/{d}"
     # 5-я локация: панель с кристаллами вместо монет и свой фон экрана букетов (resource.xml: stat_back_loc5, bouquets_screen_loc5)
+    for loc in [rules] + list(rules["locations"].values()):
+        for m in loc.get("marks_obstacle", []):
+            if m["image"]:
+                names[m["image"]] = "tree/" + m["image"][len("mark_"):]
     names["stat_panel_5"] = "game/stat_control_loc5"
     names["bq_back_5"] = "game/bouquets/bouquets_back_loc5"
     names["bq_big"] = "game/bouquets/big-flowers"

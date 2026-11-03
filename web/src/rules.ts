@@ -170,6 +170,8 @@ export interface Rules {
   vegetations: Record<string, Vegetation>;
   products: Record<string, Product>;
   ridges: Place[];
+  /** Метки-препятствия (marks_obstacle): картинка встаёт на ферму, пока поставлена метка (дерево-идол: treemark_1…6). */
+  marks_obstacle?: { mark: string; position: [number, number]; dimensions: [number, number]; image: string }[];
   obstacles: Place[];
   ridges_for_sale: Place[];
   water_storage: StorageLevel[];

@@ -36159,7 +36159,81 @@
      684.0,
      528.0
     ]
-   }
+   },
+   "marks_obstacle": [
+    {
+     "mark": "treemark_1",
+     "position": [
+      235.0,
+      47.0
+     ],
+     "dimensions": [
+      400.0,
+      150.0
+     ],
+     "image": "mark_idol-tree-00"
+    },
+    {
+     "mark": "treemark_2",
+     "position": [
+      235.0,
+      47.0
+     ],
+     "dimensions": [
+      400.0,
+      150.0
+     ],
+     "image": "mark_idol-tree-01"
+    },
+    {
+     "mark": "treemark_3",
+     "position": [
+      235.0,
+      47.0
+     ],
+     "dimensions": [
+      400.0,
+      150.0
+     ],
+     "image": "mark_idol-tree-02"
+    },
+    {
+     "mark": "treemark_4",
+     "position": [
+      235.0,
+      47.0
+     ],
+     "dimensions": [
+      400.0,
+      150.0
+     ],
+     "image": "mark_idol-tree-03"
+    },
+    {
+     "mark": "treemark_5",
+     "position": [
+      235.0,
+      47.0
+     ],
+     "dimensions": [
+      400.0,
+      150.0
+     ],
+     "image": "mark_idol-tree-04"
+    },
+    {
+     "mark": "treemark_6",
+     "position": [
+      235.0,
+      47.0
+     ],
+     "dimensions": [
+      400.0,
+      150.0
+     ],
+     "image": "mark_idol-tree-05"
+    }
+   ]
   }
  },
  "global_map": {
@@ -37426,6 +37500,12 @@
   "map_town_3",
   "map_town_4",
   "map_town_5",
+  "mark_idol-tree-00",
+  "mark_idol-tree-01",
+  "mark_idol-tree-02",
+  "mark_idol-tree-03",
+  "mark_idol-tree-04",
+  "mark_idol-tree-05",
   "menu_bg",
   "menu_title",
   "mini_captain",
@@ -38999,6 +39079,12 @@
    "holder_shaman",
    "item_ghost_weight",
    "item_lemur",
+   "mark_idol-tree-00",
+   "mark_idol-tree-01",
+   "mark_idol-tree-02",
+   "mark_idol-tree-03",
+   "mark_idol-tree-04",
+   "mark_idol-tree-05",
    "stat_panel_5",
    "talker_explorer",
    "talker_father",
