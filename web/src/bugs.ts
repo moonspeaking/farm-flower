@@ -1,5 +1,5 @@
 // Вредители на ферме и помощник Робин. Параметры — из properties_ru.xml (bugs, bug_arriver, common/helper).
-import { AnimatedSprite, Container, Rectangle, Sprite, Texture, type Ticker } from "pixi.js";
+import { AnimatedSprite, Circle, Container, Rectangle, Sprite, Texture, type Ticker } from "pixi.js";
 import { audio } from "./audio";
 import { IconRow } from "./effects";
 import { CELL_H, CELL_W, type Cell, cellNear, type PathGrid, pathToPlant, startCellOf, wanderPath } from "./pathgrid";
@@ -373,6 +373,27 @@ export class Helper extends Actor {
   private retry = 0;
   private replan = 0;
   private readonly icon: Sprite;
+  /**
+   * Жажда Робина на сложном (тип загрузки: «Робин может испытывать жажду, и если его не напоить, улетает до конца дня»).
+   * hunger_min…hunger_max секунд до жизни без воды; хочет пить, когда осталось меньше половины (как у растений),
+   * на нуле улетает до конца дня. **Допущение**: правило по образцу растений, точное место в exe не найдено.
+   */
+  private hungerIn = Infinity;
+  private hungerTotal = Infinity;
+  private away = false;
+  private readonly drops: IconRow;
+  /** Нажали на Робина — Farm решает, можно ли напоить (нужна вода). */
+  onClick: () => void = () => undefined;
+
+  /** Робин улетел до конца дня. */
+  get gone() {
+    return this.away;
+  }
+
+  /** Хочет пить (только на сложном). */
+  get thirsty() {
+    return !this.away && this.hungerIn < this.hungerTotal / 2;
+  }
 
   /** Робин летает над растениями и вредителями — рисуется поверх всего на ферме. */
   get depth() {
@@ -387,12 +408,49 @@ export class Helper extends Actor {
     this.icon.position.set(...this.rules.helper.icon_offset);
     this.icon.visible = false;
     this.addChild(this.icon);
+    const hunger = rules.progresses.helper_hunger;
+    this.drops = new IconRow(hunger.image, hunger.max);
+    this.drops.position.set(...hunger.offset);
+    this.addChild(this.drops);
+    // нажатие по Робину (click_radius): напоить, если хочет пить
+    this.eventMode = "static";
+    this.hitArea = new Circle(0, -30, rules.helper.click_radius);
+    this.on("pointertap", (e) => {
+      e.stopPropagation();
+      this.onClick();
+    });
     this.play("stand", 0, 1, true);
+  }
+
+  private rollHunger() {
+    const h = this.rules.helper;
+    this.hungerTotal = Math.round(h.hunger_min) + Math.random() * (Math.round(h.hunger_max) - Math.round(h.hunger_min));
+    this.hungerIn = this.hungerTotal;
+    this.drops.set(0);
+  }
+
+  /** Напоить Робина: жажда начинается заново. */
+  drink() {
+    if (this.thirsty) this.rollHunger();
   }
 
   update(dt: number, bugs: Bug[], ridges: RidgeView[], onWater: (r: RidgeView) => void, grid: () => PathGrid) {
     const h = this.rules.helper;
+    if (this.away) return;
     this.advance(dt);
+    if (this.game.difficulty === "hardcore") {
+      this.hungerIn -= dt;
+      if (this.hungerIn <= 0) {
+        // не напоили — улетает до конца дня
+        this.away = true;
+        this.task = null;
+        this.path = [];
+        this.drops.set(0);
+        this.showIcon(null);
+        return;
+      }
+      if (this.thirsty) this.drops.setValue(this.hungerIn, this.hungerTotal / 10);
+    }
     this.cooldown = Math.max(0, this.cooldown - dt);
     this.retry -= dt;
     this.replan -= dt;
@@ -469,6 +527,12 @@ export class Helper extends Actor {
   startDay() {
     this.rest();
     this.cooldown = 0;
+    this.away = false;
+    if (this.game.difficulty === "hardcore") this.rollHunger();
+    else {
+      this.hungerIn = this.hungerTotal = Infinity;
+      this.drops.set(0);
+    }
   }
 
   /** Начинает задачу: строит путь по сетке (как у вредителей); если пути нет, задача отбрасывается и выбор повторится через полсекунды. */

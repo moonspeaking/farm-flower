@@ -196,7 +196,7 @@ export interface Rules {
   /** wave_loop: с какой волны идёт круг после последней. */
   wave_loop: number;
   arrive_positions: [number, number][];
-  helper: { attack: number; attack_period: number; attack_range: number; speed: number; radius: number; start_skill_prob: number; per_level_skill_prob: number; icon_offset: [number, number] };
+  helper: { attack: number; attack_period: number; attack_range: number; speed: number; radius: number; click_radius: number; hunger_min: number; hunger_max: number; start_skill_prob: number; per_level_skill_prob: number; icon_offset: [number, number] };
   /** Метки, которые игра ставит по дню (set_mark_by_day): shop_barrel — с 5-го дня и т. д. */
   marks_by_day: Record<string, number>;
   weapon_attack: number;

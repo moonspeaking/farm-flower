@@ -3307,6 +3307,12 @@
    "spirit_2": "Сильный Призрак с Гирей",
    "spirit_no_armour": "Сильный Призрак",
    "turtle": "Черепаха"
+  },
+  "buy_water_loc5": {
+   "desc": "Вода необходима для полива растений",
+   "money": "Кристаллы: %money%",
+   "title": "Покупка воды",
+   "water": "Вода: %current% / %total%"
   }
  },
  "quests": {
@@ -36930,6 +36936,7 @@
   "box_mask_4",
   "box_mask_5",
   "bq_back",
+  "bq_back_5",
   "bq_big",
   "broken_ship",
   "bug_boar_eat_down",
@@ -37328,6 +37335,7 @@
   "dialog_prev",
   "dialog_prev_selected",
   "drop",
+  "drop_helper",
   "farm_bg_2",
   "farm_bg_3",
   "farm_bg_4",
@@ -37699,6 +37707,7 @@
   "spiral_2",
   "spiral_3",
   "stat_panel",
+  "stat_panel_5",
   "talker_captain",
   "talker_chief",
   "talker_detective",
@@ -37928,6 +37937,7 @@
   "dialog_prev",
   "dialog_prev_selected",
   "drop",
+  "drop_helper",
   "fern_1",
   "fern_2",
   "fern_3",
@@ -38916,6 +38926,7 @@
    "box_5",
    "box_content_5",
    "box_mask_5",
+   "bq_back_5",
    "bug_frog_eat_down",
    "bug_frog_eat_right",
    "bug_frog_eat_right_down",
@@ -38988,6 +38999,7 @@
    "holder_shaman",
    "item_ghost_weight",
    "item_lemur",
+   "stat_panel_5",
    "talker_explorer",
    "talker_father",
    "talker_parents",

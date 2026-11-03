@@ -51,6 +51,7 @@ IMAGES = {
     "box_mask": "game/farms/product_storage/farm_1_mask_1",
     "drop": "game/progresses/drop",
     "flower": "game/progresses/flower",
+    "drop_helper": "game/progresses/drop_helper",
     "heart_small": "game/progresses/heart_small",
     "heart_strong": "game/progresses/heart_strong",
     "waterpot": "game/waterpot",
@@ -262,6 +263,8 @@ def split_images(rules, bugs, names):
         imgs |= {f"holder_{h}" for h in d["holders"]} | {f"talker_{t}" for t in talkers(d["quests"])}
         imgs |= ({"bg", "town_bg", "box", "box_content", "box_mask"} if n == 1 else
                  {f"farm_bg_{n}", f"town_bg_{n}", f"box_{n}", f"box_content_{n}", f"box_mask_{n}"})
+        if n == 5:
+            imgs |= {"stat_panel_5", "bq_back_5"}
         per[str(n)] = imgs
     helper = {i for i in names if i.startswith("bug_helper_")}
     only = set().union(*per.values()) - helper
@@ -806,6 +809,7 @@ def main():
         "buttons": {c.tag: c.attrib.get("label", "") for c in ru.find("button") if "label" in c.attrib},
         "shop_buttons": {c.tag: c.attrib.get("label", "") for c in ru.find("button/shop")},
         "buy_water": dict(ru.find("buy_water").attrib),
+        "buy_water_loc5": dict(ru.find("buy_water_loc5").attrib),
         "new_game": dict(ru.find("new_or_continue_game").attrib),
         "skill_names": dict(ru.find("skill_names").attrib),
         "skill_characteristics": dict(ru.find("skill_characteristic_names").attrib),
@@ -962,6 +966,9 @@ def main():
             for d in DIRECTIONS:
                 if (folder / anim / f"{d}.jpg").exists():
                     names[f"bug_{bug['folder']}_{anim}_{d}"] = f"bugs/{bug['folder']}/{anim}/{d}"
+    # 5-я локация: панель с кристаллами вместо монет и свой фон экрана букетов (resource.xml: stat_back_loc5, bouquets_screen_loc5)
+    names["stat_panel_5"] = "game/stat_control_loc5"
+    names["bq_back_5"] = "game/bouquets/bouquets_back_loc5"
     names["bq_big"] = "game/bouquets/big-flowers"
     for f in ("auto_bouquet_level_1", "auto_bouquet_level_2", "auto_bouquet_level_3", "auto_bouquet_progress_1", "complete"):
         names[f"ab_{f}"] = f"game/bouquets/{f}"

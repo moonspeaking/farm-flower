@@ -72,7 +72,7 @@ export class BouquetScreen extends Container {
     const t = rules.texts;
     // при открытии экрана пустые места заказов заполняются (exe 0x433fc0)
     game.fillOrders();
-    this.addChild(image("bq_back"), this.slots, this.orders, this.basket, this.drag);
+    this.addChild(image(rules.location === 5 ? "bq_back_5" : "bq_back"), this.slots, this.orders, this.basket, this.drag);
     this.eventMode = "static";
     this.hitArea = new Rectangle(0, 0, 800, 600);
 

@@ -469,7 +469,7 @@ export class Farm extends Container {
     }
     this.weatherFx.update(dt);
     // Робин работает только в течение дня, между днями его на ферме нет
-    if (this.helper) this.helper.visible = this.mode === "day";
+    if (this.helper) this.helper.visible = this.mode === "day" && !this.helper.gone;
     this.syncWellCursor();
     if (this.mode !== "day") return;
     if (this.endPrompt) return;
@@ -795,8 +795,17 @@ export class Farm extends Container {
       this.helper = null;
     }
     if (!this.game.quests.helper || this.helper) return;
-    this.helper = new Helper(this.rules, this.game, [255, 285]);
-    this.helper.visible = this.mode === "day";
+    const helper = (this.helper = new Helper(this.rules, this.game, [255, 285]));
+    helper.visible = this.mode === "day";
+    // сложный уровень: нажатие по жаждущему Робину поит его за литр воды из запаса (допущение, как полив растения)
+    helper.onClick = () => {
+      if (this.mode !== "day" || !helper.thirsty) return;
+      if (this.game.water <= 0) return toast(this.ui, this.rules.texts.events?.no_water ?? "Нет воды", helper.x, helper.y - 80);
+      this.game.water -= 1;
+      this.game.changed();
+      helper.drink();
+      audio.play("vegetation_pour");
+    };
     this.objects.addChild(this.helper);
   }
 

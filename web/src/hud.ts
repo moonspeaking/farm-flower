@@ -29,21 +29,29 @@ export class Hud extends Container {
   constructor(rules: Rules, private readonly game: Game, events: HudEvents) {
     super();
     const st = rules.texts.stats;
-    this.addChild(image("stat_panel"));
+    // 5-я локация: на панели «Кристаллы» вместо монет (stat_back_loc5, stats/crystals_title)
+    const crystals = rules.location === 5;
+    this.addChild(image(crystals ? "stat_panel_5" : "stat_panel"));
 
     // «Цветок Стихий», game_screen/item_stat: панель 200×600 (ствол с листьями). Заголовки — stat_control_fonts_1 белым.
     // По скриншоту оригинала они стоят по центру своих рамок (хотя в XML align="left"): storage_title (12;148) 80×25,
     // water_title (12;266) 80×25, money_title (11;378) 80×30, day_title (104;16) 80×30 — так надписи посередине досок.
     // hero_title (9;7) в оригинале не виден — не рисуем
     const title = (text: string, x: number, y: number, w: number, h: number) => {
-      const l = pop(text, "stat_control_fonts_1", COLOR.white, { align: "center" });
+      let l = pop(text, "stat_control_fonts_1", COLOR.white, { align: "center" });
+      // длинная надпись («Кристаллы») уменьшается, чтобы уместиться на доске
+      if (l.textWidth > w) {
+        const k = w / l.textWidth;
+        l.destroy();
+        l = pop(text, "stat_control_fonts_1", COLOR.white, { align: "center", scale: k });
+      }
       l.anchor.set(0.5, 0.5);
       l.position.set(x + w / 2, y + h / 2);
       this.addChild(l);
     };
     title(st.storage_title, 12, 148, 80, 25);
     title(st.water_title, 12, 266, 80, 25);
-    title(st.money_title, 11, 378, 80, 30);
+    title(crystals ? st.crystals_title : st.money_title, 11, 378, 80, 30);
     title(st.day_title, 104, 16, 80, 30);
 
     // значения — stat_control_fonts_2 (буквы своего тёмного цвета). Как в первой игре (там product_count (54;214) стоял
