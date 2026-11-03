@@ -854,6 +854,8 @@ def main():
     trophy_names["trophy_back"] = "trophy_room/trophy_room_back"
     rules["texts"]["medals"] = dict(ru.find("medals").attrib)
     rules["texts"]["medal_header"] = ru.find("medal_header_text").attrib.get("text", "")
+    # сложность (difficult, exe 0x425c90): множители цен покупки и продажи, жизни вредителей, порогов опыта (exp_levels) и полива
+    rules["difficulty"] = {d.tag.split("_", 2)[2]: {k: float(v) for k, v in d.attrib.items()} for d in props.find("difficult")}
     # серии ударов (combo_set, exe 0x44a6d0): с какого удара подряд какой множитель урона
     cs = props.find("combo_set")
     rules["combo_set"] = [{"count": int(c.attrib["comobos_count"]), "damage": float(c.attrib["damage"])}
@@ -866,7 +868,9 @@ def main():
     rules["texts"]["quest_title"] = ru.find("quest/header").attrib.get("text", "")
     rules["texts"]["delimiter"] = ru.find("delimiter").attrib.get("text", ",")
     rules["texts"]["buttons_menu"] = {k: rules["texts"]["buttons"].get(k, "") for k in
-                                      ("game_adventure", "options", "menu_highscores", "menu_exit", "new_game", "continue_game")}
+                                      ("game_adventure", "options", "menu_highscores", "menu_exit", "new_game", "continue_game", "menu_trophy_room")}
+    # названия сложностей (root/button/difficult/@casual, @hardcore) — кнопки экрана выбора сложности
+    rules["texts"]["buttons_menu"].update(ru.find("button/difficult").attrib)
 
     # ---------------- вредители первой фермы, помощник Робин, оружие
     loc1 = next(l for l in props.iter("location_1") if l.find("bug_arriver") is not None)

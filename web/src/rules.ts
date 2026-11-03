@@ -152,6 +152,8 @@ export interface Rules {
   } | null;
   /** Награды комнаты трофеев: место, пороги ступеней, число картинок (ступень 0 — пустое место). */
   trophies?: Record<string, { position: [number, number]; dimensions: [number, number]; thresholds: number[]; images: number }>;
+  /** Сложность (difficult): множители по именам casual / hardcore. */
+  difficulty?: Record<string, { bug_life: number; buy_price: number; sell_price: number; exp_k: number; pour_count: number }>;
   /** Серии ударов (combo_set): с какого удара подряд какой множитель урона. */
   combo_set?: { count: number; damage: number }[];
   /** Призы (root/dropped_items): вид, значение, картинка, цвет надписи, сложности. */

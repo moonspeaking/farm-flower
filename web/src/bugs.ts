@@ -85,6 +85,8 @@ export interface BugEvents {
   hurt(bug: Bug): void;
   /** Вредитель укусил растение. */
   bit(bug: Bug): void;
+  /** Множитель жизни вредителей сложности (bug_life, exe 0x40eb60: жизнь = жизнь из bugs × множитель). */
+  lifeK?: number;
   /** Из вредителя может выпасть предмет (если квест включил enable_bug_item). */
   drop(item: string, x: number, y: number): void;
 }
@@ -96,6 +98,12 @@ export interface BugMods {
   speed: number;
   prizes: number;
   attack: number;
+}
+
+/** Строка вредителя годна для сложности: без приставки — для любой, с приставкой — только для своей (допущение: exe 0x419650 ищет имя с приставкой сложности). */
+export function bugForDifficulty(spec: string, difficulty: string) {
+  const m = spec.trim().match(/^(casual|hardcore|hardocre)-/);
+  return !m || (m[1] === "hardocre" ? "hardcore" : m[1]) === difficulty;
 }
 
 /**
@@ -150,7 +158,7 @@ export class Bug extends Actor {
     y: number,
   ) {
     super(rules.bugs[kind]);
-    this.life = this.def.life ?? 1;
+    this.life = (this.def.life ?? 1) * (events.lifeK ?? 1);
     this.maxLife = this.life;
     this.speed = this.def.speed ?? 40;
     this.attack = this.def.attack ?? 1;
@@ -249,7 +257,7 @@ export class Bug extends Actor {
       if (this.reincornTo) {
         this.kind = this.reincornTo;
         this.def = this.rules.bugs[this.reincornTo];
-        this.life = this.def.life ?? 1;
+        this.life = (this.def.life ?? 1) * (this.events.lifeK ?? 1);
         this.maxLife = this.life;
         this.speed = this.def.speed ?? 40;
         this.attack = this.def.attack ?? 1;
@@ -647,7 +655,7 @@ export class BugArriver {
   }
 
   /** Имя вредителя, которому пора появиться (не больше одного за кадр), или null. */
-  tick(rules: Rules, dt: number, fieldEmpty: boolean, arrive: number, key = ""): string | null {
+  tick(rules: Rules, dt: number, fieldEmpty: boolean, arrive: number, key = "", difficulty = "casual"): string | null {
     const s = this.state;
     const g = s.groups[0];
     if (!g) {
@@ -658,7 +666,7 @@ export class BugArriver {
       if (i < 0) return null;
       const wave = rules.waves[i] ?? [];
       s.wait = (rules.wave_delays?.[i] ?? 0) * arrive;
-      s.groups = wave.map((x) => ({ bugs: [...x.bugs], delay: x.delay, wait: x.delay }));
+      s.groups = wave.map((x) => ({ bugs: x.bugs.filter((s) => bugForDifficulty(s, difficulty)), delay: x.delay, wait: x.delay }));
       return null;
     }
     if (!g.bugs.length) {

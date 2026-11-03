@@ -89,6 +89,7 @@ interface SaveV3 {
   questStates: Record<number, QuestState>;
   world: WorldState;
   marks?: string[];
+  difficulty?: Difficulty;
   items?: Record<string, number>;
   bugItems?: Record<string, number>;
 }
@@ -121,6 +122,9 @@ const KEY3 = "iris-flower-save-v3";
 const OPTIONS_KEY = "iris-flower-options";
 
 type Listener = () => void;
+
+/** Сложность игры (exe: difficult, имена casual / hardcore); выбирается при начале новой игры. */
+export type Difficulty = "casual" | "hardcore";
 
 export interface Options {
   music: number;
@@ -325,12 +329,23 @@ export class Game {
     return n;
   }
 
+  /** Сложность: при выборе (exe 0x44b2e0) снимается метка старой и ставится метка новой — casual / hardcore. */
+  difficulty: Difficulty = "casual";
+
+  /** Множители выбранной сложности (difficult в properties.xml). */
+  get difficultyRules() {
+    return this.rules.difficulty?.[this.difficulty] ?? { bug_life: 1, buy_price: 1, sell_price: 1, exp_k: 1, pour_count: 1 };
+  }
+
+  /** Порог опыта уровня: exp_levels × exp_k (exe 0x428070, результат — целое отбрасыванием дробной части). */
+  private levelThreshold(i: number) {
+    return Math.trunc(this.rules.exp_levels[i] * this.difficultyRules.exp_k);
+  }
+
   /** Метка: поставлена квестом или днём (set_mark_by_day). */
   hasMark(name: string) {
     const day = this.rules.marks_by_day[name];
-    // метка сложности: exe при выборе сложности (0x44b2e0) снимает метку старой и ставит casual / hardcore.
-    // Выбора сложности в порте пока нет — игра идёт как casual
-    if (name === "casual") return !this.marks.includes("hardcore");
+    if (name === "casual" || name === "hardcore") return this.difficulty === name;
     return this.marks.includes(name) || (day !== undefined && this.day >= day);
   }
 
@@ -339,16 +354,16 @@ export class Game {
   /** Уровень Айрис: exp_levels из skills.xml — пороги опыта для уровней 2, 3… */
   get level() {
     let l = 1;
-    for (const t of this.rules.exp_levels) if (this.exp >= t) l++;
+    for (let i = 0; i < this.rules.exp_levels.length; i++) if (this.exp >= this.levelThreshold(i)) l++;
     return l;
   }
 
   /** Опыт на текущем уровне: [накоплено, нужно до следующего]. */
   get levelProgress(): [number, number] {
-    const th = this.rules.exp_levels;
+    const last = this.rules.exp_levels.length - 1;
     const i = this.level - 1;
-    const from = i === 0 ? 0 : th[i - 1];
-    const to = th[i] ?? th[th.length - 1];
+    const from = i === 0 ? 0 : this.levelThreshold(i - 1);
+    const to = this.levelThreshold(Math.min(i, last));
     return [Math.min(this.exp, to) - from, Math.max(1, to - from)];
   }
 
@@ -391,13 +406,15 @@ export class Game {
 
   /** Цена продажи с умением «торговля» (sell_goods) и покупки (buy_goods). */
   sellPrice(base: number) {
-    return Math.round(base * (1 + this.bonus("trade", "sell_goods")));
+    // exe 0x4b6058: цена × умение × sell_price сложности + 0,5, целая часть
+    return Math.floor(base * (1 + this.bonus("trade", "sell_goods")) * this.difficultyRules.sell_price + 0.5);
   }
 
   buyPrice(base: number) {
     // бесплатное (сова первого уровня, price="0") остаётся бесплатным
     if (base <= 0) return 0;
-    return Math.max(1, Math.round(base * (1 - this.bonus("trade", "buy_goods"))));
+    // exe 0x4b5fb8: цена × умение × buy_price сложности + 0,5, целая часть
+    return Math.max(1, Math.floor(base * (1 - this.bonus("trade", "buy_goods")) * this.difficultyRules.buy_price + 0.5));
   }
 
   // ---------------------------------------------------------------- заказы на букеты
@@ -478,7 +495,7 @@ export class Game {
       kills: this.kills, gathered: this.gathered, attackSpecific: this.attackSpecific, productSpecific: this.productSpecific,
       tutorial: this.tutorial, loc: this.loc, farms: { ...this.farms, [this.loc]: this.snapshot(plants) },
       questStates: this.questStates, world: this.world, marks: this.marks, items: this.items, bugItems: this.bugItems,
-      weapons: this.weapons, owl: this.owl, medals: this.medals, trophies: this.trophies,
+      weapons: this.weapons, owl: this.owl, medals: this.medals, trophies: this.trophies, difficulty: this.difficulty,
     };
     try {
       localStorage.setItem(saveKey(KEY3, this.profile), JSON.stringify(data));
@@ -508,7 +525,7 @@ export class Game {
           day: s.day, gold: s.gold, exp: s.exp, skills: s.skills, kills: s.kills, gathered: s.gathered,
           attackSpecific: s.attackSpecific, productSpecific: s.productSpecific, tutorial: s.tutorial,
           questStates: s.questStates, world: s.world, farms: s.farms, loc: s.loc, marks: s.marks ?? [], items: s.items ?? {}, bugItems: s.bugItems ?? {},
-          weapons: s.weapons ?? [], owl: !!s.owl, medals: s.medals ?? {}, trophies: s.trophies ?? {},
+          weapons: s.weapons ?? [], owl: !!s.owl, medals: s.medals ?? {}, trophies: s.trophies ?? {}, difficulty: s.difficulty ?? "casual",
         });
         this.mergeOldMarks();
         this.restore(s.farms[s.loc]);

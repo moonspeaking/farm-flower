@@ -1,6 +1,7 @@
 // Экраны оболочки: меню игры (game_menu), опции (options), рекорды (highscores), пауза.
 import { Container, Graphics, Rectangle } from "pixi.js";
 import { audio } from "./audio";
+import type { Difficulty } from "./state";
 import { rgb } from "./popfont";
 import type { Rules } from "./rules";
 import { COLOR, dialog, H, hasImage, image, loadImages, pop, roundButton, textButton, W } from "./ui";
@@ -179,7 +180,11 @@ export interface Score {
   money: number;
   /** Текущая игра — помечается значком «В Игре». */
   current?: boolean;
+  /** Сложность игры: таблицы рекордов раздельные (highscores_difficult); без значения — легкая. */
+  difficulty?: Difficulty;
 }
+
+const scoreDifficulty = (s: Score): Difficulty => s.difficulty ?? "casual";
 
 const SCORES_KEY = "iris-flower-scores";
 
@@ -194,11 +199,12 @@ export function loadScores(rules: Rules): Score[] {
 }
 
 /** Записывает результат игры в таблицу (одна запись на игру); возвращает таблицу. */
-export function recordScore(rules: Rules, name: string, days: number, money: number, finished: boolean): Score[] {
-  const table = loadScores(rules).filter((s) => !s.current);
-  table.push({ name, days, money, current: !finished });
-  table.sort((a, b) => b.money - a.money || b.days - a.days);
-  const top = table.slice(0, 10);
+export function recordScore(rules: Rules, name: string, days: number, money: number, finished: boolean, difficulty: Difficulty = "casual"): Score[] {
+  // «В Игре» — только у текущей игры своей сложности; остальные таблицы не трогаем
+  const rest = loadScores(rules).filter((s) => !(s.current && scoreDifficulty(s) === difficulty));
+  rest.push({ name, days, money, current: !finished, difficulty });
+  const sort = (a: Score, b: Score) => b.money - a.money || b.days - a.days;
+  const top = (["casual", "hardcore"] as Difficulty[]).flatMap((d) => rest.filter((s) => scoreDifficulty(s) === d).sort(sort).slice(0, 10));
   try {
     localStorage.setItem(SCORES_KEY, JSON.stringify(top));
   } catch {
@@ -225,18 +231,41 @@ export function highscoresScreen(parent: Container, rules: Rules, onClose: () =>
   head(t.highscore_player_header ?? "Игрок", 256 + 100, 197);
   head(t.highscore_day_header ?? "Дни", 464 + 25, 195);
   head(t.highscore_money_header ?? "Деньги", 520 + 37.5, 194);
-  loadScores(rules).slice(0, 10).forEach((s, i) => {
-    const y = 217 + i * 16;
-    const color = s.current ? rgb(255, 0, 0) : rgb(180, 180, 180);
-    const place = (text: string, x: number, align: "left" | "center" = "left") => {
-      const l = pop(text, "stat_control_fonts_2", color, { align, scale: 0.7 });
-      l.position.set(x, y);
-      layer.addChild(l);
-    };
-    place(s.name, 270);
-    place(String(s.days), 464 + 25, "center");
-    place(String(s.money), 520 + 37.5, "center");
-  });
+  // таблицы раздельные по сложности (highscores_difficult): стрелки prev (271; 414) и next (524; 410) переключают, между ними — название
+  let view: Difficulty = "casual";
+  const rows = new Container();
+  const name = pop("", "stat_control_fonts_1", COLOR.white, { align: "center" });
+  name.position.set(400, 414);
+  layer.addChild(rows, name);
+  const draw = () => {
+    rows.removeChildren().forEach((c) => c.destroy({ children: true }));
+    const mine = loadScores(rules).filter((s) => scoreDifficulty(s) === view);
+    // у сложности без своих записей — стандартная таблица
+    const table: Score[] = mine.length ? mine : rules.default_scores.map((s) => ({ ...s }));
+    name.text = rules.texts.buttons_menu?.[view] ?? view;
+    table.slice(0, 10).forEach((s, i) => {
+      const y = 217 + i * 16;
+      const color = s.current ? rgb(255, 0, 0) : rgb(180, 180, 180);
+      const place = (text: string, x: number, align: "left" | "center" = "left") => {
+        const l = pop(text, "stat_control_fonts_2", color, { align, scale: 0.7 });
+        l.position.set(x, y);
+        rows.addChild(l);
+      };
+      place(s.name, 270);
+      place(String(s.days), 464 + 25, "center");
+      place(String(s.money), 520 + 37.5, "center");
+    });
+  };
+  const flip = () => {
+    view = view === "casual" ? "hardcore" : "casual";
+    draw();
+  };
+  const prev = textButton("<", flip);
+  prev.position.set(271 + 12, 414 + 12);
+  const next = textButton(">", flip);
+  next.position.set(524 + 12, 410 + 12);
+  layer.addChild(prev, next);
+  draw();
   // ok (233; 451) 410×34
   const ok = textButton(rules.texts.buttons.ok ?? "OK", () => {
     layer.destroy({ children: true });
@@ -427,4 +456,57 @@ export async function trophyAwardPopup(parent: Container, rules: Rules, name: st
   ok.position.set(W / 2, 540);
   layer.addChild(header, medal, text, ok);
   parent.addChild(layer);
+}
+
+// ---------------------------------------------------------------- выбор сложности
+
+/**
+ * select_difficult_screen: свиток dialog_roll, заголовок (80; 97) 650 по центру, «Легкий» (70; 154) и «Сложный» (70; 185) —
+ * кнопки 650×34 по центру, ниже флажок «Включить Туториал» (флажок (85; 225) 28×24, надпись (114; 225)).
+ * Флажок — тот же переключатель подсказок, что «Предупреждения» в опциях. Щелчок мимо свитка — отмена (null).
+ */
+export function selectDifficultyScreen(parent: Container, rules: Rules): Promise<Difficulty | null> {
+  return new Promise((resolve) => {
+    const layer = new Container();
+    const finish = (v: Difficulty | null) => {
+      layer.destroy({ children: true });
+      resolve(v);
+    };
+    layer.addChild(shade(() => finish(null)));
+    const box = new Container();
+    box.position.set(Math.round((W - 798) / 2), Math.round((H - 531) / 2));
+    box.addChild(image("dialog"));
+    const t = rules.texts;
+    const title = pop(t.headers.difficult ?? "Выберите уровень сложности", "Dialog2", COLOR.black, { align: "center", wrap: 650 });
+    title.position.set(80 + 325, 97);
+    box.addChild(title);
+    const item = (key: Difficulty, fallback: string, y: number) => {
+      const b = textButton(t.buttons_menu?.[key] ?? fallback, () => finish(key));
+      b.position.set(70 + 325, y + 17);
+      box.addChild(b);
+    };
+    item("casual", "Легкий", 154);
+    item("hardcore", "Сложный", 185);
+    const label = pop(t.headers.enable_tutorial_check_box ?? "Включить Туториал", "Dialog", COLOR.black);
+    label.position.set(114, 225);
+    const on = image("options_check");
+    const off = image("options_check_off");
+    for (const s of [on, off]) {
+      s.position.set(85, 225);
+      s.eventMode = "static";
+      s.cursor = "pointer";
+      s.on("pointertap", () => {
+        audio.setOptions({ ...audio.options, warnings: !audio.options.warnings });
+        sync();
+      });
+    }
+    const sync = () => {
+      on.visible = audio.options.warnings;
+      off.visible = !audio.options.warnings;
+    };
+    sync();
+    box.addChild(label, off, on);
+    layer.addChild(box);
+    parent.addChild(layer);
+  });
 }

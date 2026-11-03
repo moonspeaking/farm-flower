@@ -4,10 +4,12 @@ import type { PopLabel } from "./popfont";
 import { rgb } from "./popfont";
 import type { Rules } from "./rules";
 import { fmt } from "./rules";
+import { selectDifficultyScreen } from "./screens";
+import type { Difficulty } from "./state";
 import { COLOR, dialog, H, image, pop, roundButton, textButton, W } from "./ui";
 
 export interface MenuEvents {
-  play(fresh: boolean): void;
+  play(fresh: boolean, difficulty?: Difficulty): void;
   hasSave(): boolean;
   options(): void;
   highscores(): void;
@@ -97,7 +99,7 @@ export class Menu extends Container {
 
   private async adventure() {
     const t = this.rules.texts;
-    if (!this.events.hasSave()) return this.comics();
+    if (!this.events.hasSave()) return this.newGame();
     // new_or_continue_game «Цветка Стихий»: кнопки столбиком — новая игра, продолжить, вернуться (загрузки сохранений в порте нет)
     const r = await dialog(this.overlay, {
       body: fmt(t.new_game.text),
@@ -114,11 +116,17 @@ export class Menu extends Container {
       body: fmt(t.new_game.confirmation),
       buttons: [{ text: t.buttons.yes || "Да", value: "ok" }, { text: t.buttons.no || "Нет", value: "no" }],
     });
-    if (ok === "ok") this.comics();
+    if (ok === "ok") this.newGame();
+  }
+
+  /** Новая игра: выбор сложности (select_difficult_screen), затем комикс. */
+  private async newGame() {
+    const difficulty = await selectDifficultyScreen(this.overlay, this.rules);
+    if (difficulty) this.comics(difficulty);
   }
 
   /** Комикс о письме слуги — перед началом новой игры. Кадры появляются по очереди; щелчок показывает следующий (или все оставшиеся сразу). */
-  private comics() {
+  private comics(difficulty: Difficulty) {
     const layer = new Container();
     layer.addChild(new Graphics().rect(0, 0, W, H).fill(0x000000));
     const panels = COMICS_PANELS.map((r, index) => {
@@ -136,7 +144,7 @@ export class Menu extends Container {
     });
     const ok = roundButton(this.rules.texts.buttons_menu.continue_game || "Продолжить", () => {
       layer.destroy({ children: true });
-      this.events.play(true);
+      this.events.play(true, difficulty);
     });
     // first_comics/ok: 612; 517 — кнопка уходит за нижний край
     ok.position.set(612 + 103, 517 + 99);

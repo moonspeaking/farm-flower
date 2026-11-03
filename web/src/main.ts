@@ -11,7 +11,7 @@ import { Farm } from "./farm";
 import { Menu } from "./menu";
 import { QuestEngine } from "./quests";
 import { loadRules, locationRules } from "./rules";
-import { Game } from "./state";
+import { Game, type Difficulty } from "./state";
 import { Town } from "./town";
 import { Tutorial } from "./tutorial";
 import { WorldMap } from "./worldmap";
@@ -174,7 +174,7 @@ async function main() {
         towns[n].entered();
       },
       toMenu: () => openMenu(f),
-      dayEnded: () => recordScore(rules, profiles().find((p) => p.id === g.profile)?.name ?? "Айрис", g.day, g.gold, false),
+      dayEnded: () => recordScore(rules, profiles().find((p) => p.id === g.profile)?.name ?? "Айрис", g.day, g.gold, false, g.difficulty),
     });
     const quests = new QuestEngine(lr.quests, g, {
       removeAllVegetations: () => f.removeAllPlants(),
@@ -234,14 +234,15 @@ async function main() {
       void trophyRoomScreen(world, rules, levelsOf(saved), () => undefined);
     },
     about: () => void aboutScreen(world, rules),
-    play: (fresh) => void start(fresh),
+    play: (fresh, difficulty) => void start(fresh, difficulty),
     userName: () => currentProfile()?.name ?? null,
     changeUser: () => selectUserScreen(world, rules, () => menu.refreshUser()),
   });
-  const start = async (fresh: boolean) => {
+  const start = async (fresh: boolean, difficulty: Difficulty = "casual") => {
     if (fresh) Game.clearSave();
     const g = new Game(rules);
     if (!fresh) g.load();
+    else g.difficulty = difficulty;
     await ensureLocation(g.loc);
     for (const f of Object.values(farms)) f.destroy({ children: true });
     for (const t of Object.values(towns)) t.destroy({ children: true });

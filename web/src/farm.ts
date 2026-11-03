@@ -19,7 +19,7 @@ import type { WellDef } from "./rules";
 import { wellName, wellOffer } from "./well";
 import { Statue } from "./statue";
 import { rollPrize } from "./prizes";
-import { parseBugSpec } from "./bugs";
+import { bugForDifficulty, parseBugSpec } from "./bugs";
 import { COLOR, dialog, floatPoints, H, image, pop, roundButton, shopButton, type ShopButton, tex, textButton, toast, W } from "./ui";
 
 /** Шаги обучения, уже сдвинутые под перенесённые кнопки. */
@@ -475,13 +475,14 @@ export class Farm extends Container {
     if (this.endPrompt) return;
     for (const r of this.ridges) r.update(dt);
     // disable_bug_wave: отключённые квестом вредители не появляются
-    const name = this.arriver.tick(this.rules, dt, !this.bugs.some((b) => !b.dead), this.rules.weather[this.game.weather]?.bug_arrive ?? 1, this.game.quests.pestsKey ?? "");
+    const name = this.arriver.tick(this.rules, dt, !this.bugs.some((b) => !b.dead), this.rules.weather[this.game.weather]?.bug_arrive ?? 1, this.game.quests.pestsKey ?? "", this.game.difficulty);
     if (name && !this.game.quests.bugsOff?.includes(parseBugSpec(name).name)) this.spawnBug(name);
     // горн (0x504650): по вредителю в секунду, первый сразу; множитель приза каждого + prize_k горна
     if (this.horn.left > 0 && (this.horn.timer -= dt) <= 0) {
       this.horn.timer = 1;
       this.horn.left -= 1;
-      const spec = this.horn.specs[Math.floor(Math.random() * this.horn.specs.length)];
+      const allowed = this.horn.specs.filter((s) => bugForDifficulty(s, this.game.difficulty));
+      const spec = allowed[Math.floor(Math.random() * allowed.length)];
       const bug = spec ? this.spawnBug(spec) : null;
       if (bug && this.horn.prizeK > 0) bug.prizeMul += this.horn.prizeK;
     }
@@ -642,6 +643,7 @@ export class Farm extends Container {
     const [x, y] = this.rules.arrive_positions[Math.floor(Math.random() * this.rules.arrive_positions.length)];
     const folder = this.rules.bugs[name].folder;
     const bug = new Bug(name, this.rules, {
+      lifeK: this.game.difficultyRules.bug_life,
       ridges: () => this.ridges,
       grid: (self) => this.pathGrid(self),
       say: (s, sx, sy) => toast(this.ui, s, sx, sy),
@@ -697,9 +699,9 @@ export class Farm extends Container {
     return mult;
   }
 
-  /** Бросок приза из вредителя по prizes_set фермы (exe 0x431e40). Сложность в порте — casual. */
+  /** Бросок приза из вредителя по prizes_set фермы (exe 0x431e40).  */
   private dropPrize(mul: number, force: boolean, x: number, y: number) {
-    const name = rollPrize(this.rules.prizes_set ?? [], this.rules.dropped_items ?? {}, mul, force, "casual");
+    const name = rollPrize(this.rules.prizes_set ?? [], this.rules.dropped_items ?? {}, mul, force, this.game.difficulty);
     if (name) this.placePrize(name, x, y);
   }
 
