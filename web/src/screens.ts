@@ -376,7 +376,7 @@ async function loadTrophyImages(rules: Rules) {
 /**
  * Комната трофеев (trophy_room_screen): фон trophy_room_back, награды на местах из medals (position/dimensions),
  * неполученные — пустые места ступени 0. Под курсором награда подсвечивается (_overed) и внизу появляется её описание
- * (trophy_room_rect в XML — 97×194 в (50; 35), по смыслу не ясен; описание поставлено по центру внизу — допущение).
+ * (`trophy_room_rect` в XML — 97×194 в (50; 35) — в exe не найден и экспортером пропускается; считается неиспользуемым, описание по центру внизу).
  * «Назад» — back (358; 567).
  */
 export async function trophyRoomScreen(parent: Container, rules: Rules, levels: Record<string, number>, onClose: () => void) {

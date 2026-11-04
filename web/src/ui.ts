@@ -286,8 +286,8 @@ export function dialog(
 }
 
 /** Всплывающая надпись события (шрифт bonus_events_white: «Нет Воды», «Хранилище Заполнено»). */
-export function toast(parent: Container, message: string, x = W / 2, y = 260, scale = 0.62) {
-  const t = pop(message, "bonus_events_white", COLOR.white, { align: "center", scale });
+export function toast(parent: Container, message: string, x = W / 2, y = 260, scale = 0.62, color = COLOR.white) {
+  const t = pop(message, "bonus_events_white", color, { align: "center", scale });
   t.anchor.set(0.5, 0.5);
   t.position.set(Math.max(150, Math.min(W - 150, x)), y);
   parent.addChild(t);

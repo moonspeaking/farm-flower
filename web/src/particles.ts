@@ -95,8 +95,8 @@ export class ParticleLayer extends Container {
   }
 
   /**
-   * Эмиттер name летит из from в to за time секунд, сыпля частицы с картинкой texture. **Допущение**: путь — плавное ускорение
-   * по прямой (в exe позицию даёт объект пути 0x46aab0, а interpolator_k задаёт множитель скорости частиц к остатку времени).
+   * Эмиттер name летит из from в to за time секунд, сыпля частицы с картинкой texture. Путь — кубическая интерполяция Эрмита
+   * (0x46aab0 / 0x46aff0), при нулевых касательных эквивалентна smoothstep.
    */
   fly(name: string, texture: string, from: [number, number], to: [number, number], time = 0.6) {
     const e = this.start(name, from[0], from[1]);
@@ -149,7 +149,8 @@ export class ParticleLayer extends Container {
       const finite = e.cfg.duration >= 0;
       if (e.path) {
         const k = Math.min(1, e.elapsed / e.path.time);
-        const m = k * k;
+        // exe 0x46aab0 / 0x46aff0: кубическая интерполяция Эрмита между точками пути (при нулевых касательных — smoothstep).
+        const m = k * k * (3 - 2 * k);
         e.x = e.path.from[0] + (e.path.to[0] - e.path.from[0]) * m;
         e.y = e.path.from[1] + (e.path.to[1] - e.path.from[1]) * m;
         if (k >= 1) e.active = false;

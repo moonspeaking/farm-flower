@@ -2,7 +2,7 @@
 import { Container, Graphics, NineSliceSprite, Sprite, Texture } from "pixi.js";
 import { audio } from "./audio";
 import { BouquetScreen } from "./bouquets";
-import { CELL_H, CELL_W, PathGrid } from "./pathgrid";
+import { CELL_H, CELL_W, PathGrid, cellNear } from "./pathgrid";
 import { continueDayOverlay } from "./screens";
 import { Bug, BugArriver, Helper, newArriverState } from "./bugs";
 import { Hud } from "./hud";
@@ -150,6 +150,8 @@ export class Farm extends Container {
   private horn = { left: 0, timer: 0, specs: [] as string[], prizeK: 0 };
   /** Удар подряд в серии (exe поле фермы +0x708). */
   private hitCombo = 0;
+  /** Последний показанный множитель урона серии (exe: HintLayer +0x124): «Урон» повторяется, только когда он меняется. */
+  private comboShown = 0;
   /** Картинки, из которых собрано текущее ведро (меняются с уровнем колодца). */
   private pailKey = "";
   private readonly startBtn: Container;
@@ -718,9 +720,13 @@ export class Farm extends Container {
 
   /**
    * Серия ударов (exe 0x430370): попал по вредителю — и по его мишени, если она есть, — счётчик + 1, новая мишень,
-   * множитель — damage последней строки combo_set, где удар подряд ≥ comobos_count; надпись «Комбо N» и «Урон xM»
-   * (bonus_events). Мимо мишени — серия сбрасывается, мишень пропадает, множитель 1. Таймер combo_time в exe только
-   * отсчитывается и серию не сбрасывает; сбрасывает её ещё начало дня (0x42f224).
+   * множитель — damage последней строки combo_set, где удар подряд ≥ comobos_count. Мимо мишени — серия сбрасывается,
+   * мишень пропадает, множитель 1. Таймер combo_time в exe только отсчитывается и серию не сбрасывает; сбрасывает её
+   * ещё начало дня (0x42f224).
+   *
+   * Надпись (слушатель HintLayer 0x565410): только с 3-го удара, шрифт `root/bonus_events_white/font`, цвет
+   * RGB(232,102,102), по центру вредителя (его точка +0x98). Строка одна: «Комбо N»; если множитель изменился с
+   * прошлого показа и не равен 1,0 — ещё « Урон xM» (последний показанный множитель хранится в HintLayer +0x124).
    */
   private comboHit(bug: Bug, local: { x: number; y: number }) {
     if (!bug.hitsComboTarget(local.x, local.y)) {
@@ -732,9 +738,15 @@ export class Farm extends Container {
     bug.setComboTarget();
     let mult = 1;
     for (const c of this.rules.combo_set ?? []) if (this.hitCombo >= c.count) mult = c.damage;
-    const be = this.rules.texts.bonus_events ?? {};
-    if (this.hitCombo > 1) floatPoints(this.ui, `${be.combo_hits ?? "Комбо "}${this.hitCombo}`, bug.x, bug.y - 70, rgb(255, 230, 90));
-    if (mult > 1) floatPoints(this.ui, `${be.damages ?? "Урон x"}${mult}`, bug.x, bug.y - 52, rgb(255, 150, 90));
+    if (this.hitCombo >= 3) {
+      const be = this.rules.texts.bonus_events ?? {};
+      let text = `${be.combo_hits ?? "Комбо "}${this.hitCombo}`;
+      if (mult !== this.comboShown) {
+        this.comboShown = mult;
+        if (mult !== 1) text += ` ${be.damages ?? "Урон x"}${mult}`;
+      }
+      toast(this.ui, text, bug.x, bug.y - 40, 0.62, rgb(232, 102, 102));
+    }
     return mult;
   }
 
@@ -745,18 +757,22 @@ export class Farm extends Container {
   }
 
   /**
-   * Приз на земле. exe ставит его на свободную клетку сетки рядом с точкой (0x428870, радиус 3 клетки); здесь —
-   * в точке со случайным сдвигом до клетки (**допущение**). Подбирается нажатием по картинке (0x430370, 0x4b54d0).
+   * Приз на земле: первая проходимая клетка сетки в радиусе 3 от точки (exe 0x428870). Подбирается нажатием по
+   * картинке (0x430370, 0x4b54d0).
    */
   private placePrize(name: string, x: number, y: number) {
     const it = this.rules.dropped_items?.[name];
     if (!it) return;
     const sprite = image(`prize_${it.image}`);
     sprite.anchor.set(0.5, 0.8);
+    // exe ищет свободную клетку сетки в радиусе 3 от точки вредителя (0x428870); берём первую проходимую.
+    const grid = this.pathGrid();
+    const near = cellNear(grid, grid.cellOf(x, y), 3);
+    const px = near ? near[0] * CELL_W + CELL_W / 2 : x;
+    const py = near ? near[1] * CELL_H + CELL_H / 2 : y;
     sprite.position.set(
-      // не под левой панелью (она закрывает ферму до x ≈ 120) и не за правым краем
-      Math.max(120 + sprite.width / 2, Math.min(800 - sprite.width / 2, x + (Math.random() - 0.5) * CELL_W)),
-      Math.max(120, Math.min(590, y + (Math.random() - 0.5) * CELL_H)),
+      Math.max(120 + sprite.width / 2, Math.min(800 - sprite.width / 2, px)),
+      Math.max(120, Math.min(590, py)),
     );
     sprite.eventMode = "static";
     sprite.cursor = "gather_product";
@@ -807,7 +823,7 @@ export class Farm extends Container {
 
   /**
    * Приз или плод летит к счётчику панели за 0,6 с (effects: prizes / product time) частицами effect.psi с картинкой
-   * data/particles/{prizes,products}/<имя>. Кривая полёта — **допущение** (см. ParticleLayer.fly).
+   * data/particles/{prizes,products}/<имя>. Кривая полёта — приближение (см. ParticleLayer.fly).
    */
   private flyToPanel(tag: "pp" | "pq", name: string, x: number, y: number, to: [number, number]) {
     const img = `${tag}_${name.toLowerCase()}`;

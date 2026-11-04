@@ -182,7 +182,10 @@ async function main() {
       marked: (m) => {
         // концовка: комикс win_var_N, потом подсказка game_fin
         if (m === "win_var_1" || m === "win_var_2") comicsQueue = comicsQueue.then(() => comicsScreen(world, rules, m));
-        if (m === "win") void comicsQueue.then(() => worldTut?.show("game_fin", 400, 300));
+        if (m === "win") {
+          g.trophyBook.award("game_win", 1);
+          void comicsQueue.then(() => worldTut?.show("game_fin", 400, 300));
+        }
       },
       hasEmptyRidge: () => f.hasEmptyRidge(),
       addVegetation: (v) => f.addVegetation(v),
