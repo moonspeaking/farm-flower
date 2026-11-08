@@ -197,7 +197,10 @@ export class BouquetScreen extends Container {
     return true;
   }
 
-  /** Цветок перелетает по прямой за 0,35 с; точная кривая полёта в exe не разобрана (**допущение**). */
+  /**
+   * Цветок летит по прямой за 0,25 с (exe 0x511060): t = progress/0,25 (константа 0x888744), кламп ≤ 1
+   * (fcomp qword 1.0 — 0x880178), позиция = старт + (цель − старт)·t — линейный lerp, без дуги и сглаживания.
+   */
   private flyFlower(product: string, from: [number, number], to: [number, number]) {
     const s = image(product);
     s.anchor.set(0.5);
@@ -207,9 +210,8 @@ export class BouquetScreen extends Container {
     const step = () => {
       if (s.destroyed) return;
       t += 1 / 60;
-      const k = Math.min(1, t / 0.35);
-      const e = 1 - (1 - k) * (1 - k);
-      s.position.set(from[0] + (to[0] - from[0]) * e, from[1] + (to[1] - from[1]) * e - Math.sin(Math.PI * k) * 30);
+      const k = Math.min(1, t / 0.25);
+      s.position.set(from[0] + (to[0] - from[0]) * k, from[1] + (to[1] - from[1]) * k);
       if (k >= 1) return void s.destroy();
       requestAnimationFrame(step);
     };
