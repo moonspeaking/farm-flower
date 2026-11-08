@@ -375,8 +375,11 @@ async function loadTrophyImages(rules: Rules) {
 
 /**
  * Комната трофеев (trophy_room_screen): фон trophy_room_back, награды на местах из medals (position/dimensions),
- * неполученные — пустые места ступени 0. Под курсором награда подсвечивается (_overed) и внизу появляется её описание
- * (`trophy_room_rect` в XML — 97×194 в (50; 35) — в exe не найден и экспортером пропускается; считается неиспользуемым, описание по центру внизу).
+ * неполученные — пустые места ступени 0. Под курсором награда подсвечивается (_overed) и рядом с курсором
+ * показывается тултип с описанием (exe 0x7d4200: виджету ставится тултип 0x7d3950, стиль root/tooltip —
+ * рамка 2, отступы 5; текст из root/medals/@<имя>_<ступень>). Узел <trophy_room_rect> из XML exe не читает
+ * вовсе (его строки нет в бинаре, медали — фиксированный список из 12, см. docs/TODO_LOC1.md) — в порту
+ * он тоже не используется.
  * «Назад» — back (358; 567).
  */
 export async function trophyRoomScreen(parent: Container, rules: Rules, levels: Record<string, number>, onClose: () => void) {
@@ -384,17 +387,28 @@ export async function trophyRoomScreen(parent: Container, rules: Rules, levels: 
   await loadTrophyImages(rules);
   const layer = new Container();
   layer.addChild(image("trophy_back"));
-  const caption = pop("", "stat_control_fonts_1", COLOR.white, { align: "center", wrap: 640 });
-  caption.anchor.set(0.5, 0.5);
-  caption.position.set(W / 2, 520);
-  // подложка под описанием: на тёмном сукне и полу белая надпись иначе не читается
-  const plate = new Graphics();
-  const setCaption = (text: string) => {
-    caption.text = text;
-    plate.clear();
-    if (text) plate.roundRect(W / 2 - 330, 520 - caption.textHeight / 2 - 8, 660, caption.textHeight + 16, 8).fill({ color: 0x000000, alpha: 0.6 });
+  // тултип с описанием: бокс у курсора, рамка 2 + отступы 5 (root/tooltip); цвета бокса в exe не вытащены —
+  // взяты тёмная подложка со светлой рамкой, как у прежней плашки (**допущение**)
+  const tip = new Container();
+  tip.visible = false;
+  const tipBg = new Graphics();
+  const tipText = pop("", "stat_control_fonts_1", COLOR.white, { wrap: 240 });
+  tip.addChild(tipBg, tipText);
+  const setTip = (text: string) => {
+    tipText.text = text;
+    tipText.position.set(7, 7); // рамка 2 + отступ 5
+    tipBg.clear();
+    if (text) {
+      tipBg
+        .roundRect(0, 0, tipText.textWidth + 14, tipText.textHeight + 14, 3)
+        .fill({ color: 0x000000, alpha: 0.72 })
+        .stroke({ color: 0xe8d9a8, width: 2 });
+    }
+    tip.visible = !!text;
   };
-  layer.addChild(plate);
+  const moveTip = (x: number, y: number) => {
+    tip.position.set(Math.min(x + 12, W - tipText.textWidth - 15), Math.min(y + 20, H - tipText.textHeight - 15));
+  };
   const medals = rules.texts.medals ?? {};
   for (const [name, def] of Object.entries(rules.trophies ?? {})) {
     const { lv, normal, over } = trophyImages(rules, name, levels[name] ?? 0);
@@ -411,15 +425,16 @@ export async function trophyRoomScreen(parent: Container, rules: Rules, levels: 
     }
     holder.on("pointerover", () => {
       if (hover) hover.visible = true;
-      setCaption((medals[`${name}_${lv}`] ?? "").replace(/\\n/g, "\n"));
+      setTip((medals[`${name}_${lv}`] ?? "").replace(/\\n/g, "\n"));
     });
+    holder.on("globalpointermove", (e) => moveTip(e.global.x, e.global.y));
     holder.on("pointerout", () => {
       if (hover) hover.visible = false;
-      setCaption("");
+      setTip("");
     });
     layer.addChild(holder);
   }
-  layer.addChild(caption);
+  layer.addChild(tip); // тултип поверх всех медалей
   const back = textButton(rules.texts.buttons.back ?? "Назад", () => {
     layer.destroy({ children: true });
     onClose();

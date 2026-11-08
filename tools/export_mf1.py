@@ -853,6 +853,8 @@ def main():
     sized = data_dir / "trophy_room" / "sized"
     for m in props.find("trophy_room_screen/medals"):
         if m.tag == "trophy_room_rect":
+            # проверено по exe: узел никогда не читается — строки «trophy_room_rect» нет в бинаре, медали
+            # берутся из фиксированного списка из 12 имён, загрузчики читают только level_N (docs/TODO_LOC1.md)
             continue
         levels = [lv for lv in m if lv.tag.startswith("level_")]
         thresholds = [int(next(iter(lv.attrib.values()))) for lv in levels]
