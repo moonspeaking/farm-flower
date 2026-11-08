@@ -677,9 +677,9 @@ export class Farm extends Container {
     return grid;
   }
 
-  /** Вредитель по строке волны или горна «snail!@1*2$3» (имя и модификаторы, exe 0x41bad0). */
+  /** Вредитель по строке волны или горна «snail!@1*2$3» (имя, модификаторы и флаг «!», exe 0x41bad0). */
   private spawnBug(spec: string): Bug | null {
-    const { name, mods } = parseBugSpec(spec);
+    const { name, mods, bang } = parseBugSpec(spec);
     if (!this.rules.bugs[name]) return null;
     const [x, y] = this.rules.arrive_positions[Math.floor(Math.random() * this.rules.arrive_positions.length)];
     const folder = this.rules.bugs[name].folder;
@@ -712,6 +712,8 @@ export class Farm extends Container {
       const dmg = this.rules.weapon_attack * (1 + g.bonus("attack", "attack")) * (1 + g.attackSpecificBonus(folder));
       bug.hit(dmg * this.comboHit(bug, e.getLocalPosition(bug)));
     });
+    // «!» в строке (exe 0x4197a0 ставит флаг +0x8b вызовом 0x410560) — и без модификаторов тоже
+    bug.hasBang = bang;
     if (mods) bug.applyMods(mods);
     this.bugs.push(bug);
     this.objects.addChild(bug);

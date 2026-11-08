@@ -193,8 +193,9 @@ export interface Rules {
   quests: Record<string, Quest>;
   holders: Record<string, Place>;
   bugs: Record<string, BugDef>;
-  /** Волны по порядку: группы вредителей, delay — пауза после группы. */
-  waves: { bugs: string[]; delay: number }[][];
+  /** Волны по порядку: группы вредителей, delay — пауза после группы. bugs — набор лёгкого (без hardcore),
+   *  specs — все записи с mode («any» / «casual» / «hardcore», приставка строки волны). */
+  waves: { bugs: string[]; specs: { name: string; mode: string; mods: string }[]; delay: number }[][];
   /** Пауза после волны (delay у wave.), отсчитывается, когда группы вышли и на поле нет вредителей. */
   wave_delays: number[];
   /** Ключ волны: играют только волны, чей ключ равен ключу вредителей фермы (set_pests_key, по умолчанию ""). */

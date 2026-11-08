@@ -114,27 +114,34 @@ export interface BugMods {
   attack: number;
 }
 
-/** Строка вредителя годна для сложности: без приставки — для любой, с приставкой — только для своей (допущение: exe 0x419650 ищет имя с приставкой сложности). */
+/**
+ * Годна ли строка волны/горна для сложности (exe 0x419650, точное правило): на сложном подходят все строки;
+ * на лёгком — все, кроме начинающихся с точного «hardcore-» (приставки без «-» годны для любой сложности;
+ * опечатка данных «hardocre-» под это правило не подпадает). Для волн правила применяет экспортёр:
+ * bugs — набор лёгкого (без hardcore), specs — все записи с mode.
+ */
 export function bugForDifficulty(spec: string, difficulty: string) {
-  const m = spec.trim().match(/^(casual|hardcore|hardocre)-/);
-  return !m || (m[1] === "hardocre" ? "hardcore" : m[1]) === difficulty;
+  if (difficulty === "hardcore") return true;
+  return !spec.trim().startsWith("hardcore-");
 }
 
 /**
  * Строка вредителя «casual-snail!@1*2$3»: приставка сложности, имя и модификаторы после «!» (exe 0x41bad0, 0x4197a0).
  * Числа — после своего символа: @ и $ целые, * # + дробные (по умолчанию 1). Модификаторы действуют, только если @ > 0.
+ * bang — была ли в строке «!» (exe 0x4197a0 ищет символ в строке): такой вредитель не замирает на время анимации удара.
  */
-export function parseBugSpec(spec: string): { name: string; mods: BugMods | null } {
+export function parseBugSpec(spec: string): { name: string; mods: BugMods | null; bang: boolean } {
   const raw = spec.trim().replace(/^(casual|hardcore|hardocre)-/, "");
-  const bang = raw.indexOf("!");
-  const name = (bang >= 0 ? raw.slice(0, bang) : raw).replace(/[^a-z_0-9].*$/, "");
+  const bang = raw.includes("!");
+  const bangAt = raw.indexOf("!");
+  const name = (bangAt >= 0 ? raw.slice(0, bangAt) : raw).replace(/[^a-z_0-9].*$/, "");
   const num = (ch: string, def: number) => {
     const m = raw.match(new RegExp(`\\${ch}(-?[0-9]*\\.?[0-9]+)`));
     return m ? Number(m[1]) : def;
   };
   const level = Math.trunc(num("@", 0));
-  if (level <= 0) return { name, mods: null };
-  return { name, mods: { level, life: num("*", 1), speed: num("#", 1), prizes: Math.trunc(num("$", 0)), attack: num("+", 1) } };
+  if (level <= 0) return { name, mods: null, bang };
+  return { name, mods: { level, life: num("*", 1), speed: num("#", 1), prizes: Math.trunc(num("$", 0)), attack: num("+", 1) }, bang };
 }
 
 export class Bug extends Actor {
@@ -165,8 +172,29 @@ export class Bug extends Actor {
   prizeMul: number;
   /** Уровень модификатора (@). */
   bugLevel = 0;
+  /**
+   * Флаг «!» из строки волны (exe поле +0x8b, сеттер 0x410560): вредитель не замирает на время анимации удара —
+   * в exe тик спрайта 0x58e8d0 (движение, укусы, звуки) пропускается, только пока играет анимация удара
+   * (флаг +0x88, снимается по её концу 0x40fbde), а у «!»-вредителя он продолжается.
+   */
+  hasBang = false;
   /** Аура уровня (@, exe поле +0x1fc): играет, пока вредитель жив. */
   private aura: AnimatedSprite | null = null;
+  /** Ролики-оверлеи (анимация удара «!»-вредителей): тикают по игровому времени, снимаются по концу. */
+  private overlays: AnimatedSprite[] = [];
+
+  /** Анимация удара отдельным роликом поверх основного спрайта (как список +0x174 в exe). */
+  private playHitOverlay() {
+    const a = this.def.anims.hit;
+    if (!a) return;
+    const ov = new AnimatedSprite({ textures: frames(this.def.folder, "hit", this.dir, a.rows), autoUpdate: false });
+    ov.anchor.set(0.5, 0.9);
+    ov.animationSpeed = a.rows / a.time / 60;
+    ov.loop = false;
+    ov.gotoAndPlay(0);
+    this.addChild(ov);
+    this.overlays.push(ov);
+  }
 
   constructor(
     public kind: string,
@@ -256,8 +284,13 @@ export class Bug extends Actor {
     this.hearts.set(this.life > 0 ? (this.life / this.maxLife) * this.hearts.max : 0);
     this.events.hurt(this);
     if (this.life > 0) {
-      this.play("hit", 0, 0, true);
-      this.busy = this.def.anims.hit?.time ?? 0.3;
+      if (this.hasBang) {
+        // «!»-вредитель (exe +0x8b) не замирает: анимация удара играется отдельным роликом (+0x174), поведение продолжается
+        this.playHitOverlay();
+      } else {
+        this.play("hit", 0, 0, true);
+        this.busy = this.def.anims.hit?.time ?? 0.3;
+      }
       return;
     }
     if (this.def.reincorn) {
@@ -283,6 +316,14 @@ export class Bug extends Actor {
   update(dt: number) {
     this.advance(dt);
     this.aura?.update({ deltaTime: dt * 60 } as unknown as Ticker);
+    for (let i = this.overlays.length - 1; i >= 0; i--) {
+      const ov = this.overlays[i];
+      ov.update({ deltaTime: dt * 60 } as unknown as Ticker);
+      if (!ov.playing) {
+        ov.destroy();
+        this.overlays.splice(i, 1);
+      }
+    }
     if (this.dead) {
       this.alpha -= dt * 2;
       if (this.alpha <= 0) this.destroy({ children: true });
@@ -786,7 +827,13 @@ export class BugArriver {
       if (i < 0) return null;
       const wave = rules.waves[i] ?? [];
       s.wait = (rules.wave_delays?.[i] ?? 0) * arrive;
-      s.groups = wave.map((x) => ({ bugs: x.bugs.filter((s) => bugForDifficulty(s, difficulty)), delay: x.delay, wait: x.delay }));
+      // наборы по сложности (exe 0x419650): на сложном играются все записи волны (specs — включая casual-
+      // и элитные «!@…»), на лёгком — готовый набор без hardcore-записей (bugs, его собирает экспортёр)
+      s.groups = wave.map((x) => ({
+        bugs: difficulty === "hardcore" ? x.specs.map((sp) => sp.name + sp.mods) : x.bugs.filter((sp) => bugForDifficulty(sp, difficulty)),
+        delay: x.delay,
+        wait: x.delay,
+      }));
       return null;
     }
     if (!g.bugs.length) {
