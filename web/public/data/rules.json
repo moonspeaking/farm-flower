@@ -1300,213 +1300,6 @@
     1.0
    ]
   },
-  "spiral_2": {
-   "price_buy": 0,
-   "price_sell": 40,
-   "life": 16,
-   "hunger_min": 25.0,
-   "hunger_max": 50.0,
-   "min_product_delay": 15.0,
-   "max_product_delay": 30.0,
-   "upgrade": 6,
-   "upgrade_to_vegetation": "spiral_3",
-   "image_offset": [
-    -58.0,
-    -106.0
-   ],
-   "exp_for_pour": 10,
-   "nodes": [
-    [
-     108.0,
-     10.0
-    ],
-    [
-     53.0,
-     15.0
-    ]
-   ],
-   "products": [
-    "p_spiral_1",
-    "p_spiral_2"
-   ],
-   "probabilities": [
-    2.0,
-    1.0
-   ]
-  },
-  "bush_2": {
-   "price_buy": 0,
-   "price_sell": 150,
-   "life": 14,
-   "hunger_min": 25.0,
-   "hunger_max": 50.0,
-   "min_product_delay": 15.0,
-   "max_product_delay": 25.0,
-   "upgrade": 9,
-   "upgrade_to_vegetation": "bush_3",
-   "image_offset": [
-    -75.0,
-    -110.0
-   ],
-   "exp_for_pour": 10,
-   "nodes": [
-    [
-     85.0,
-     2.0
-    ]
-   ],
-   "products": [
-    "p_bush_1",
-    "p_bush_2"
-   ],
-   "probabilities": [
-    1.0,
-    2.0
-   ]
-  },
-  "ice_2": {
-   "price_buy": 0,
-   "price_sell": 300,
-   "life": 10,
-   "hunger_min": 20.0,
-   "hunger_max": 40.0,
-   "min_product_delay": 15.0,
-   "max_product_delay": 30.0,
-   "upgrade": 7,
-   "upgrade_to_vegetation": "ice_3",
-   "image_offset": [
-    -55.0,
-    -104.0
-   ],
-   "exp_for_pour": 10,
-   "nodes": [
-    [
-     60.0,
-     12.0
-    ],
-    [
-     43.0,
-     43.0
-    ]
-   ],
-   "products": [
-    "p_ice_1",
-    "p_ice_2"
-   ],
-   "probabilities": [
-    3.0,
-    1.0
-   ]
-  },
-  "spiral_3": {
-   "price_buy": 0,
-   "price_sell": 80,
-   "life": 16,
-   "hunger_min": 25.0,
-   "hunger_max": 50.0,
-   "min_product_delay": 10.0,
-   "max_product_delay": 25.0,
-   "upgrade": -1,
-   "image_offset": [
-    -75.0,
-    -110.0
-   ],
-   "exp_for_pour": 11,
-   "nodes": [
-    [
-     50.0,
-     22.0
-    ],
-    [
-     81.0,
-     10.0
-    ],
-    [
-     125.0,
-     30.0
-    ]
-   ],
-   "products": [
-    "p_spiral_1",
-    "p_spiral_2",
-    "p_spiral_3"
-   ],
-   "probabilities": [
-    3.0,
-    2.0,
-    1.0
-   ]
-  },
-  "bush_3": {
-   "price_buy": 0,
-   "price_sell": 300,
-   "life": 12,
-   "hunger_min": 25.0,
-   "hunger_max": 40.0,
-   "min_product_delay": 10.0,
-   "max_product_delay": 20.0,
-   "upgrade": -1,
-   "image_offset": [
-    -62.0,
-    -100.0
-   ],
-   "exp_for_pour": 11,
-   "nodes": [
-    [
-     68.0,
-     2.0
-    ]
-   ],
-   "products": [
-    "p_bush_1",
-    "p_bush_2",
-    "p_bush_3"
-   ],
-   "probabilities": [
-    3.0,
-    2.0,
-    1.0
-   ]
-  },
-  "ice_3": {
-   "price_buy": 0,
-   "price_sell": 600,
-   "life": 8,
-   "hunger_min": 15.0,
-   "hunger_max": 40.0,
-   "min_product_delay": 10.0,
-   "max_product_delay": 20.0,
-   "upgrade": -1,
-   "image_offset": [
-    -65.0,
-    -110.0
-   ],
-   "exp_for_pour": 11,
-   "nodes": [
-    [
-     72.0,
-     17.0
-    ],
-    [
-     48.0,
-     40.0
-    ],
-    [
-     95.0,
-     50.0
-    ]
-   ],
-   "products": [
-    "p_ice_1",
-    "p_ice_2",
-    "p_ice_3"
-   ],
-   "probabilities": [
-    4.0,
-    2.0,
-    1.0
-   ]
-  },
   "idol_tree": {
    "price_buy": 10,
    "price_sell": 5,
@@ -1646,6 +1439,104 @@
     1.0
    ]
   },
+  "spiral_2": {
+   "price_buy": 0,
+   "price_sell": 40,
+   "life": 16,
+   "hunger_min": 25.0,
+   "hunger_max": 50.0,
+   "min_product_delay": 15.0,
+   "max_product_delay": 30.0,
+   "upgrade": 6,
+   "upgrade_to_vegetation": "spiral_3",
+   "image_offset": [
+    -58.0,
+    -106.0
+   ],
+   "exp_for_pour": 10,
+   "nodes": [
+    [
+     108.0,
+     10.0
+    ],
+    [
+     53.0,
+     15.0
+    ]
+   ],
+   "products": [
+    "p_spiral_1",
+    "p_spiral_2"
+   ],
+   "probabilities": [
+    2.0,
+    1.0
+   ]
+  },
+  "bush_2": {
+   "price_buy": 0,
+   "price_sell": 150,
+   "life": 14,
+   "hunger_min": 25.0,
+   "hunger_max": 50.0,
+   "min_product_delay": 15.0,
+   "max_product_delay": 25.0,
+   "upgrade": 9,
+   "upgrade_to_vegetation": "bush_3",
+   "image_offset": [
+    -75.0,
+    -110.0
+   ],
+   "exp_for_pour": 10,
+   "nodes": [
+    [
+     85.0,
+     2.0
+    ]
+   ],
+   "products": [
+    "p_bush_1",
+    "p_bush_2"
+   ],
+   "probabilities": [
+    1.0,
+    2.0
+   ]
+  },
+  "ice_2": {
+   "price_buy": 0,
+   "price_sell": 300,
+   "life": 10,
+   "hunger_min": 20.0,
+   "hunger_max": 40.0,
+   "min_product_delay": 15.0,
+   "max_product_delay": 30.0,
+   "upgrade": 7,
+   "upgrade_to_vegetation": "ice_3",
+   "image_offset": [
+    -55.0,
+    -104.0
+   ],
+   "exp_for_pour": 10,
+   "nodes": [
+    [
+     60.0,
+     12.0
+    ],
+    [
+     43.0,
+     43.0
+    ]
+   ],
+   "products": [
+    "p_ice_1",
+    "p_ice_2"
+   ],
+   "probabilities": [
+    3.0,
+    1.0
+   ]
+  },
   "red_branch_2": {
    "price_buy": 10,
    "price_sell": 5,
@@ -1763,6 +1654,115 @@
    ],
    "probabilities": [
     3.0,
+    1.0
+   ]
+  },
+  "spiral_3": {
+   "price_buy": 0,
+   "price_sell": 80,
+   "life": 16,
+   "hunger_min": 25.0,
+   "hunger_max": 50.0,
+   "min_product_delay": 10.0,
+   "max_product_delay": 25.0,
+   "upgrade": -1,
+   "image_offset": [
+    -75.0,
+    -110.0
+   ],
+   "exp_for_pour": 11,
+   "nodes": [
+    [
+     50.0,
+     22.0
+    ],
+    [
+     81.0,
+     10.0
+    ],
+    [
+     125.0,
+     30.0
+    ]
+   ],
+   "products": [
+    "p_spiral_1",
+    "p_spiral_2",
+    "p_spiral_3"
+   ],
+   "probabilities": [
+    3.0,
+    2.0,
+    1.0
+   ]
+  },
+  "bush_3": {
+   "price_buy": 0,
+   "price_sell": 300,
+   "life": 12,
+   "hunger_min": 25.0,
+   "hunger_max": 40.0,
+   "min_product_delay": 10.0,
+   "max_product_delay": 20.0,
+   "upgrade": -1,
+   "image_offset": [
+    -62.0,
+    -100.0
+   ],
+   "exp_for_pour": 11,
+   "nodes": [
+    [
+     68.0,
+     2.0
+    ]
+   ],
+   "products": [
+    "p_bush_1",
+    "p_bush_2",
+    "p_bush_3"
+   ],
+   "probabilities": [
+    3.0,
+    2.0,
+    1.0
+   ]
+  },
+  "ice_3": {
+   "price_buy": 0,
+   "price_sell": 600,
+   "life": 8,
+   "hunger_min": 15.0,
+   "hunger_max": 40.0,
+   "min_product_delay": 10.0,
+   "max_product_delay": 20.0,
+   "upgrade": -1,
+   "image_offset": [
+    -65.0,
+    -110.0
+   ],
+   "exp_for_pour": 11,
+   "nodes": [
+    [
+     72.0,
+     17.0
+    ],
+    [
+     48.0,
+     40.0
+    ],
+    [
+     95.0,
+     50.0
+    ]
+   ],
+   "products": [
+    "p_ice_1",
+    "p_ice_2",
+    "p_ice_3"
+   ],
+   "probabilities": [
+    4.0,
+    2.0,
     1.0
    ]
   },
@@ -2234,60 +2234,6 @@
    ],
    "bonuses": ""
   },
-  "p_spiral_2": {
-   "price": 5,
-   "exp": 7,
-   "offset": [
-    -22.0,
-    -30.0
-   ],
-   "bonuses": ""
-  },
-  "p_bush_2": {
-   "price": 8,
-   "exp": 8,
-   "offset": [
-    -17.0,
-    -28.0
-   ],
-   "bonuses": ""
-  },
-  "p_ice_2": {
-   "price": 14,
-   "exp": 14,
-   "offset": [
-    -28.0,
-    -40.0
-   ],
-   "bonuses": ""
-  },
-  "p_spiral_3": {
-   "price": 8,
-   "exp": 8,
-   "offset": [
-    -45.0,
-    -35.0
-   ],
-   "bonuses": ""
-  },
-  "p_bush_3": {
-   "price": 12,
-   "exp": 10,
-   "offset": [
-    -20.0,
-    -22.0
-   ],
-   "bonuses": ""
-  },
-  "p_ice_3": {
-   "price": 20,
-   "exp": 20,
-   "offset": [
-    -30.0,
-    -45.0
-   ],
-   "bonuses": ""
-  },
   "p_idol_tree": {
    "price": 15000,
    "exp": 1,
@@ -2333,6 +2279,33 @@
    ],
    "bonuses": ""
   },
+  "p_spiral_2": {
+   "price": 5,
+   "exp": 7,
+   "offset": [
+    -22.0,
+    -30.0
+   ],
+   "bonuses": ""
+  },
+  "p_bush_2": {
+   "price": 8,
+   "exp": 8,
+   "offset": [
+    -17.0,
+    -28.0
+   ],
+   "bonuses": ""
+  },
+  "p_ice_2": {
+   "price": 14,
+   "exp": 14,
+   "offset": [
+    -28.0,
+    -40.0
+   ],
+   "bonuses": ""
+  },
   "p_red_fruit_2": {
    "price": 22,
    "exp": 1,
@@ -2366,6 +2339,33 @@
    "offset": [
     -23.0,
     -35.0
+   ],
+   "bonuses": ""
+  },
+  "p_spiral_3": {
+   "price": 8,
+   "exp": 8,
+   "offset": [
+    -45.0,
+    -35.0
+   ],
+   "bonuses": ""
+  },
+  "p_bush_3": {
+   "price": 12,
+   "exp": 10,
+   "offset": [
+    -20.0,
+    -22.0
+   ],
+   "bonuses": ""
+  },
+  "p_ice_3": {
+   "price": 20,
+   "exp": 20,
+   "offset": [
+    -30.0,
+    -45.0
    ],
    "bonuses": ""
   },
@@ -2823,6 +2823,49 @@
   "pail_3": "well_pail_03"
  },
  "well_items": {
+  "well_02": {
+   "position": [
+    140.0,
+    420.0
+   ],
+   "dimensions": [
+    110.0,
+    120.0
+   ],
+   "image_offset": [
+    -70.0,
+    -100.0
+   ],
+   "pail": {
+    "position": [
+     250.0,
+     470.0
+    ],
+    "dimensions": [
+     41.0,
+     30.0
+    ],
+    "image_offset": [
+     0.0,
+     0.0
+    ]
+   },
+   "delay": 20.0,
+   "fill_time": 5.0,
+   "water_capacity": 5.0,
+   "price": 200.0,
+   "pail_height": 17.0,
+   "image": "wellimg_well_02",
+   "pail_images": [
+    "pail_well_pail_02",
+    "pailw_well_pail_02",
+    "pailm_well_pail_02"
+   ],
+   "pail_pos": [
+    240.0,
+    440.0
+   ]
+  },
   "well_00": {
    "position": [
     140.0,
@@ -2944,49 +2987,6 @@
    "image": "",
    "pail_images": [],
    "pail_pos": null
-  },
-  "well_02": {
-   "position": [
-    140.0,
-    420.0
-   ],
-   "dimensions": [
-    110.0,
-    120.0
-   ],
-   "image_offset": [
-    -70.0,
-    -100.0
-   ],
-   "pail": {
-    "position": [
-     250.0,
-     470.0
-    ],
-    "dimensions": [
-     41.0,
-     30.0
-    ],
-    "image_offset": [
-     0.0,
-     0.0
-    ]
-   },
-   "delay": 20.0,
-   "fill_time": 5.0,
-   "water_capacity": 5.0,
-   "price": 200.0,
-   "pail_height": 17.0,
-   "image": "wellimg_well_02",
-   "pail_images": [
-    "pail_well_pail_02",
-    "pailw_well_pail_02",
-    "pailm_well_pail_02"
-   ],
-   "pail_pos": [
-    240.0,
-    440.0
-   ]
   }
  },
  "prices": {
@@ -3339,6 +3339,12 @@
    "title": "Покупка воды",
    "water": "Вода: %current% / %total%"
   },
+  "buy_water_loc5": {
+   "desc": "Вода необходима для полива растений",
+   "money": "Кристаллы: %money%",
+   "title": "Покупка воды",
+   "water": "Вода: %current% / %total%"
+  },
   "new_game": {
    "confirmation": "Ваша сохраненная игра будет потеряна.\\n           \\n                 Начать новую игру?",
    "text": "Продолжить игру или начать новую?"
@@ -3538,6 +3544,15 @@
    "trade_medal_1": "За хорошую торговлю\\nСледующий трофей:\\nЗа продажу плодов на 8,000 монет в день",
    "trade_medal_2": "За прекрасную торговлю\\nСледующий трофей:\\nЗа продажу плодов на 9,000 монет в день",
    "trade_medal_3": "За хитрость и смекалку"
+  },
+  "comics": {
+   "1": "Айрис оставляет своих родителей дома, чтобы посещать Сказочную Академию Флористов. Ей нравятся занятия, но она возвращается домой, после получения тревожного письма от их давнего соседа.",
+   "2": "Заработав нужную на путешествие сумму, Айрис отправилась по следу родителей, который вел в Порт Эрраухед. Дорога была дальней и трудной, но главное, теперь рядом с ней был верный друг и помощник - Робин.",
+   "3": "Дальнейший путь Айрис лежал к древним храмам Майя. Благодаря Детективу, она познакомилась с Капитаном Вестом, который соглашается снарядить экспедицию в эти дальние края. Но, корабль попадает в шторм и терпит крушение недалеко от ужасного Острова Людоедов...",
+   "4": "Оказалось, что страшные истории про людоедов всего лишь миф. Папуасы были вегетарианцами и к тому же очень милыми и дружелюбными. В деревне Потоса Айрис прожила несколько недель, пока на остров не приплыл еще один корабль, на нем она и продолжила своё путешествие. На этот раз судьба забросила ее в Город Пиратов...",
+   "5": "С помощью Джека и золотых монет Айрис отправила группу пиратов на поиск родителей, к счастью экспедиция увенчалась успехом. Родители были очень рады вновь увидеть дочь, хоть и в столь необычном месте. Но все же, им еще предстояла опасная дорога к древнему Храму Майя, в котором по легенде должна храниться карта, указывающая путь к Магической Ферме...",
+   "win_var_1": "Магическая Ферма хранила тайну Цветка стихий, который мог исполнять самые заветные желания. Но главным было то, что после всех испытаний семья Айрис вновь была вместе. Их ждал огромный, удивительный мир, в котором всегда есть место добрым поступкам, приключениям и верной дружбе, и, конечно же, драконам, особенно таким милым как Робин.\\nА что же пожелала Айрис? Да вы и сами отлично знаете...",
+   "win_var_2": "Магическая Ферма хранила тайну Цветка стихий, который мог исполнять самые заветные желания. Но главным было то, что после всех испытаний семья Айрис вновь была вместе. Их ждал огромный, удивительный мир, в котором всегда есть место добрым поступкам, приключениям и верной дружбе, и, конечно же, драконам, особенно таким милым как Робин.\\nА что же пожелала Айрис? Да вы и сами отлично знаете..."
   },
   "medal_header": "Вы получили награду!",
   "item_names": {
@@ -3807,21 +3822,6 @@
    "spirit_2": "Сильный Призрак с Гирей",
    "spirit_no_armour": "Сильный Призрак",
    "turtle": "Черепаха"
-  },
-  "buy_water_loc5": {
-   "desc": "Вода необходима для полива растений",
-   "money": "Кристаллы: %money%",
-   "title": "Покупка воды",
-   "water": "Вода: %current% / %total%"
-  },
-  "comics": {
-   "1": "Айрис оставляет своих родителей дома, чтобы посещать Сказочную Академию Флористов. Ей нравятся занятия, но она возвращается домой, после получения тревожного письма от их давнего соседа.",
-   "2": "Заработав нужную на путешествие сумму, Айрис отправилась по следу родителей, который вел в Порт Эрраухед. Дорога была дальней и трудной, но главное, теперь рядом с ней был верный друг и помощник - Робин.",
-   "3": "Дальнейший путь Айрис лежал к древним храмам Майя. Благодаря Детективу, она познакомилась с Капитаном Вестом, который соглашается снарядить экспедицию в эти дальние края. Но, корабль попадает в шторм и терпит крушение недалеко от ужасного Острова Людоедов...",
-   "4": "Оказалось, что страшные истории про людоедов всего лишь миф. Папуасы были вегетарианцами и к тому же очень милыми и дружелюбными. В деревне Потоса Айрис прожила несколько недель, пока на остров не приплыл еще один корабль, на нем она и продолжила своё путешествие. На этот раз судьба забросила ее в Город Пиратов...",
-   "5": "С помощью Джека и золотых монет Айрис отправила группу пиратов на поиск родителей, к счастью экспедиция увенчалась успехом. Родители были очень рады вновь увидеть дочь, хоть и в столь необычном месте. Но все же, им еще предстояла опасная дорога к древнему Храму Майя, в котором по легенде должна храниться карта, указывающая путь к Магической Ферме...",
-   "win_var_1": "Магическая Ферма хранила тайну Цветка стихий, который мог исполнять самые заветные желания. Но главным было то, что после всех испытаний семья Айрис вновь была вместе. Их ждал огромный, удивительный мир, в котором всегда есть место добрым поступкам, приключениям и верной дружбе, и, конечно же, драконам, особенно таким милым как Робин.\\nА что же пожелала Айрис? Да вы и сами отлично знаете...",
-   "win_var_2": "Магическая Ферма хранила тайну Цветка стихий, который мог исполнять самые заветные желания. Но главным было то, что после всех испытаний семья Айрис вновь была вместе. Их ждал огромный, удивительный мир, в котором всегда есть место добрым поступкам, приключениям и верной дружбе, и, конечно же, драконам, особенно таким милым как Робин.\\nА что же пожелала Айрис? Да вы и сами отлично знаете..."
   }
  },
  "quests": {
@@ -9278,6 +9278,22 @@
    "images": 4
   }
  },
+ "difficulty": {
+  "casual": {
+   "bug_life": 1.0,
+   "buy_price": 1.0,
+   "exp_k": 1.0,
+   "pour_count": 1.0,
+   "sell_price": 1.0
+  },
+  "hardcore": {
+   "bug_life": 1.5,
+   "buy_price": 1.3,
+   "exp_k": 2.0,
+   "pour_count": 1.0,
+   "sell_price": 1.2
+  }
+ },
  "combo_set": [
   {
    "count": 0,
@@ -12117,49 +12133,6 @@
     "pail_3": "well_pail_22"
    },
    "well_items": {
-    "well_21": {
-     "position": [
-      570.0,
-      200.0
-     ],
-     "dimensions": [
-      160.0,
-      130.0
-     ],
-     "image_offset": [
-      -49.0,
-      -49.0
-     ],
-     "pail": {
-      "position": [
-       570.0,
-       200.0
-      ],
-      "dimensions": [
-       130.0,
-       130.0
-      ],
-      "image_offset": [
-       -49.0,
-       -49.0
-      ]
-     },
-     "delay": 5.0,
-     "fill_time": 40.0,
-     "water_capacity": 8.0,
-     "price": 900.0,
-     "pail_height": 17.0,
-     "image": "",
-     "pail_images": [
-      "pail_well_pail_21",
-      "pailw_well_pail_21",
-      "pailm_well_pail_21"
-     ],
-     "pail_pos": [
-      490.0,
-      150.0
-     ]
-    },
     "well_2": {
      "position": [
       570.0,
@@ -12197,6 +12170,49 @@
       "pail_well_pail_2",
       "pailw_well_pail_2",
       "pailm_well_pail_2"
+     ],
+     "pail_pos": [
+      490.0,
+      150.0
+     ]
+    },
+    "well_21": {
+     "position": [
+      570.0,
+      200.0
+     ],
+     "dimensions": [
+      160.0,
+      130.0
+     ],
+     "image_offset": [
+      -49.0,
+      -49.0
+     ],
+     "pail": {
+      "position": [
+       570.0,
+       200.0
+      ],
+      "dimensions": [
+       130.0,
+       130.0
+      ],
+      "image_offset": [
+       -49.0,
+       -49.0
+      ]
+     },
+     "delay": 5.0,
+     "fill_time": 40.0,
+     "water_capacity": 8.0,
+     "price": 900.0,
+     "pail_height": 17.0,
+     "image": "",
+     "pail_images": [
+      "pail_well_pail_21",
+      "pailw_well_pail_21",
+      "pailm_well_pail_21"
      ],
      "pail_pos": [
       490.0,
@@ -14278,6 +14294,7 @@
      ]
     }
    ],
+   "marks_obstacle": [],
    "quests": {
     "afterparty": {
      "header": "",
@@ -17902,6 +17919,49 @@
     "pail_3": "well_pail_32"
    },
    "well_items": {
+    "well_31": {
+     "position": [
+      342.0,
+      0.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       342.0,
+       0.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 10.0,
+     "fill_time": 1.0,
+     "water_capacity": 1.0,
+     "price": 175.0,
+     "pail_height": 17.0,
+     "image": "",
+     "pail_images": [
+      "pail_well_pail_31",
+      "pailw_well_pail_31",
+      "pailm_well_pail_31"
+     ],
+     "pail_pos": [
+      342.0,
+      0.0
+     ]
+    },
     "well_3": {
      "position": [
       342.0,
@@ -17982,49 +18042,6 @@
       "pail_well_pail_32",
       "pailw_well_pail_32",
       "pailm_well_pail_32"
-     ],
-     "pail_pos": [
-      342.0,
-      0.0
-     ]
-    },
-    "well_31": {
-     "position": [
-      342.0,
-      0.0
-     ],
-     "dimensions": [
-      155.0,
-      180.0
-     ],
-     "image_offset": [
-      0.0,
-      0.0
-     ],
-     "pail": {
-      "position": [
-       342.0,
-       0.0
-      ],
-      "dimensions": [
-       155.0,
-       180.0
-      ],
-      "image_offset": [
-       0.0,
-       0.0
-      ]
-     },
-     "delay": 10.0,
-     "fill_time": 1.0,
-     "water_capacity": 1.0,
-     "price": 175.0,
-     "pail_height": 17.0,
-     "image": "",
-     "pail_images": [
-      "pail_well_pail_31",
-      "pailw_well_pail_31",
-      "pailm_well_pail_31"
      ],
      "pail_pos": [
       342.0,
@@ -20163,6 +20180,7 @@
      ]
     }
    ],
+   "marks_obstacle": [],
    "quests": {
     "after_exams": {
      "header": "Вечеринка после экзамена",
@@ -23802,7 +23820,7 @@
     "pail_3": "well_pail_42"
    },
    "well_items": {
-    "well_41": {
+    "well_4": {
      "position": [
       632.0,
       100.0
@@ -23829,16 +23847,16 @@
        0.0
       ]
      },
-     "delay": 22.0,
-     "fill_time": 4.0,
-     "water_capacity": 4.0,
-     "price": 900.0,
+     "delay": 25.0,
+     "fill_time": 3.0,
+     "water_capacity": 3.0,
+     "price": 750.0,
      "pail_height": 17.0,
      "image": "",
      "pail_images": [
-      "pail_well_pail_41",
-      "pailw_well_pail_41",
-      "pailm_well_pail_41"
+      "pail_well_pail_4",
+      "pailw_well_pail_4",
+      "pailm_well_pail_4"
      ],
      "pail_pos": [
       631.0,
@@ -23888,7 +23906,7 @@
       153.0
      ]
     },
-    "well_4": {
+    "well_41": {
      "position": [
       632.0,
       100.0
@@ -23915,16 +23933,16 @@
        0.0
       ]
      },
-     "delay": 25.0,
-     "fill_time": 3.0,
-     "water_capacity": 3.0,
-     "price": 750.0,
+     "delay": 22.0,
+     "fill_time": 4.0,
+     "water_capacity": 4.0,
+     "price": 900.0,
      "pail_height": 17.0,
      "image": "",
      "pail_images": [
-      "pail_well_pail_4",
-      "pailw_well_pail_4",
-      "pailm_well_pail_4"
+      "pail_well_pail_41",
+      "pailw_well_pail_41",
+      "pailm_well_pail_41"
      ],
      "pail_pos": [
       631.0,
@@ -27028,6 +27046,7 @@
      ]
     }
    ],
+   "marks_obstacle": [],
    "quests": {
     "after_exams_gift": {
      "header": "Подарок после экзамена",
@@ -31948,49 +31967,6 @@
       391.0
      ]
     },
-    "well_5": {
-     "position": [
-      98.0,
-      391.0
-     ],
-     "dimensions": [
-      155.0,
-      180.0
-     ],
-     "image_offset": [
-      0.0,
-      0.0
-     ],
-     "pail": {
-      "position": [
-       98.0,
-       391.0
-      ],
-      "dimensions": [
-       155.0,
-       180.0
-      ],
-      "image_offset": [
-       0.0,
-       0.0
-      ]
-     },
-     "delay": 25.0,
-     "fill_time": 2.0,
-     "water_capacity": 2.0,
-     "price": 100.0,
-     "pail_height": 17.0,
-     "image": "",
-     "pail_images": [
-      "pail_well_pail_5",
-      "pailw_well_pail_5",
-      "pailm_well_pail_5"
-     ],
-     "pail_pos": [
-      98.0,
-      391.0
-     ]
-    },
     "well_51": {
      "position": [
       98.0,
@@ -32028,6 +32004,49 @@
       "pail_well_pail_51",
       "pailw_well_pail_51",
       "pailm_well_pail_51"
+     ],
+     "pail_pos": [
+      98.0,
+      391.0
+     ]
+    },
+    "well_5": {
+     "position": [
+      98.0,
+      391.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       98.0,
+       391.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 25.0,
+     "fill_time": 2.0,
+     "water_capacity": 2.0,
+     "price": 100.0,
+     "pail_height": 17.0,
+     "image": "",
+     "pail_images": [
+      "pail_well_pail_5",
+      "pailw_well_pail_5",
+      "pailm_well_pail_5"
      ],
      "pail_pos": [
       98.0,
@@ -34555,6 +34574,80 @@
      ]
     }
    ],
+   "marks_obstacle": [
+    {
+     "mark": "treemark_1",
+     "position": [
+      235.0,
+      47.0
+     ],
+     "dimensions": [
+      400.0,
+      150.0
+     ],
+     "image": "mark_idol-tree-00"
+    },
+    {
+     "mark": "treemark_2",
+     "position": [
+      235.0,
+      47.0
+     ],
+     "dimensions": [
+      400.0,
+      150.0
+     ],
+     "image": "mark_idol-tree-01"
+    },
+    {
+     "mark": "treemark_3",
+     "position": [
+      235.0,
+      47.0
+     ],
+     "dimensions": [
+      400.0,
+      150.0
+     ],
+     "image": "mark_idol-tree-02"
+    },
+    {
+     "mark": "treemark_4",
+     "position": [
+      235.0,
+      47.0
+     ],
+     "dimensions": [
+      400.0,
+      150.0
+     ],
+     "image": "mark_idol-tree-03"
+    },
+    {
+     "mark": "treemark_5",
+     "position": [
+      235.0,
+      47.0
+     ],
+     "dimensions": [
+      400.0,
+      150.0
+     ],
+     "image": "mark_idol-tree-04"
+    },
+    {
+     "mark": "treemark_6",
+     "position": [
+      235.0,
+      47.0
+     ],
+     "dimensions": [
+      400.0,
+      150.0
+     ],
+     "image": "mark_idol-tree-05"
+    }
+   ],
    "quests": {
     "angry_dragon": {
      "header": "Варенье для дракона",
@@ -36678,81 +36771,7 @@
      684.0,
      528.0
     ]
-   },
-   "marks_obstacle": [
-    {
-     "mark": "treemark_1",
-     "position": [
-      235.0,
-      47.0
-     ],
-     "dimensions": [
-      400.0,
-      150.0
-     ],
-     "image": "mark_idol-tree-00"
-    },
-    {
-     "mark": "treemark_2",
-     "position": [
-      235.0,
-      47.0
-     ],
-     "dimensions": [
-      400.0,
-      150.0
-     ],
-     "image": "mark_idol-tree-01"
-    },
-    {
-     "mark": "treemark_3",
-     "position": [
-      235.0,
-      47.0
-     ],
-     "dimensions": [
-      400.0,
-      150.0
-     ],
-     "image": "mark_idol-tree-02"
-    },
-    {
-     "mark": "treemark_4",
-     "position": [
-      235.0,
-      47.0
-     ],
-     "dimensions": [
-      400.0,
-      150.0
-     ],
-     "image": "mark_idol-tree-03"
-    },
-    {
-     "mark": "treemark_5",
-     "position": [
-      235.0,
-      47.0
-     ],
-     "dimensions": [
-      400.0,
-      150.0
-     ],
-     "image": "mark_idol-tree-04"
-    },
-    {
-     "mark": "treemark_6",
-     "position": [
-      235.0,
-      47.0
-     ],
-     "dimensions": [
-      400.0,
-      150.0
-     ],
-     "image": "mark_idol-tree-05"
-    }
-   ]
+   }
   }
  },
  "global_map": {
@@ -37506,6 +37525,10 @@
   "altar_3_action",
   "altar_3_active",
   "altar_3_stand",
+  "aura_1",
+  "aura_2",
+  "aura_3",
+  "aura_4",
   "barrel",
   "barrel_mask",
   "barrel_water",
@@ -38594,12 +38617,19 @@
   "altar_3_action",
   "altar_3_active",
   "altar_3_stand",
+  "aura_1",
+  "aura_2",
+  "aura_3",
+  "aura_4",
   "barrel",
   "barrel_mask",
   "barrel_water",
   "bell_1",
   "bell_2",
   "bell_3",
+  "blue_branch_1",
+  "blue_branch_2",
+  "blue_branch_3",
   "bq_back",
   "bq_big",
   "broken_ship",
@@ -38670,7 +38700,13 @@
   "clock_fore",
   "clock_pointer",
   "comics",
+  "comics_2",
+  "comics_3",
+  "comics_4",
+  "comics_5",
   "comics_clean",
+  "comics_win_var_1",
+  "comics_win_var_2",
   "cursor_attack",
   "cursor_buy",
   "cursor_gather",
@@ -38694,6 +38730,9 @@
   "flower",
   "game_menu_bg",
   "global_map_back",
+  "green_branch_1",
+  "green_branch_2",
+  "green_branch_3",
   "heart_1",
   "heart_2",
   "heart_3",
@@ -38715,6 +38754,7 @@
   "ice",
   "ice_2",
   "ice_3",
+  "idol_tree",
   "in_game",
   "klubnika_1",
   "klubnika_2",
@@ -38750,6 +38790,12 @@
   "map_town_3",
   "map_town_4",
   "map_town_5",
+  "mark_idol-tree-00",
+  "mark_idol-tree-01",
+  "mark_idol-tree-02",
+  "mark_idol-tree-03",
+  "mark_idol-tree-04",
+  "mark_idol-tree-05",
   "menu_bg",
   "menu_title",
   "mini_captain",
@@ -38852,6 +38898,9 @@
   "p_bell_1",
   "p_bell_2",
   "p_bell_3",
+  "p_blue_fruit_1",
+  "p_blue_fruit_2",
+  "p_blue_fruit_3",
   "p_bush_1",
   "p_bush_2",
   "p_bush_3",
@@ -38864,12 +38913,16 @@
   "p_fire_1",
   "p_fire_2",
   "p_fire_3",
+  "p_green_fruit_1",
+  "p_green_fruit_2",
+  "p_green_fruit_3",
   "p_heart_1",
   "p_heart_2",
   "p_heart_3",
   "p_ice_1",
   "p_ice_2",
   "p_ice_3",
+  "p_idol_tree",
   "p_klubnika_1",
   "p_klubnika_2",
   "p_klubnika_3",
@@ -38879,6 +38932,9 @@
   "p_pineapple_1",
   "p_pineapple_2",
   "p_pineapple_3",
+  "p_red_fruit_1",
+  "p_red_fruit_2",
+  "p_red_fruit_3",
   "p_romashka_1",
   "p_romashka_2",
   "p_romashka_3",
@@ -38894,6 +38950,9 @@
   "p_tree_1",
   "p_tree_2",
   "p_tree_3",
+  "p_yellow_fruit_1",
+  "p_yellow_fruit_2",
+  "p_yellow_fruit_3",
   "pail",
   "pail_mask",
   "pail_water",
@@ -38950,6 +39009,122 @@
   "pineapple_2",
   "pineapple_3",
   "pirate_ship",
+  "pp_crystal_1",
+  "pp_crystal_2",
+  "pp_crystal_3",
+  "pp_crystal_4",
+  "pp_crystal_5",
+  "pp_exp",
+  "pp_exp_1",
+  "pp_exp_2",
+  "pp_exp_3",
+  "pp_exp_4",
+  "pp_exp_5",
+  "pp_exp_6",
+  "pp_exp_7",
+  "pp_exp_8",
+  "pp_exp_base_1",
+  "pp_exp_base_2",
+  "pp_exp_base_3",
+  "pp_exp_loc_1",
+  "pp_exp_loc_2",
+  "pp_exp_loc_3",
+  "pp_exp_loc_4",
+  "pp_exp_loc_5",
+  "pp_gold",
+  "pp_gold_1",
+  "pp_gold_2",
+  "pp_gold_3",
+  "pp_gold_4",
+  "pp_gold_5",
+  "pp_gold_6",
+  "pp_gold_7",
+  "pp_gold_8",
+  "pp_gold_base_1",
+  "pp_gold_base_2",
+  "pp_gold_base_3",
+  "pp_gold_loc_1",
+  "pp_gold_loc_2",
+  "pp_gold_loc_3",
+  "pp_gold_loc_4",
+  "pp_gold_loc_5",
+  "pp_prize",
+  "pp_water",
+  "pp_water_1",
+  "pp_water_2",
+  "pp_water_3",
+  "pp_water_4",
+  "pp_water_5",
+  "pp_water_6",
+  "pp_water_7",
+  "pp_water_8",
+  "pp_water_base_1",
+  "pp_water_base_2",
+  "pp_water_base_3",
+  "pp_water_loc_1",
+  "pp_water_loc_2",
+  "pp_water_loc_3",
+  "pp_water_loc_4",
+  "pp_water_loc_5",
+  "pq_p_bell_1",
+  "pq_p_bell_2",
+  "pq_p_bell_3",
+  "pq_p_blue_fruit_1",
+  "pq_p_blue_fruit_2",
+  "pq_p_blue_fruit_3",
+  "pq_p_bush_1",
+  "pq_p_bush_2",
+  "pq_p_bush_3",
+  "pq_p_cactus_1",
+  "pq_p_cactus_2",
+  "pq_p_cactus_3",
+  "pq_p_cactus_water",
+  "pq_p_fern_1",
+  "pq_p_fern_2",
+  "pq_p_fern_3",
+  "pq_p_fire_1",
+  "pq_p_fire_2",
+  "pq_p_fire_3",
+  "pq_p_green_fruit_1",
+  "pq_p_green_fruit_2",
+  "pq_p_green_fruit_3",
+  "pq_p_heart_1",
+  "pq_p_heart_2",
+  "pq_p_heart_3",
+  "pq_p_ice_1",
+  "pq_p_ice_2",
+  "pq_p_ice_3",
+  "pq_p_idol_tree",
+  "pq_p_klubnika_1",
+  "pq_p_klubnika_2",
+  "pq_p_klubnika_3",
+  "pq_p_nopal_1",
+  "pq_p_nopal_2",
+  "pq_p_nopal_3",
+  "pq_p_pineapple_1",
+  "pq_p_pineapple_2",
+  "pq_p_pineapple_3",
+  "pq_p_red_fruit_1",
+  "pq_p_red_fruit_2",
+  "pq_p_red_fruit_3",
+  "pq_p_romashka_1",
+  "pq_p_romashka_2",
+  "pq_p_romashka_3",
+  "pq_p_rose_1",
+  "pq_p_rose_2",
+  "pq_p_rose_3",
+  "pq_p_spiral_1",
+  "pq_p_spiral_2",
+  "pq_p_spiral_3",
+  "pq_p_tiger_1",
+  "pq_p_tiger_2",
+  "pq_p_tiger_3",
+  "pq_p_tree_1",
+  "pq_p_tree_2",
+  "pq_p_tree_3",
+  "pq_p_yellow_fruit_1",
+  "pq_p_yellow_fruit_2",
+  "pq_p_yellow_fruit_3",
   "prize_crystal_1",
   "prize_crystal_2",
   "prize_crystal_3",
@@ -39011,6 +39186,9 @@
   "quest_prev_active",
   "quest_prev_disabled",
   "quest_prev_normal",
+  "red_branch_1",
+  "red_branch_2",
+  "red_branch_3",
   "ridge",
   "romashka",
   "romashka_2",
@@ -39133,7 +39311,10 @@
   "well",
   "wellimg_well_00",
   "wellimg_well_02",
-  "wellimg_well_03"
+  "wellimg_well_03",
+  "yellow_branch_1",
+  "yellow_branch_2",
+  "yellow_branch_3"
  ],
  "location_images": {
   "1": [
@@ -39670,9 +39851,6 @@
    "town_bg_4"
   ],
   "5": [
-   "blue_branch_1",
-   "blue_branch_2",
-   "blue_branch_3",
    "box_5",
    "box_content_5",
    "box_mask_5",
@@ -39743,48 +39921,19 @@
    "bug_spirit_stand_right_up",
    "bug_spirit_stand_up",
    "farm_bg_5",
-   "green_branch_1",
-   "green_branch_2",
-   "green_branch_3",
    "holder_explorer",
    "holder_father",
    "holder_pirate_leader",
    "holder_shaman",
-   "idol_tree",
    "item_ghost_weight",
    "item_lemur",
-   "mark_idol-tree-00",
-   "mark_idol-tree-01",
-   "mark_idol-tree-02",
-   "mark_idol-tree-03",
-   "mark_idol-tree-04",
-   "mark_idol-tree-05",
-   "p_blue_fruit_1",
-   "p_blue_fruit_2",
-   "p_blue_fruit_3",
-   "p_green_fruit_1",
-   "p_green_fruit_2",
-   "p_green_fruit_3",
-   "p_idol_tree",
-   "p_red_fruit_1",
-   "p_red_fruit_2",
-   "p_red_fruit_3",
-   "p_yellow_fruit_1",
-   "p_yellow_fruit_2",
-   "p_yellow_fruit_3",
-   "red_branch_1",
-   "red_branch_2",
-   "red_branch_3",
    "stat_panel_5",
    "talker_explorer",
    "talker_father",
    "talker_parents",
    "talker_pirate_leader",
    "talker_shaman",
-   "town_bg_5",
-   "yellow_branch_1",
-   "yellow_branch_2",
-   "yellow_branch_3"
+   "town_bg_5"
   ]
  },
  "audio": [
@@ -39877,21 +40026,5 @@
    "days": 190,
    "money": 30000
   }
- ],
- "difficulty": {
-  "casual": {
-   "bug_life": 1.0,
-   "buy_price": 1.0,
-   "exp_k": 1.0,
-   "pour_count": 1.0,
-   "sell_price": 1.0
-  },
-  "hardcore": {
-   "bug_life": 1.5,
-   "buy_price": 1.3,
-   "exp_k": 2.0,
-   "pour_count": 1.0,
-   "sell_price": 1.2
-  }
- }
+ ]
 }

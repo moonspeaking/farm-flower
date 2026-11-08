@@ -979,6 +979,11 @@ def main():
             for d in DIRECTIONS:
                 if (folder / anim / f"{d}.jpg").exists():
                     names[f"bug_{bug['folder']}_{anim}_{d}"] = f"bugs/{bug['folder']}/{anim}/{d}"
+    # аура уровня вредителя (модификатор @, exe 0x402040 читает properties.xml root/aura/aura_N:
+    # image, offset "-45;-20", play_time 1, rows 12 — полоса из 12 кадров 90×80)
+    for n in range(1, 5):
+        if (data_dir / "bugs/aura" / f"aura_{n}.jpg").exists() or (data_dir / "bugs/aura" / f"aura_{n}.png").exists():
+            names[f"aura_{n}"] = f"bugs/aura/aura_{n}"
     # 5-я локация: панель с кристаллами вместо монет и свой фон экрана букетов (resource.xml: stat_back_loc5, bouquets_screen_loc5)
     for loc in [rules] + list(rules["locations"].values()):
         for m in loc.get("marks_obstacle", []):

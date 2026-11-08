@@ -6,7 +6,7 @@ import { CELL_H, CELL_W, type Cell, cellNear, type PathGrid, pathToPlant, startC
 import type { RidgeView } from "./ridge";
 import type { BugDef, Rules } from "./rules";
 import type { Game } from "./state";
-import { image, tex } from "./ui";
+import { hasImage, image, pop, tex } from "./ui";
 
 const DIRS = ["right", "right_down", "down", "right_up", "up"] as const;
 const framesCache = new Map<string, Texture[]>();
@@ -17,6 +17,20 @@ function frames(folder: string, anim: string, dir: string, rows: number): Textur
   let list = framesCache.get(key);
   if (!list) {
     const t = tex(key);
+    const h = Math.floor(t.height / rows);
+    list = Array.from({ length: rows }, (_, i) => new Texture({ source: t.source, frame: new Rectangle(0, i * h, t.width, h) }));
+    framesCache.set(key, list);
+  }
+  return list;
+}
+
+/** Кадры ауры уровня (@, exe 0x402040 → properties.xml root/aura/aura_N): полоса rows=12 кадров, play_time 1 с. */
+function auraFrames(level: number): Texture[] {
+  const key = `aura_${level}`;
+  let list = framesCache.get(key);
+  if (!list) {
+    const t = tex(key);
+    const rows = 12;
     const h = Math.floor(t.height / rows);
     list = Array.from({ length: rows }, (_, i) => new Texture({ source: t.source, frame: new Rectangle(0, i * h, t.width, h) }));
     framesCache.set(key, list);
@@ -149,6 +163,10 @@ export class Bug extends Actor {
   /** Гарантированных призов при смерти ($, exe поле +0x6c+0xc) и множитель приза (prize_k, поле +0x100). */
   prizes = 0;
   prizeMul: number;
+  /** Уровень модификатора (@). */
+  bugLevel = 0;
+  /** Аура уровня (@, exe поле +0x1fc): играет, пока вредитель жив. */
+  private aura: AnimatedSprite | null = null;
 
   constructor(
     public kind: string,
@@ -183,6 +201,24 @@ export class Bug extends Actor {
    * атака = round(атака · +); $ — сколько гарантированных призов выпадет при смерти.
    */
   applyMods(m: BugMods) {
+    this.bugLevel = m.level;
+    if (m.level > 0) {
+      // Аура уровня (exe 0x402040 → properties.xml root/aura/aura_N): полоса 12 кадров, play_time 1 с,
+      // offset "-45;-20" — левый верхний угол кадра относительно точки вредителя (exe поле +0x80/+0x84).
+      if (hasImage(`aura_${m.level}`)) {
+        const aura = new AnimatedSprite({ textures: auraFrames(m.level), autoUpdate: false });
+        aura.animationSpeed = aura.textures.length / 60; // 12 кадров за play_time 1 с
+        aura.loop = true;
+        aura.gotoAndPlay(0);
+        aura.position.set(-45, -20);
+        this.addChildAt(aura, 0);
+        this.aura = aura;
+      } else {
+        const lbl = pop(`@${m.level}`, "bonus_events_white", 0xffd700);
+        lbl.position.set(0, -80);
+        this.addChild(lbl);
+      }
+    }
     this.life *= m.life;
     this.maxLife = this.life;
     this.exp = Math.trunc(this.exp * (1 + m.life / 3 + m.speed / 3));
@@ -246,6 +282,7 @@ export class Bug extends Actor {
 
   update(dt: number) {
     this.advance(dt);
+    this.aura?.update({ deltaTime: dt * 60 } as unknown as Ticker);
     if (this.dead) {
       this.alpha -= dt * 2;
       if (this.alpha <= 0) this.destroy({ children: true });

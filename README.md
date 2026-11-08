@@ -75,6 +75,9 @@ npm ci && npx vite
 «резина» rubber_back: зелёная середина, чёрная рамка, как у пузырей обучения).
 
 Не сделано (подробности и допущения — `docs/TODO_LOC1.md`):
-- точная кривая полёта приза и плода к панели (в exe — объект пути 0x46aab0);
 - флаг `open_next_sub_quest` (+0x58), `trophy_room_rect` комнаты трофеев, смысл `set_ridges` / `enable_manual_work` проверен только по данным квестов;
 - `docs/MF1_EXE_NOTES.md` (скопирован из `Farm`) — адреса для `Magic Farm_fixed.exe`, у `game.exe` они другие; свежие адреса `game.exe` — в `docs/TODO_LOC1.md`.
+
+Particle engine перенесён целиком по exe (эмиттер 0x79e840/0x79eb00, список 0x7e3340 с шагом 0,01 с, полёт к панели
+0x427930 с путём 0x46a790 — гладстеп-участки через точку «середина + (−k, +k)»); подробности — раздел «Particle engine»
+в `docs/TODO_LOC1.md`.

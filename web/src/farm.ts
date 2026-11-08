@@ -798,8 +798,9 @@ export class Farm extends Container {
     if (!it || i < 0) return;
     this.prizes.splice(i, 1);
     const { x, y } = entry.sprite;
-    // приз летит к своему счётчику на панели за effects/prizes time = 0,6 с (опыт — полоска, золото — монеты, вода — бочки)
-    this.flyToPanel("pp", it.image, x, y, it.kind === "exp" ? [86, 115] : it.kind === "gold" ? [83, 475] : [32, 355]);
+    // приз летит к своему счётчику на панели за effects/prizes time = 0,6 с (опыт — полоска, золото — монеты, вода — бочки);
+    // вода летит «водяным» полётом (exe 0x413610 различает product / water / prizes по имени предмета)
+    this.flyToPanel("pp", it.image, x, y, it.kind === "exp" ? [86, 115] : it.kind === "gold" ? [83, 475] : [32, 355], it.kind === "water" ? "water" : "prizes");
     entry.sprite.destroy();
     const ev = this.rules.texts.events ?? {};
     const color = rgb(...it.color);
@@ -822,12 +823,20 @@ export class Farm extends Container {
   }
 
   /**
-   * Приз или плод летит к счётчику панели за 0,6 с (effects: prizes / product time) частицами effect.psi с картинкой
-   * data/particles/{prizes,products}/<имя>. Кривая полёта — приближение (см. ParticleLayer.fly).
+   * Приз или плод летит к счётчику панели за 0,6 с (effects: prizes / product / water time) частицами effect.psi с картинкой
+   * data/particles/{prizes,products}/<имя>. Путь и ведение эмиттера — как в exe (ParticleLayer.fly); вид полёта — по имени
+   * предмета (exe 0x413610): product (плод), water (приз-вода: гравитация = остаток) или prizes (остальные призы).
    */
-  private flyToPanel(tag: "pp" | "pq", name: string, x: number, y: number, to: [number, number]) {
+  private flyToPanel(
+    tag: "pp" | "pq",
+    name: string,
+    x: number,
+    y: number,
+    to: [number, number],
+    kind: "prizes" | "product" | "water" = tag === "pq" ? "product" : "prizes",
+  ) {
     const img = `${tag}_${name.toLowerCase()}`;
-    void loadImages([img]).then(() => this.flyFx.fly("effect", img, [x, y], to)).catch(() => undefined);
+    void loadImages([img]).then(() => this.flyFx.fly("effect", img, [x, y], to, kind)).catch(() => undefined);
   }
 
   /** Предмет выпадает, только пока квест разрешил (enable_bug_item count). */
