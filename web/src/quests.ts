@@ -348,12 +348,12 @@ export class QuestEngine {
           g.statues[kind] = Math.min(g.rules.statues?.[kind]?.levels.length ?? 3, (g.statues[kind] ?? 0) + 1);
           break;
         }
-        // медали дракона — для комнаты трофеев (exe 0x481307, 0x481400); комнаты пока нет, счётчик копится
+        // медали дракона (exe 0x481307/0x481400): берётся медаль «dragon_medal» (0x4f58e0) и проверяется уровень (0x4f6a70):
+        // medal1 — награда, только если уровня ещё нет (ja → пропустить); medal2 — только если уровень ≤ 1 (cmp 1, ja).
+        // Награда 0x44b040 кладёт медаль в список +0x1d8 (439210 — вставка), а ступень/счётчик растёт отдельно (0x4f6a50).
         case "add_dragon_medal1":
         case "add_dragon_medal2":
           g.medals[a.type] = (g.medals[a.type] ?? 0) + 1;
-          // медаль дракона в комнате трофеев: первая — за квест про статуэтку, вторая поднимает ступень (до 3)
-          // **допущение**: точный разбор 0x481307 / 0x481400 не сделан
           g.trophyBook.award("dragon_medal", a.type === "add_dragon_medal1" ? 1 : Math.min(3, (g.trophies.dragon_medal?.level ?? 0) + 1));
           break;
         case "set_quest_status":
