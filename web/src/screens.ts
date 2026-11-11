@@ -4,7 +4,7 @@ import { audio } from "./audio";
 import type { Difficulty } from "./state";
 import { rgb } from "./popfont";
 import type { Rules } from "./rules";
-import { COLOR, dialog, H, hasImage, image, loadImages, pop, roundButton, textButton, W } from "./ui";
+import { COLOR, dialog, drawTooltip, H, hasImage, image, loadImages, pop, roundButton, textButton, W } from "./ui";
 
 function shade(onTap?: () => void) {
   const s = new Graphics().rect(0, 0, W, H).fill({ color: 0x000000, alpha: 0.45 });
@@ -387,23 +387,17 @@ export async function trophyRoomScreen(parent: Container, rules: Rules, levels: 
   await loadTrophyImages(rules);
   const layer = new Container();
   layer.addChild(image("trophy_back"));
-  // тултип с описанием: бокс у курсора, рамка 2 + отступы 5 (root/tooltip); цвета бокса в exe не вытащены —
-  // взяты тёмная подложка со светлой рамкой, как у прежней плашки (**допущение**)
+  // тултип с описанием: бокс data/tooltip/tooltip.png (рамка 2 + отступы 5, шрифт Dialog из root/tooltip/font);
+  // цвета — пиксели текстуры: тёмно-зелёная заливка 17;102;21 (альфа 225), чёрная обводка 1 px и углы 2×2
   const tip = new Container();
   tip.visible = false;
   const tipBg = new Graphics();
-  const tipText = pop("", "stat_control_fonts_1", COLOR.white, { wrap: 240 });
+  const tipText = pop("", "Dialog", COLOR.white, { wrap: 240 });
   tip.addChild(tipBg, tipText);
   const setTip = (text: string) => {
     tipText.text = text;
-    tipText.position.set(7, 7); // рамка 2 + отступ 5
-    tipBg.clear();
-    if (text) {
-      tipBg
-        .roundRect(0, 0, tipText.textWidth + 14, tipText.textHeight + 14, 3)
-        .fill({ color: 0x000000, alpha: 0.72 })
-        .stroke({ color: 0xe8d9a8, width: 2 });
-    }
+    if (text) drawTooltip(tipBg, tipText);
+    else tipBg.clear();
     tip.visible = !!text;
   };
   const moveTip = (x: number, y: number) => {

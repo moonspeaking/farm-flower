@@ -6,7 +6,7 @@ import { rgb } from "./popfont";
 import { fmt, Rules } from "./rules";
 import type { BouquetOrder, Game } from "./state";
 import { autoBouquetLevel } from "./autobouquet";
-import { COLOR, floatPoints, image, pop, tex, textButton, toast } from "./ui";
+import { COLOR, drawTooltip, floatPoints, image, pop, tex, textButton, toast } from "./ui";
 
 /** Ячейки продажи (sell_products/slots «Цветка Стихий»): позиции относительно блока (122; 66). */
 const SLOTS_XY: [number, number][] = [[21, 0], [89, 1], [157, 2], [231, 1], [300, 1], [370, 0], [440, 0], [510, 0], [583, 0]];
@@ -153,8 +153,10 @@ export class BouquetScreen extends Container {
     if (!text) return;
     const label = pop(text, "Dialog", COLOR.white, { wrap: 260 });
     const box = new Container();
-    box.addChild(new Graphics().roundRect(-8, -6, label.textWidth + 16, label.textHeight + 12, 6).fill({ color: 0x1d3a12, alpha: 0.92 }), label);
-    box.position.set(ab.position[0], ab.position[1] - label.textHeight - 14);
+    const bg = new Graphics();
+    box.addChild(bg, label);
+    drawTooltip(bg, label);
+    box.position.set(ab.position[0] - 7, ab.position[1] - label.textHeight - 22);
     this.autoTip = box;
     this.addChild(box);
   }

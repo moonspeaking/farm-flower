@@ -68,6 +68,24 @@ export function pop(text: string, font: FontName, color = COLOR.white, opts: Pop
   return new PopLabel(font, text, { color, ...opts });
 }
 
+/**
+ * Бокс подсказки оригинала (data/tooltip/tooltip.png, 5×5, рамка 2, отступы 5). Пиксели текстуры: чёрная
+ * обводка 1 px, тёмно-зелёная заливка 17;102;21 с альфой 225/255 и чёрные углы 2×2. Девятизонную нарезку
+ * рисуем прямоугольниками: внешний чёрный слой, зелёная заливка с отступом 1 px и чёрные углы поверх.
+ * Надпись ставится внутрь на рамку+отступ (7;7); ширину/высоту бокса задаёт сама надпись.
+ */
+export function drawTooltip(bg: Graphics, label: PopLabel) {
+  const B = 2;
+  const P = 5;
+  const w = label.textWidth + (B + P) * 2;
+  const h = label.textHeight + (B + P) * 2;
+  bg.clear();
+  bg.rect(0, 0, w, h).fill({ color: COLOR.black }); // обводка и углы
+  bg.rect(1, 1, w - 2, h - 2).fill({ color: 0x116615, alpha: 225 / 255 }); // заливка текстуры
+  for (const [x, y] of [[0, 0], [w - 2, 0], [0, h - 2], [w - 2, h - 2]]) bg.rect(x, y, 2, 2).fill({ color: COLOR.black });
+  label.position.set(B + P, B + P);
+}
+
 function press(c: Container, scale: number, onTap: () => void) {
   c.eventMode = "static";
   c.cursor = "pointer";
