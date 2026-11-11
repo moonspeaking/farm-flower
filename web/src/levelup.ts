@@ -38,10 +38,12 @@ const ICON: Record<SkillName, string> = {
   helper_pour: "lu_helper_pour", helper_product: "lu_helper_product", helper_attack: "lu_helper_attack",
 };
 
-function bobFrame(name: string, frame: number) {
+/** Кадр полосы, обрезанный по доле: exe рисует стручок усечённым по горизонтали — trunc(100 · доля + 0,5) px кадра (0x57b840). */
+function bobFrame(name: string, frame: number, frac: number) {
   const t = tex(name);
   const h = Math.floor(t.height / BOB_FRAMES);
-  return new Texture({ source: t.source, frame: new Rectangle(t.frame.x, t.frame.y + frame * h, t.width, h) });
+  const w = Math.min(t.width, Math.floor((t.width * frac) + 0.5));
+  return new Texture({ source: t.source, frame: new Rectangle(t.frame.x, t.frame.y + frame * h, w, h) });
 }
 
 export class LevelUp extends Container {
@@ -150,11 +152,14 @@ export class LevelUp extends Container {
       const slot = SLOTS[skill];
       const level = g.skills[skill];
       const [bx, by] = slot.bar;
-      // стручок: кадр по доле уровня (0 — пустой, 9 — полный). У выбранного умения — подсвеченный bob_prog_sel.
-      // **допущение**: как exe выбирает кадр, не разобрано — берётся доля уровня от максимума
-      const frame = Math.min(BOB_FRAMES - 1, Math.round((level / this.max(skill)) * (BOB_FRAMES - 1)));
+      // стручок: доля уровня от максимума. Кадр в exe ищется позицией ролика (0x57b760):
+      // elapsed = play_time / rows · trunc(rows · доля + 0,5), кадр = clamp(elapsed / (play_time·1000 / rows), 0, rows−1) (0x791be0, кламп 0x4769c0);
+      // ролик никогда не тикает (обёртка 0x792110 вызовов не имеет), поэтому кадр статичен. Доля = уровень / максимум.
+      // Подсветка bob_prog_sel в exe не рисуется: поле +0x8c всегда 1 (0x57a6ad), ветка с роликами 0x57b990 не выполняется.
+      const frac = level / this.max(skill);
+      const frame = Math.min(BOB_FRAMES - 1, Math.floor(frac * BOB_FRAMES + 0.5));
       const sel = skill === this.selected;
-      const bob = new Sprite(bobFrame((sel ? "lu_bob_sel" : "lu_bob") + (slot.inv ? "_inv" : ""), frame));
+      const bob = new Sprite(bobFrame(slot.inv ? "lu_bob_inv" : "lu_bob", frame, frac));
       bob.position.set(bx + slot.anim[0], by + slot.anim[1]);
       this.marks.addChild(bob);
       // рамки: выбранное умение — selected, под курсором — overed (120×24 в рамке + selected_pos)
