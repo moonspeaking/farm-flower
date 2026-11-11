@@ -131,7 +131,11 @@ export function bugForDifficulty(spec: string, difficulty: string) {
  * bang — была ли в строке «!» (exe 0x4197a0 ищет символ в строке): такой вредитель не замирает на время анимации удара.
  */
 export function parseBugSpec(spec: string): { name: string; mods: BugMods | null; bang: boolean } {
-  const raw = spec.trim().replace(/^(casual|hardcore|hardocre)-/, "");
+  // приставка срезается в exe до первого '-' (0x40e2a0: find('-') → erase(0, idx+1) перед поиском определения root/bugs/<имя>),
+  // а не по списку известных приставок — «hardocre-» срезается так же
+  const whole = spec.trim();
+  const dash = whole.indexOf("-");
+  const raw = dash >= 0 ? whole.slice(dash + 1) : whole;
   const bang = raw.includes("!");
   const bangAt = raw.indexOf("!");
   const name = (bangAt >= 0 ? raw.slice(0, bangAt) : raw).replace(/[^a-z_0-9].*$/, "");
