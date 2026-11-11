@@ -136,15 +136,40 @@ export function optionsScreen(parent: Container, rules: Rules, onClose: () => vo
     off.cursor = on.cursor = "pointer";
     for (const s of [on, off]) s.on("pointertap", () => (set(!get()), sync()));
     sync();
-    return sync;
+    return { sync, hide: () => (l.visible = on.visible = off.visible = false) };
   };
-  const fullscreenCheck = check(t.fullscreen ?? "На весь экран", 102, 233, 247, 230, () => !!document.fullscreenElement, (v) => {
-    if (v) void document.documentElement.requestFullscreen?.().catch(() => undefined);
-    else void document.exitFullscreen?.().catch(() => undefined);
+  // полный экран: у Safari до 16.4 только префиксный WebKit-API, на iPhone его нет вовсе (install.ts)
+  type FsDoc = Document & { webkitFullscreenElement?: Element | null; webkitExitFullscreen?: () => Promise<void> | void };
+  const fsElement = () => document.fullscreenElement ?? (document as FsDoc).webkitFullscreenElement ?? null;
+  const enterFs = () => {
+    const el = document.documentElement as HTMLElement & { webkitRequestFullscreen?: () => Promise<void> | void };
+    if (el.requestFullscreen) return el.requestFullscreen();
+    if (el.webkitRequestFullscreen) return Promise.resolve(el.webkitRequestFullscreen());
+    return Promise.reject(new TypeError("fullscreen unsupported"));
+  };
+  const exitFs = () => {
+    if (document.exitFullscreen) return document.exitFullscreen();
+    const d = document as FsDoc;
+    if (d.webkitExitFullscreen) return Promise.resolve(d.webkitExitFullscreen());
+    return Promise.reject(new TypeError("fullscreen unsupported"));
+  };
+  const canFs =
+    typeof document.documentElement.requestFullscreen === "function" ||
+    typeof (document.documentElement as HTMLElement & { webkitRequestFullscreen?: unknown }).webkitRequestFullscreen === "function";
+  const fsCheck = check(t.fullscreen ?? "На весь экран", 102, 233, 247, 230, () => !!fsElement(), (v) => {
+    // браузер может отказать (нет жеста пользователя, встроенный просмотр) — тогда галочка просто не встанет
+    void (v ? enterFs() : exitFs()).catch(() => undefined);
+    fsCheck.sync();
   });
   // полный экран включается не мгновенно (и клавишей F тоже) — флажок обновляется, когда режим действительно сменился
-  document.addEventListener("fullscreenchange", fullscreenCheck);
-  layer.once("destroyed", () => document.removeEventListener("fullscreenchange", fullscreenCheck));
+  const syncFs = () => fsCheck.sync();
+  document.addEventListener("fullscreenchange", syncFs);
+  document.addEventListener("webkitfullscreenchange", syncFs);
+  layer.once("destroyed", () => {
+    document.removeEventListener("fullscreenchange", syncFs);
+    document.removeEventListener("webkitfullscreenchange", syncFs);
+  });
+  if (!canFs) fsCheck.hide(); // полного экрана у устройства нет — строка прячется
   check("Блестки", 101, 255, 247, 253, () => cur.sparkles, (v) => {
     cur.sparkles = v;
     audio.setOptions({ ...cur });
