@@ -6624,7 +6624,7 @@
     },
     "wait_money": {
      "holder": "old_servant",
-     "header": "100 монет на сыщика",
+     "header": "50 монет на сыщика",
      "dialog": [
       {
        "kind": "question",

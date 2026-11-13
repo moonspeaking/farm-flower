@@ -290,8 +290,10 @@ export function dialog(
     opts.bind?.(finish);
     const n = opts.buttons.length;
     opts.buttons.forEach((b, i) => {
-      const btn = textButton(b.text, () => finish(b.value));
-      if (opts.stack) btn.position.set(310 + 65, 140 + 12 + i * 35);
+      const btn = textButton(b.text, () => finish(b.value), "normal", opts.stack && opts.title ? 420 : 0);
+      // список с заголовком (окно выбора задания): всё по одной оси с заголовком (399), «Вернуться» отделён от заданий
+      if (opts.stack && opts.title) btn.position.set(399, 160 + i * 42 + (i === n - 1 && n > 1 ? 14 : 0));
+      else if (opts.stack) btn.position.set(310 + 65, 140 + 12 + i * 35);
       else if (n === 1) btn.position.set(601 + 12, 345 + 12);
       else if (n === 2) btn.position.set(i === 0 ? 210 + 14 : 596 + 18, i === 0 ? 342 + 12 : 349 + 12);
       else btn.position.set(224 + (i * (614 - 224)) / (n - 1), 357);

@@ -438,6 +438,18 @@ export class Game {
   }
 
   /**
+   * Место проданного заказа (exe 0x434050 → 0x434270): новый заказ ставится, только если он собрался; иначе в exe место
+   * не трогают — проданный букет остаётся в нём тем же рецептом, цветы с него снимаются. Пустого конуса не бывает.
+   */
+  replaceSold(oi: number) {
+    const b = this.bouquets;
+    const old = b.orders[oi];
+    b.orders[oi] = { items: old.items, placed: old.items.map(() => null) };
+    const items = this.nextOrderItems();
+    if (items) b.orders[oi] = { items, placed: items.map(() => null) };
+  }
+
+  /**
    * Следующий заказ (exe 0x434270): сначала bouquet_set по порядку; когда он кончился — случайный букет, а если тот не
    * собрался (или случайных нет) — номер в bouquet_set становится половиной длины списка и заказ берётся оттуда.
    */

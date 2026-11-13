@@ -38,12 +38,11 @@ const ICON: Record<SkillName, string> = {
   helper_pour: "lu_helper_pour", helper_product: "lu_helper_product", helper_attack: "lu_helper_attack",
 };
 
-/** Кадр полосы, обрезанный по доле: exe рисует стручок усечённым по горизонтали — trunc(100 · доля + 0,5) px кадра (0x57b840). */
-function bobFrame(name: string, frame: number, frac: number) {
+/** Кадр полосы целиком: уровень виден числом горошин (кадр растёт), без обрезки по ширине — иначе горошина режется и выглядит строкой. */
+function bobFrame(name: string, frame: number) {
   const t = tex(name);
   const h = Math.floor(t.height / BOB_FRAMES);
-  const w = Math.min(t.width, Math.floor((t.width * frac) + 0.5));
-  return new Texture({ source: t.source, frame: new Rectangle(t.frame.x, t.frame.y + frame * h, w, h) });
+  return new Texture({ source: t.source, frame: new Rectangle(t.frame.x, t.frame.y + frame * h, t.width, h) });
 }
 
 export class LevelUp extends Container {
@@ -159,7 +158,7 @@ export class LevelUp extends Container {
       const frac = level / this.max(skill);
       const frame = Math.min(BOB_FRAMES - 1, Math.floor(frac * BOB_FRAMES + 0.5));
       const sel = skill === this.selected;
-      const bob = new Sprite(bobFrame(slot.inv ? "lu_bob_inv" : "lu_bob", frame, frac));
+      const bob = new Sprite(bobFrame(slot.inv ? "lu_bob_inv" : "lu_bob", frame));
       bob.position.set(bx + slot.anim[0], by + slot.anim[1]);
       this.marks.addChild(bob);
       // рамки: выбранное умение — selected, под курсором — overed (120×24 в рамке + selected_pos)

@@ -493,7 +493,7 @@ export class Farm extends Container {
   }
 
   update(dt: number) {
-    this.hud.blinkOn = this.mode !== "day"; // умения улучшаются только между днями — днём рамка не мигает
+    this.hud.blinkOn = true; // умения можно улучшать в любое время, в том числе днём (на время окна день на паузе)
     this.hud.tick(dt);
     this.flyFx.update(dt);
     // днём окно подсказки с затемнением ставит игру на паузу до «Закрыть» (exe 0x476cd0); простой пузырь — нет, он гаснет через 10 с
@@ -1575,7 +1575,7 @@ export class Farm extends Container {
   }
 
   openLevelUp() {
-    if (this.paused || this.mode === "day") return toast(this.ui, "Умения можно улучшать между днями");
+    if (this.paused) return;
     this.paused = true;
     const screen = new LevelUp(this.rules, this.game, !!this.game.quests.helper, () => {
       this.paused = false;

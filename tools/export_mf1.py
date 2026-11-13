@@ -1070,7 +1070,9 @@ def main():
     out = web / "public" / "data" / "rules.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     rules = unquote_csv(rules)
-    out.write_text(json.dumps(rules, ensure_ascii=False, indent=1))
+    # опечатка оригинала: заголовок «100 монет на сыщика», а диалог и действия требуют 50 монет
+    out_text = json.dumps(rules, ensure_ascii=False, indent=1).replace('"header": "100 монет на сыщика"', '"header": "50 монет на сыщика"')
+    out.write_text(out_text)
     print(f"картинок: {len(names)}, растений: {len(vegetations)}, продуктов: {len(products)}")
     print(json.dumps({k: rules[k] for k in ("start", "day_time", "seeds", "prices", "water_storage", "product_storage", "well")}, ensure_ascii=False)[:1800])
 

@@ -446,9 +446,8 @@ export class BouquetScreen extends Container {
     // автосборка: в счёт идут цветы проданного букета (exe 0x434078 — число цветов в нём)
     this.game.autoSold += order.items.length;
     this.renderAutoBar();
-    // место освобождается, новый заказ встаёт на него (exe 0x434050)
-    this.game.bouquets.orders[oi] = { items: [], placed: [] };
-    this.game.fillOrders();
+    // новый заказ встаёт на место проданного; не собрался — остаётся тот же рецепт (exe 0x434050, 0x434270)
+    this.game.replaceSold(oi);
     audio.play("bouquet_submited");
     this.hooks.completed?.();
     const [cx, cy] = CONES[oi];
