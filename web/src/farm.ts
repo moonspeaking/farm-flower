@@ -1411,7 +1411,7 @@ export class Farm extends Container {
       this.gainExp(exp, cx, st.y + 20, fmt(this.rules.texts.events?.dropped_item_exp ?? "+%value% Опыт", { value: exp }));
     } else if (st.kind === "neptun") {
       // Нептун (0x503b00): урон rand(min_damage..max_damage) каждому вредителю, но не насмерть — жизнь не ниже 0.1.
-      // prize_k прибавляется к множителю приза вредителя (+0x100) — призов в порте пока нет
+      // prize_k прибавляется к множителю приза вредителя (+0x100)
       const dmg = rand(num("min_damage"), num("max_damage"));
       if (dmg <= 0) return;
       for (const b of this.bugs) {
