@@ -76,8 +76,8 @@ export class Hud extends Container {
     };
 
     // полоска опыта exp (56;110) 60×10; при свободных очках умений мигает. Нажатие — view_button (19;94) 90×25
-    this.pea.position.set(50, 78);
-    this.pea.scale.set(0.75);
+    this.pea.position.set(58, 98);
+    this.pea.scale.set(0.5);
     this.addChild(this.glow, this.pea, this.particles);
     const hit = new Graphics().rect(19, 94, 90, 25).fill({ color: 0xffffff, alpha: 0.001 });
     hit.eventMode = "static";
