@@ -39,7 +39,7 @@ const ICON: Record<SkillName, string> = {
 };
 
 /** Кадр полосы целиком: уровень виден числом горошин (кадр растёт), без обрезки по ширине — иначе горошина режется и выглядит строкой. */
-function bobFrame(name: string, frame: number) {
+export function bobFrame(name: string, frame: number) {
   const t = tex(name);
   const h = Math.floor(t.height / BOB_FRAMES);
   return new Texture({ source: t.source, frame: new Rectangle(t.frame.x, t.frame.y + frame * h, t.width, h) });
@@ -147,6 +147,12 @@ export class LevelUp extends Container {
   private render() {
     const g = this.game;
     this.marks.removeChildren().forEach((c) => c.destroy());
+    // опыт героя — тоже стручок (experience_progress: рамка (20; 10), anim_pos (18; 88)); кадр по доле набранного до следующего уровня
+    const [cur, need] = g.levelProgress;
+    const xpFrame = Math.min(BOB_FRAMES - 1, Math.floor(Math.min(1, cur / need) * BOB_FRAMES + 0.5));
+    const xp = new Sprite(bobFrame("lu_bob", xpFrame));
+    xp.position.set(20 + 18, 10 + 88);
+    this.marks.addChild(xp);
     for (const skill of SKILLS) {
       const slot = SLOTS[skill];
       const level = g.skills[skill];

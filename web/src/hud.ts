@@ -1,5 +1,6 @@
 // Левая панель Айрис (stat_control + game_screen/item_stat «Цветка Стихий»): опыт, склад, вода, деньги, день, «Меню».
-import { Container, Graphics } from "pixi.js";
+import { Container, Graphics, Sprite } from "pixi.js";
+import { bobFrame } from "./levelup";
 import type { PopLabel } from "./popfont";
 import { rgb } from "./popfont";
 import type { Rules } from "./rules";
@@ -18,7 +19,7 @@ export interface HudEvents {
 
 export class Hud extends Container {
   private readonly values: Record<"storage" | "water" | "money" | "day" | "level", PopLabel>;
-  private readonly bar = new Graphics();
+  private readonly pea = new Sprite();
   private readonly glow = new Graphics();
   private blink = 0;
   /** Можно ли сейчас улучшать умения (не во время дня) — иначе рамка опыта не мигает. */
@@ -75,7 +76,9 @@ export class Hud extends Container {
     };
 
     // полоска опыта exp (56;110) 60×10; при свободных очках умений мигает. Нажатие — view_button (19;94) 90×25
-    this.addChild(this.glow, this.bar, this.particles);
+    this.pea.position.set(50, 78);
+    this.pea.scale.set(0.75);
+    this.addChild(this.glow, this.pea, this.particles);
     const hit = new Graphics().rect(19, 94, 90, 25).fill({ color: 0xffffff, alpha: 0.001 });
     hit.eventMode = "static";
     hit.cursor = "pointer";
@@ -120,13 +123,9 @@ export class Hud extends Container {
     this.values.day.text = String(g.day);
     this.values.level.text = String(g.level);
     const [cur, need] = g.levelProgress;
-    // полоска exp (56; 110) 60×10 лежит в нарисованном на панели жёлобе — без своей дорожки, только заливка
-    this.bar.clear();
-    const w = 60 * Math.min(1, cur / need);
-    if (w > 0) {
-      this.bar.rect(56, 110, w, 10).fill(0x58c63c);
-      this.bar.rect(57, 111, Math.max(0, w - 2), 4).fill({ color: 0xb6f58a, alpha: 0.7 });
-    }
+    // опыт — стручок на панели: кадр bob_prog (10 кадров) по доле до следующего уровня, горошины растут слева направо
+    const frame = Math.min(9, Math.floor(Math.min(1, cur / need) * 10 + 0.5));
+    this.pea.texture = bobFrame("lu_bob", frame);
   }
 
   /** Мигание рамки, пока есть неиспользованные очки умений. */
