@@ -20,8 +20,6 @@ const ICON = 44;
 /** exe 0x57d2e3: больше 5 заданий — со 6-го новая строка ниже портрета на его высоту + 0x14. */
 const PER_ROW = 5;
 const ROW_GAP = 0x14;
-/** Между записями журнала. **Допущение**: в exe это высота элемента списка, точное значение не разобрано. */
-const ENTRY_GAP = 10;
 
 export class QuestScreen extends Container {
   private readonly list = new Container();
@@ -148,7 +146,7 @@ export class QuestScreen extends Container {
           bottom = Math.max(bottom, ty + ICON - OFFSET_TEXT_X + c.textHeight);
         }
       });
-      y += bottom + ENTRY_GAP;
+      y += bottom;
     }
     this.contentH = y;
   }
