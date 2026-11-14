@@ -10,13 +10,14 @@ import { loadParticles } from "./particles";
 import { Farm } from "./farm";
 import { Menu } from "./menu";
 import { QuestEngine } from "./quests";
+import { QuestScreen } from "./questscreen";
 import { loadRules, locationRules } from "./rules";
 import { Game, type Difficulty } from "./state";
 import { Town } from "./town";
 import { Tutorial } from "./tutorial";
 import { WorldMap } from "./worldmap";
 import { loadFonts } from "./popfont";
-import { aboutScreen, comicsScreen, gameMenu, highscoresScreen, optionsScreen, pauseOverlay, recordScore, trophyAwardPopup, trophyRoomScreen } from "./screens";
+import { aboutScreen, comicsScreen, gameMenu, highscoresScreen, optionsScreen, pauseOverlay, recordScore, saveLoadScreen, trophyAwardPopup, trophyRoomScreen } from "./screens";
 import { H, hasImages, loadImages, setSharp, toast, unloadImages, W } from "./ui";
 
 async function main() {
@@ -248,14 +249,16 @@ async function main() {
       void trophyRoomScreen(world, rules, levelsOf(saved), () => undefined);
     },
     about: () => void aboutScreen(world, rules),
-    play: (fresh, difficulty) => void start(fresh, difficulty),
+    play: (fresh, difficulty, slot) => void start(fresh, difficulty, slot ?? null),
     userName: () => currentProfile()?.name ?? null,
     changeUser: () => selectUserScreen(world, rules, () => menu.refreshUser()),
   });
-  const start = async (fresh: boolean, difficulty: Difficulty = "casual") => {
+  const start = async (fresh: boolean, difficulty: Difficulty = "casual", slot: number | null = null) => {
     if (fresh) Game.clearSave();
     const g = new Game(rules);
-    if (!fresh) g.load();
+    if (slot !== null) {
+      if (!g.load(slot)) return; // слот не читается — остаёмся в меню
+    } else if (!fresh) g.load();
     else g.difficulty = difficulty;
     await ensureLocation(g.loc);
     for (const f of Object.values(farms)) f.destroy({ children: true });
@@ -294,15 +297,37 @@ async function main() {
   // пауза: пробел — «Пауза», Esc и кнопка «Меню» — меню игры; пока висит любое из них, игровые таймеры (и Робин) стоят
   let paused: Container | null = null;
   let closeMenu: (() => void) | null = null;
+  let slotsClose: (() => void) | null = null;
   const resume = () => {
     paused?.destroy({ children: true });
     paused = null;
   };
+  /** Экран слотов сохранений поверх меню игры; игра стоит, пока открыто меню (closeMenu). */
+  const openSlots = (f: Farm, mode: "save" | "load") => {
+    slotsClose?.();
+    slotsClose = saveLoadScreen(world, rules, mode, {
+      confirm: mode === "load",
+      pick: (slot) => {
+        if (mode === "save") return f.persist(slot);
+        closeMenu?.(); // меню закрывается — загруженная игра начинается
+        void start(false, undefined, slot);
+      },
+      close: () => (slotsClose = null),
+    });
+  };
   function openMenu(f: Farm) {
-    if (closeMenu || paused) return;
+    if (closeMenu || paused || !game) return;
+    const cur = game;
     const done = () => (closeMenu = null);
     closeMenu = gameMenu(world, rules, {
       options: () => optionsScreen(world, rules, done),
+      save: () => openSlots(f, "save"),
+      load: () => openSlots(f, "load"),
+      quests: () => {
+        // журнал заданий (quest 159; 290) — как окно паузы: Space/Esc его закрывают
+        paused = new QuestScreen(cur, () => (paused = null));
+        world.addChild(paused);
+      },
       exit: () => {
         done();
         f.persist();
@@ -325,7 +350,8 @@ async function main() {
     if (!farm || !(farm.visible || curTown()?.visible)) return;
     e.preventDefault();
     if (e.code === "Escape") {
-      if (closeMenu) closeMenu();
+      if (slotsClose) slotsClose();
+      else if (closeMenu) closeMenu();
       else if (!paused) openMenu(farm);
       return;
     }

@@ -313,6 +313,7 @@ export function toast(parent: Container, message: string, x = W / 2, y = 260, sc
   parent.addChild(t);
   let life = 1.6;
   const tick = () => {
+    if (t.destroyed) return; // родителя могли уничтожить (экран слотов закрылся) — надпись уже не видна
     life -= 1 / 60;
     t.alpha = Math.min(1, life / 0.4);
     t.y -= 0.4;
@@ -330,6 +331,7 @@ export function floatPoints(parent: Container, value: string, x: number, y: numb
   parent.addChild(t);
   let life = 1.2;
   const tick = () => {
+    if (t.destroyed) return; // как в toast: родителя могли уничтожить
     life -= 1 / 60;
     t.alpha = Math.min(1, life / 0.4);
     t.y -= 0.6;

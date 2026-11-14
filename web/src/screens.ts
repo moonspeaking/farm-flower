@@ -1,10 +1,11 @@
-// Экраны оболочки: меню игры (game_menu), опции (options), рекорды (highscores), пауза.
+// Экраны оболочки: меню игры (game_menu), слоты сохранений (save_game/load_game), опции, рекорды, пауза.
 import { Container, Graphics, Rectangle } from "pixi.js";
 import { audio } from "./audio";
-import type { Difficulty } from "./state";
+import { Game, type Difficulty } from "./state";
 import { rgb } from "./popfont";
-import type { Rules } from "./rules";
-import { COLOR, dialog, drawTooltip, H, hasImage, image, loadImages, pop, roundButton, textButton, W } from "./ui";
+import { fmt, type Rules } from "./rules";
+import { SAVE_SLOTS } from "./profiles";
+import { COLOR, dialog, drawTooltip, H, hasImage, image, loadImages, pop, roundButton, textButton, toast, W } from "./ui";
 
 function shade(onTap?: () => void) {
   const s = new Graphics().rect(0, 0, W, H).fill({ color: 0x000000, alpha: 0.45 });
@@ -13,8 +14,20 @@ function shade(onTap?: () => void) {
   return s;
 }
 
-/** Меню игры: «Вернуться», «Опции», «Выйти» на картинке game_menu (225×304). */
-export function gameMenu(parent: Container, rules: Rules, actions: { options(): void; exit(): void; closed(): void }) {
+/**
+ * Меню игры (game_menu): фон game_menu 417×497 по центру экрана, кнопки стиля normal в рамках 210×34, текст по центру:
+ * back (97; 131), options (95; 168), save (101; 208), load (100; 250), quest (159; 290) 88×24, exit (96; 329).
+ */
+export function gameMenu(parent: Container, rules: Rules, actions: {
+  options(): void;
+  exit(): void;
+  closed(): void;
+  /** «Сохранить»/«Загрузить» — экран слотов открывает и держит вызывающий, меню остаётся под ним. */
+  save(): void;
+  load(): void;
+  /** «Задания» — журнал квестов (quest 159; 290). */
+  quests(): void;
+}) {
   const layer = new Container();
   const t = rules.texts.game_menu;
   let alive = true;
@@ -30,8 +43,6 @@ export function gameMenu(parent: Container, rules: Rules, actions: { options(): 
     actions.closed();
   };
   layer.addChild(shade(close));
-  // «Цветок Стихий»: фон game_menu 417×497 по центру экрана, кнопки стиля normal в рамках 210×34, текст по центру:
-  // back (97; 131), options (95; 168), exit (96; 329). Сохранения/загрузки (save, load) и квестов (quest) в порте нет — игра сохраняется сама
   const box = new Container();
   box.position.set(Math.round((W - 417) / 2), Math.round((H - 497) / 2));
   box.addChild(image("game_menu_bg"));
@@ -45,6 +56,15 @@ export function gameMenu(parent: Container, rules: Rules, actions: { options(): 
     dispose();
     actions.options();
   });
+  item(t.game_menu_save ?? "Сохранить", 101, 208, () => actions.save());
+  item(t.game_menu_load ?? "Загрузить", 100, 250, () => actions.load());
+  // quest (159; 290) 88×24 — узкая кнопка «Задания»; close() снимает меню (closeMenu = null), журнал откроет вызывающий
+  const quest = textButton(t.game_menu_quest ?? "Задания", () => {
+    close();
+    actions.quests();
+  }, "normal", 88);
+  quest.position.set(159 + 44, 290 + 12);
+  box.addChild(quest);
   item(t.game_menu_exit ?? "Выйти", 96, 329, () => {
     dispose();
     actions.exit();
@@ -52,6 +72,123 @@ export function gameMenu(parent: Container, rules: Rules, actions: { options(): 
   layer.addChild(box);
   parent.addChild(layer);
   return close;
+}
+
+/**
+ * Экран слотов сохранений (save_game / load_game): 5 ручных слотов 274×50 на (69; 109/160/216/266/315) в save_game,
+ * в load_game сверху ещё автосохранение (69; 94, rows 34) и слоты на (69; 128/175/220/265/309). Фон — game_menu
+ * 417×497 по центру, заголовок (79; 58) 250 по центру, «Вернуться» (73; 397) 274×34. Строка занятого слота —
+ * «%difficult%, День %game_day%» (save_slot.sb) и время (save_slot.text), пустой — «---» (empty_text).
+ */
+export function saveLoadScreen(
+  parent: Container,
+  rules: Rules,
+  mode: "save" | "load",
+  actions: { pick(slot: number | null): void; close(): void; /** Спрашивать «текущая игра будет потеряна» (load из меню игры). */ confirm?: boolean },
+): () => void {
+  const t = rules.texts;
+  const ss = t.save_slot ?? {};
+  const ls = t.load_slot ?? {};
+  const layer = new Container();
+  let alive = true;
+  const dispose = () => {
+    if (!alive) return;
+    alive = false;
+    layer.destroy({ children: true });
+    actions.close();
+  };
+  layer.addChild(shade(dispose));
+  const box = new Container();
+  box.position.set(Math.round((W - 417) / 2), Math.round((H - 497) / 2));
+  layer.addChild(box);
+  box.addChild(image("game_menu_bg"));
+  const title = pop(
+    mode === "save" ? ss.title || "Сохранить" : ls.title || "Загрузить",
+    "stat_control_fonts_menu_normal", COLOR.white, { align: "center" },
+  );
+  title.position.set(...(mode === "save" ? [78 + 125, 61] : [79 + 125, 58]));
+  box.addChild(title);
+
+  const diffName = (d: Difficulty) => (d === "hardcore" ? t.buttons_menu.hardcore || "Сложный" : t.buttons_menu.casual || "Легкий");
+  const when = (at: number) => {
+    const d = new Date(at);
+    const p = (n: number) => String(n).padStart(2, "0");
+    return { save_day: p(d.getDate()), save_month: p(d.getMonth() + 1), save_year: d.getFullYear(), save_hour: p(d.getHours()), save_min: p(d.getMinutes()) };
+  };
+
+  const rows = new Container();
+  box.addChild(rows);
+  const render = () => {
+    rows.removeChildren().forEach((c) => c.destroy({ children: true }));
+    const slots: (number | null)[] = mode === "load" ? [null, ...Array.from({ length: SAVE_SLOTS }, (_, i) => i + 1)] : Array.from({ length: SAVE_SLOTS }, (_, i) => i + 1);
+    const ys = mode === "load" ? [94, 128, 175, 220, 265, 309] : [109, 160, 216, 266, 315];
+    const hs = mode === "load" ? [34, 45, 45, 45, 45, 45] : [45, 45, 45, 45, 45];
+    let any = false;
+    slots.forEach((slot, i) => {
+      const info = Game.slotInfo(slot);
+      if (info) any = true;
+      const row = new Container();
+      row.position.set(69, ys[i]);
+      // подпись слота: «сложность, день» (sb) и время (text) чёрным TC4_16_en; пустой слот — «---»; автосейв — его подпись
+      const name = slot === null
+        ? ls.autosave || "Автосохранение"
+        : info ? fmt(ss.sb, { difficult: diffName(info.difficulty), game_day: info.day }) : ss.empty_text || "---";
+      const line = pop(name, "TC4_16_en", COLOR.black, { align: "center" });
+      line.anchor.set(0.5, 0);
+      line.position.set(137, slot === null ? 4 : 6);
+      row.addChild(line);
+      if (info) {
+        const date = pop(fmt(ss.text, when(info.at)), "TC4_16_en", COLOR.black, { align: "center" });
+        date.anchor.set(0.5, 0);
+        date.position.set(137, slot === null ? 18 : 23);
+        row.addChild(date);
+      }
+      // клик: в save_game — записать (занятый слот — подтверждение), в load_game — загрузить только занятый
+      const hit = new Graphics().rect(0, 0, 274, hs[i]).fill({ color: 0xffffff, alpha: 0.001 });
+      hit.eventMode = mode === "save" || info ? "static" : "none";
+      if (mode === "save" || info) hit.cursor = "pointer";
+      hit.on("pointertap", (e) => {
+        e.stopPropagation();
+        void pick(slot);
+      });
+      row.addChild(hit);
+      rows.addChild(row);
+    });
+    if (mode === "load" && !any) {
+      // no_slots_text (300; 226): «Нет игр для загрузки» — по центру доски (в XML прижата к правому краю)
+      const empty = pop(ls.no_slots || "Нет игр для загрузки", "TC4_16_en", COLOR.black, { align: "center" });
+      empty.anchor.set(0.5, 0.5);
+      empty.position.set(208, 240);
+      rows.addChild(empty);
+    }
+  };
+  render();
+  // «Назад» (73; 397) 274×34 — «Вернуться»
+  const back = textButton(t.game_menu.game_menu_back || "Вернуться", dispose, "normal", 256);
+  back.position.set(73 + 137, 397 + 17);
+  box.addChild(back);
+
+  const pick = async (slot: number | null) => {
+    if (mode === "save") {
+      if (Game.slotInfo(slot)) {
+        const ok = await dialog(layer, { body: ss.confirm || "Перезаписать?", buttons: [{ text: t.buttons.yes || "Да", value: "ok" }, { text: t.buttons.no || "Нет", value: "no" }] });
+        if (ok !== "ok") return;
+      }
+      actions.pick(slot);
+      render();
+      toast(box, ss.successfully_saved || "Игра успешно сохранена.", 208, 380);
+      return;
+    }
+    if (actions.confirm) {
+      const ok = await dialog(layer, { body: ls.confirm || "Ваша текущая игра будет потеряна. Продолжить?", buttons: [{ text: t.buttons.yes || "Да", value: "ok" }, { text: t.buttons.no || "Нет", value: "no" }] });
+      if (ok !== "ok") return;
+    }
+    dispose();
+    actions.pick(slot);
+  };
+
+  parent.addChild(layer);
+  return dispose;
 }
 
 /** Окно опций 346×450: громкость музыки и звуков, полный экран, особые курсоры, предупреждения. */

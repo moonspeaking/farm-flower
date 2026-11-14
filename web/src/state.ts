@@ -2,7 +2,7 @@
 import { newQuestState, QuestState } from "./quests";
 import { Trophies, type TrophyState } from "./trophies";
 import { locationRules } from "./rules";
-import { currentProfile, saveKey } from "./profiles";
+import { currentProfile, saveKey, slotKey } from "./profiles";
 import type { ArriverState } from "./bugs";
 import type { Rules } from "./rules";
 
@@ -92,6 +92,8 @@ interface SaveV3 {
   difficulty?: Difficulty;
   items?: Record<string, number>;
   bugItems?: Record<string, number>;
+  /** Когда сохранение записано (штамп для строки слота в save_game/load_game; у старых автосейвов нет). */
+  savedAt?: number;
 }
 
 interface Save {
@@ -503,7 +505,11 @@ export class Game {
 
   // ---------------------------------------------------------------- сохранение
 
-  save(plants: (PlantSave | null)[]) {
+  /**
+   * Автосохранение (slot = null — exe поле фермы /slots.dat, пишется само) или ручной слот 1…SAVE_SLOTS
+   * (save_game, exe класс SavedSlots). Список слотов читает Game.slotInfo.
+   */
+  save(plants: (PlantSave | null)[], slot: number | null = null) {
     this.savedPlants = plants;
     const data: SaveV3 = {
       version: 3, day: this.day, gold: this.gold, exp: this.exp, skills: this.skills,
@@ -511,9 +517,11 @@ export class Game {
       tutorial: this.tutorial, loc: this.loc, farms: { ...this.farms, [this.loc]: this.snapshot(plants) },
       questStates: this.questStates, world: this.world, marks: this.marks, items: this.items, bugItems: this.bugItems,
       weapons: this.weapons, owl: this.owl, medals: this.medals, trophies: this.trophies, difficulty: this.difficulty,
+      savedAt: Date.now(),
     };
     try {
-      localStorage.setItem(saveKey(KEY3, this.profile), JSON.stringify(data));
+      const key = slot === null ? saveKey(KEY3, this.profile) : slotKey(KEY3, this.profile, slot);
+      localStorage.setItem(key, JSON.stringify(data));
     } catch {
       // без хранилища (приватный режим) игра просто не сохраняется
     }
@@ -530,9 +538,24 @@ export class Game {
     }
   }
 
-  load(): boolean {
+  /** Строка слота для списка (save_game/load_game): день, сложность и время записи; null — слот пуст. */
+  static slotInfo(slot: number | null): { day: number; difficulty: Difficulty; at: number } | null {
+    const id = currentProfile()?.id;
+    if (!id) return null;
     try {
-      const raw3 = localStorage.getItem(saveKey(KEY3, this.profile));
+      const raw = slot === null ? localStorage.getItem(saveKey(KEY3, id)) : localStorage.getItem(slotKey(KEY3, id, slot));
+      if (!raw) return null;
+      const s = JSON.parse(raw) as SaveV3;
+      if (s.version !== 3) return null;
+      return { day: s.day, difficulty: s.difficulty ?? "casual", at: s.savedAt ?? 0 };
+    } catch {
+      return null;
+    }
+  }
+
+  load(slot: number | null = null): boolean {
+    try {
+      const raw3 = slot === null ? localStorage.getItem(saveKey(KEY3, this.profile)) : localStorage.getItem(slotKey(KEY3, this.profile, slot));
       if (raw3) {
         const s = JSON.parse(raw3) as SaveV3;
         if (s.version !== 3) return false;
@@ -549,6 +572,7 @@ export class Game {
         this.fillOrders();
         return true;
       }
+      if (slot !== null) return false; // в ручных слотах сохранений старого формата нет
       // сохранение первой версии (одна ферма)
       const raw = localStorage.getItem(saveKey(KEY, this.profile));
       const s = raw ? (JSON.parse(raw) as Save) : null;

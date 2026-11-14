@@ -835,6 +835,8 @@ def main():
         "highscores": dict(ru.find("highscores").attrib),
         "users": {"delete_confirmation": ru.find("delete_confirmation").attrib["text"],
                   "main_change_user": ru.find("main_change_user").attrib["text"]},
+        "save_slot": dict(ru.find("save_slot").attrib),
+        "load_slot": dict(ru.find("load_slot").attrib),
     }
 
     # ---------------- квесты первой локации: логика + тексты, связанные по порядку реплик

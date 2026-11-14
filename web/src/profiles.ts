@@ -15,6 +15,8 @@ const KEY = "iris-flower-profiles";
 /** Сохранения до появления игроков — при создании первого игрока переходят к нему. */
 const LEGACY = ["iris-flower-save-v3", "iris-flower-save-v2"];
 export const NAME_MAX = 20;
+/** Ручных слотов сохранения у игрока (save_game: slot_0…slot_4), как в оригинале. */
+export const SAVE_SLOTS = 5;
 
 function read(): Store {
   try {
@@ -37,6 +39,11 @@ function write(s: Store) {
 /** Ключ сохранения игрока: base — версия формата («iris-flower-save-v3»). */
 export function saveKey(base: string, id: string) {
   return `${base}:${id}`;
+}
+
+/** Ключ ручного слота сохранения (1…SAVE_SLOTS): автосохранение лежит в saveKey, слоты — рядом. */
+export function slotKey(base: string, id: string, slot: number) {
+  return `${base}:${id}:slot${slot}`;
 }
 
 export function profiles(): Profile[] {
@@ -77,11 +84,14 @@ export function createProfile(raw: string): Profile | null {
   return p;
 }
 
-/** Удаляет игрока вместе с его сохранением; текущим становится первый оставшийся. */
+/** Удаляет игрока вместе с его сохранениями (автосейв и ручные слоты); текущим становится первый оставшийся. */
 export function deleteProfile(id: string) {
   const s = read();
   try {
-    for (const base of LEGACY) localStorage.removeItem(saveKey(base, id));
+    for (const base of LEGACY) {
+      localStorage.removeItem(saveKey(base, id));
+      for (let slot = 1; slot <= SAVE_SLOTS; slot++) localStorage.removeItem(slotKey(base, id, slot));
+    }
   } catch {
     // нечего удалять
   }

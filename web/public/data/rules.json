@@ -3822,6 +3822,20 @@
    "spirit_2": "Сильный Призрак с Гирей",
    "spirit_no_armour": "Сильный Призрак",
    "turtle": "Черепаха"
+  },
+  "save_slot": {
+   "confirm": "Перезаписать?",
+   "empty_text": "---",
+   "sb": "%difficult%, День %game_day%",
+   "successfully_saved": "Игра успешно сохранена.",
+   "text": "%save_day%.%save_month%.%save_year% %save_hour%:%save_min%",
+   "title": "Сохранить"
+  },
+  "load_slot": {
+   "autosave": "Автосохранение",
+   "confirm": "Ваша текущая игра будет потеряна. Продолжить?",
+   "no_slots": "Нет игр для загрузки",
+   "title": "Загрузить"
   }
  },
  "quests": {

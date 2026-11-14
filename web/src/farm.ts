@@ -1659,9 +1659,10 @@ export class Farm extends Container {
     this.renderStorages();
   }
 
-  persist() {
+  /** Автосохранение или запись текущей фермы в ручной слот 1…5 (из меню игры, exe SavedSlots). */
+  persist(slot: number | null = null) {
     const plants: (PlantSave | null)[] = this.ridges.map((r) => r.savePlant());
-    this.game.save(plants);
+    this.game.save(plants, slot);
   }
 
   /** Для отладки из консоли. */

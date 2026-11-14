@@ -262,6 +262,9 @@ export interface Rules {
     highscores: Record<string, string>;
     /** Игроки: подтверждение удаления и приветствие в главном меню (ru.xml delete_confirmation, main_change_user). */
     users?: Record<string, string>;
+    /** Слоты сохранений (ru.xml save_slot / load_slot): подтверждения, пустой слот, строка слота, штамп времени, заголовки. */
+    save_slot?: Record<string, string>;
+    load_slot?: Record<string, string>;
   };
 }
 

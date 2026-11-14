@@ -4,12 +4,12 @@ import type { PopLabel } from "./popfont";
 import { rgb } from "./popfont";
 import type { Rules } from "./rules";
 import { fmt } from "./rules";
-import { comicsCaption, selectDifficultyScreen } from "./screens";
+import { comicsCaption, saveLoadScreen, selectDifficultyScreen } from "./screens";
 import type { Difficulty } from "./state";
 import { COLOR, dialog, H, image, pop, roundButton, textButton, W } from "./ui";
 
 export interface MenuEvents {
-  play(fresh: boolean, difficulty?: Difficulty): void;
+  play(fresh: boolean, difficulty?: Difficulty, slot?: number | null): void;
   hasSave(): boolean;
   options(): void;
   highscores(): void;
@@ -66,6 +66,11 @@ export class Menu extends Container {
     item(b.menu_trophy_room || "Награды", 118, 344, () => this.events.trophies());
     // на месте «Выхода» (118; 383), которого в браузере нет, — «Об игре»
     item("Об игре", 118, 383, () => this.events.about());
+    // «Загрузить» (main_menu/load: 71×40 в (193; 400), стиль menu, текст выровнен по левому краю рамки)
+    const load = textButton(b.menu_load || "Загрузить", () => this.load(), "menu");
+    load.anchor.set(0, 0.5);
+    load.position.set(193, 420);
+    this.addChild(load);
     this.addChild(this.overlay);
   }
 
@@ -100,23 +105,34 @@ export class Menu extends Container {
   private async adventure() {
     const t = this.rules.texts;
     if (!this.events.hasSave()) return this.newGame();
-    // new_or_continue_game «Цветка Стихий»: кнопки столбиком — новая игра, продолжить, вернуться (загрузки сохранений в порте нет)
+    // new_or_continue_game «Цветка Стихий»: кнопки столбиком — новая игра (310; 140), продолжить (175),
+    // загрузить (210), вернуться (245)
     const r = await dialog(this.overlay, {
       body: fmt(t.new_game.text),
       stack: true,
       buttons: [
         { text: t.buttons_menu.new_game || "Новая Игра", value: "new" },
         { text: t.buttons_menu.continue_game || "Продолжить", value: "continue" },
+        { text: t.buttons_menu.menu_load || "Загрузить", value: "load" },
         { text: t.buttons.return || "Вернуться", value: "cancel" },
       ],
     });
     if (r === "continue") return this.events.play(false);
+    if (r === "load") return this.load();
     if (r !== "new") return;
     const ok = await dialog(this.overlay, {
       body: fmt(t.new_game.confirmation),
       buttons: [{ text: t.buttons.yes || "Да", value: "ok" }, { text: t.buttons.no || "Нет", value: "no" }],
     });
     if (ok === "ok") this.newGame();
+  }
+
+  /** Экран загрузки (load_game) поверх меню: без подтверждения — текущей игры ещё нет. */
+  private load() {
+    saveLoadScreen(this.overlay, this.rules, "load", {
+      close: () => undefined,
+      pick: (slot) => this.events.play(false, undefined, slot),
+    });
   }
 
   /** Новая игра: выбор сложности (select_difficult_screen), затем комикс. */
