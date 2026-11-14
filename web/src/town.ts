@@ -7,7 +7,7 @@ import type { Game } from "./state";
 import { Talk } from "./talk";
 import { Reminder, type Tutorial } from "./tutorial";
 import { QuestScreen } from "./questscreen";
-import { COLOR, dialog, image, pop, roundButton, toast } from "./ui";
+import { COLOR, image, pop, roundButton, textButton, toast, H, W } from "./ui";
 
 export interface TownEvents {
   toFarm(): void;
@@ -143,19 +143,11 @@ export class Town extends Container {
       const name = this.rules.texts.characters[holder] ?? "";
       return toast(this.overlay, `${name}: заданий пока нет`);
     }
-    // у персонажа несколько заданий сразу — окно выбора (SelectQuestDialogScreen, exe 0x543b69: кнопки по подзаданиям)
-    let pick = list[0];
+    // у персонажа несколько заданий сразу — окно выбора (select_quest_screen, exe 0x543b30)
+    let pick: (ReturnType<QuestEngine["available"]>[number]) | null = list[0];
     if (list.length > 1) {
-      const v = await dialog(this.overlay, {
-        title: this.rules.texts.quest_title || "Задания",
-        stack: true,
-        buttons: [
-          ...list.map((q, i) => ({ text: q.data.header || this.rules.quests[q.quest]?.header || q.quest, value: String(i) })),
-          { text: this.rules.texts.buttons.return || "Вернуться", value: "cancel" },
-        ],
-      });
-      if (v === "cancel") return;
-      pick = list[Number(v)];
+      pick = await this.selectQuest(holder, list);
+      if (!pick) return;
     }
     // первый разговор: персонаж выходит на передний план (крупный портрет, фигура в городе скрыта) и показывается town_talker_large;
     // сам разговор начинается после закрытия подсказки
@@ -167,6 +159,61 @@ export class Town extends Container {
       return;
     }
     void this.startTalk(holder, pick);
+  }
+
+  /**
+   * Окно выбора задания (select_quest_screen, exe 0x543b30). Кнопки доступных подзаданий стилем
+   * root/button/normal стеком вокруг точки center (360; 170) из XML: x = 360 − w/2, y от 170 − суммы
+   * высот, без зазора (0x544129). Панели фона нет — экран 739×426 рисуется по центру контрола
+   * персонажа (ComeUpControlFromPointController 0x557230: прямоугольник = центр B ± половина
+   * содержимого, альфа = прогресс · 255 за 0,25 с), поэтому точка экрана (px; py) ложится в
+   * (cx − 369.5 + px; cy − 213 + py). Подпись кнопки — header подзадания (загрузчик 0x5aff9c читает
+   * "header" → sub+0x20 → кнопка 0x7c3720), последняя кнопка — «Вернуться»
+   * (root/button/return/@label). Клик запоминается в +0xc (0x544250) и экран закрывается; щелчки мимо
+   * кнопок до города не доходят — экран поверх.
+   */
+  private selectQuest(holder: string, list: ReturnType<QuestEngine["available"]>): Promise<ReturnType<QuestEngine["available"]>[number] | null> {
+    type Entry = ReturnType<QuestEngine["available"]>[number];
+    return new Promise((resolve) => {
+      const layer = new Container();
+      const finish = (v: Entry | null) => {
+        layer.destroy({ children: true });
+        resolve(v);
+      };
+      const catcher = new Graphics().rect(0, 0, W, H).fill({ color: 0x000000, alpha: 0.001 });
+      catcher.eventMode = "static";
+      layer.addChild(catcher);
+      const sprite = this.people[holder]?.[0];
+      const cx = sprite ? sprite.x + sprite.width / 2 : W / 2;
+      const cy = sprite ? sprite.y + sprite.height / 2 : H / 2;
+      const box = new Container();
+      box.position.set(Math.round(cx - 739 / 2), Math.round(cy - 426 / 2));
+      layer.addChild(box);
+      const entries: { text: string; pick: Entry | null }[] = [
+        ...list.map((q) => ({ text: q.data.header || this.rules.quests[q.quest]?.header || q.quest, pick: q as Entry })),
+        { text: this.rules.texts.buttons.return || "Вернуться", pick: null },
+      ];
+      const buttons = entries.map((e) => ({ e, b: textButton(e.text, () => finish(e.pick), "normal") }));
+      const total = buttons.reduce((a, x) => a + x.b.textHeight, 0);
+      let y = 170 - total / 2;
+      for (const { b } of buttons) {
+        b.anchor.set(0.5, 0.5);
+        b.position.set(360, y + b.textHeight / 2);
+        y += b.textHeight;
+        box.addChild(b);
+      }
+      // проявление за 0,25 с (альфа = прогресс · 255)
+      box.alpha = 0;
+      let t = 0;
+      const tick = () => {
+        if (layer.destroyed) return;
+        t = Math.min(1, t + 1 / 60 / 0.25);
+        box.alpha = t;
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+      this.overlay.addChild(layer);
+    });
   }
 
   private async startTalk(holder: string, { quest, sub, data }: ReturnType<QuestEngine["available"]>[number]) {

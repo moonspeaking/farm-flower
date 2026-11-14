@@ -80,8 +80,6 @@ npm ci && npx vite
 воды подтверждён по exe — окно строит тот же `buy_shop_item_screen/rubber_back` (0x58744f рядом с `buy_water`).
 
 Не сделано (подробности и допущения — `docs/TODO_LOC1.md`):
-- `select_quest_screen` (выбор задания у персонажа) заменён общим диалогом (`web/src/town.ts`); конструктор в exe
-  (0x543b30) не разобран, вёрстка не сверена;
 - смысл действий перестройки фермы квестами (`set_ridges`, `enable_manual_work`, `set_barrels`/`set_boxes`,
   `set_max_barrels`/`set_max_boxes`, `remove_well`/`add_well`, `enable_buy_water`, `reset_bug_item`…) подтверждён только
   данными квестов — в exe эти действия не читались (0x4837bb…);
