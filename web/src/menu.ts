@@ -1,5 +1,5 @@
 // Главное меню (main_menu) и вступительный комикс (first_comics).
-import { Container, Graphics } from "pixi.js";
+import { Container, Graphics, Rectangle } from "pixi.js";
 import type { PopLabel } from "./popfont";
 import { rgb } from "./popfont";
 import type { Rules } from "./rules";
@@ -15,6 +15,8 @@ export interface MenuEvents {
   highscores(): void;
   trophies(): void;
   about(): void;
+  /** Титры (CreditsScreen 0x518aa0): открывается кнопкой version в углу меню. */
+  credits(): void;
   /** Имя текущего игрока и переход к выбору игрока (main_change_user). */
   userName(): string | null;
   changeUser(): void;
@@ -71,6 +73,15 @@ export class Menu extends Container {
     load.anchor.set(0, 0.5);
     load.position.set(193, 420);
     this.addChild(load);
+    // кнопка version (25; 570) 38×25, стиль root/button_styles/version: подписи нет — exe читает ProductVersion
+    // из ресурса game.exe (0x6234f0), а у этой сборки ресурса VERSIONINFO нет, так что кнопка невидима,
+    // но кликабельна и открывает титры (CreditsScreen 0x518aa0, обработчик 0x532740)
+    const version = new Container();
+    version.eventMode = "static";
+    version.hitArea = new Rectangle(0, 0, 38, 25);
+    version.position.set(25, 570);
+    version.on("pointertap", () => this.events.credits());
+    this.addChild(version);
     this.addChild(this.overlay);
   }
 

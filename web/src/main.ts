@@ -17,6 +17,7 @@ import { Town } from "./town";
 import { Tutorial } from "./tutorial";
 import { WorldMap } from "./worldmap";
 import { loadFonts } from "./popfont";
+import { creditsScreen } from "./credits";
 import { aboutScreen, comicsScreen, gameMenu, highscoresScreen, optionsScreen, pauseOverlay, recordScore, saveLoadScreen, trophyAwardPopup, trophyRoomScreen } from "./screens";
 import { H, hasImages, loadImages, setSharp, toast, unloadImages, W } from "./ui";
 
@@ -249,6 +250,7 @@ async function main() {
       void trophyRoomScreen(world, rules, levelsOf(saved), () => undefined);
     },
     about: () => void aboutScreen(world, rules),
+    credits: () => void creditsScreen(world, rules, () => undefined),
     play: (fresh, difficulty, slot) => void start(fresh, difficulty, slot ?? null),
     userName: () => currentProfile()?.name ?? null,
     changeUser: () => selectUserScreen(world, rules, () => menu.refreshUser()),

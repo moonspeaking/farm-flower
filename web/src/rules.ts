@@ -265,6 +265,8 @@ export interface Rules {
     /** Слоты сохранений (ru.xml save_slot / load_slot): подтверждения, пустой слот, строка слота, штамп времени, заголовки. */
     save_slot?: Record<string, string>;
     load_slot?: Record<string, string>;
+    /** Титры (ru.xml credits): back — подсказка про Escape, lines — строки t0, t1, … по возрастанию до «%end%». */
+    credits?: { back: string; lines: string[] };
   };
 }
 

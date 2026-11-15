@@ -301,6 +301,21 @@ def unquote_csv(o):
     return o
 
 
+def credits_texts(ru):
+    """Экран титров (CreditsScreen, exe 0x518aa0): строки root/credits/@t%d перебираются по возрастанию
+    номера (0x518c44) до первой, начинающейся с «%» — t800="%end%" маркер конца, сама не показывается
+    (0x519da0 ищет «%» в начале). back — подсказка «Нажать Escape…» (root/credits/@back, 0x518e0a)."""
+    el = ru.find("credits")
+    keys = sorted(int(k[1:]) for k in el.attrib if k.startswith("t") and k[1:].isdigit())
+    lines = []
+    for n in keys:
+        v = el.attrib[f"t{n}"]
+        if v.startswith("%"):
+            break
+        lines.append(v)
+    return {"back": el.attrib.get("back", ""), "lines": lines}
+
+
 def dialog(logic, texts):
     """Узлы диалога: реплики и вопросы. Тексты ru.xml идут по порядку: phrase_1.., question, answer_N."""
     out = []
@@ -837,6 +852,7 @@ def main():
                   "main_change_user": ru.find("main_change_user").attrib["text"]},
         "save_slot": dict(ru.find("save_slot").attrib),
         "load_slot": dict(ru.find("load_slot").attrib),
+        "credits": credits_texts(ru),
     }
 
     # ---------------- квесты первой локации: логика + тексты, связанные по порядку реплик
