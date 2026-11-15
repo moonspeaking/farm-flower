@@ -609,6 +609,11 @@ export class Farm extends Container {
       harvested: (_ridge, product, x, y, ripeFor) => {
         audio.play("product_harvest");
         this.flyToPanel("pq", product, x, y, [77, 240]);
+        // плод дерева-идола — метка mega_fruit, открывающая финальный квест (exe 0x479260: при сборе
+        // с растения idol_tree — 0x413610 — ставится метка mega_fruit, 0x44c2c0)
+        if (_ridge.plant?.name === "idol_tree" && !this.game.marks.includes("mega_fruit")) {
+          this.game.marks.push("mega_fruit");
+        }
         const base = this.rules.products[product]?.exp ?? 0;
         const exp = this.bonusEvent("gather", ripeFor, x, y - 40, base);
         this.harvestedToday += 1;
