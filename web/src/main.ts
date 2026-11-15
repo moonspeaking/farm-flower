@@ -182,8 +182,19 @@ async function main() {
       removeAllVegetations: () => f.removeAllPlants(),
       notify: (s) => toast(world, s),
       marked: (m) => {
-        // концовка: комикс win_var_N, потом подсказка game_fin
-        if (m === "win_var_1" || m === "win_var_2") comicsQueue = comicsQueue.then(() => comicsScreen(world, rules, m));
+        // комикс концовки (exe 0x5226b0): при метке win_var_N вместе с win — ставится метка win_var_N_comics
+        // (0x44c2c0) и показывается комикс win_var_N_comics (0x516ef0); проверка идёт при постановке любой
+        // из меток, поэтому комикс ждёт обе — то есть появляется после финального диалога, а не выбора
+        const winComic = (v: "win_var_1" | "win_var_2") => {
+          if (g.marks.includes(v) && g.marks.includes("win") && !g.marks.includes(`${v}_comics`)) {
+            g.marks.push(`${v}_comics`);
+            comicsQueue = comicsQueue.then(() => comicsScreen(world, rules, v));
+          }
+        };
+        if (m === "win_var_1" || m === "win_var_2" || m === "win") {
+          winComic("win_var_1");
+          winComic("win_var_2");
+        }
         if (m === "win") {
           g.trophyBook.award("game_win", 1);
           void comicsQueue.then(() => worldTut?.show("game_fin", 400, 300));
