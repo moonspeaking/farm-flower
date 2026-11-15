@@ -267,8 +267,11 @@ export class Farm extends Container {
     this.buildRidges();
     game.countPlants = (n) => this.ridges.filter((r) => r.plant?.name === n).length;
     game.savedPlants.forEach((p, i) => p && this.ridges[i]?.setPlant(p.name, p));
-    // дерево-идол и ветки стоят с начала игры (veg_name в ridges/at_start)
-    for (const r of this.ridges) if (r.place.veg && !r.plant && this.rules.vegetations[r.place.veg]) r.setPlant(r.place.veg);
+    // veg_name грядки — слот: квест add_vegetation сажает растение на грядку той же семьи (addVegetation).
+    // Дерево-идол и ветки в 5-й локации появляются по ходу квестов (stihii сажает idol_tree, цепочка меток
+    // treemark_2…6 — ветки), а не стоят с начала: иначе сбор плода открыл бы финал (mega_fruit) сразу по
+    // прибытии, минуя цепочку отростков. Ранее здесь была предпосадка — предположение по данным, от него
+    // отказались (порядок квестов нарушался, проверено прогоном).
     if (!game.savedPlants.length && rules.location === 1) {
       // vegetations_at_start: стартовое растение уже растёт на первой грядке
       rules.start.vegetations.forEach((v, i) => this.ridges[i]?.setPlant(v));
