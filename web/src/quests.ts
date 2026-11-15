@@ -253,9 +253,10 @@ export class QuestEngine {
             }
           }
           break;
-        // exe 0x483b35: запрет или разрешение покупать колодец (поле фермы +0x82c)
+        // exe 0x483b34: атрибут enable (bool) читается в заранее обнулённый байт (0x5ac260) —
+        // без атрибута покупка колодца запрещается
         case "enable_buy_well":
-          g.wellBuy = a.enable !== "false";
+          g.wellBuy = a.enable ? a.enable !== "false" : false;
           break;
         case "set_pests_key":
           st.pestsKey = a.key ?? "";
@@ -280,7 +281,12 @@ export class QuestEngine {
         case "remove_quest":
           if (st.journal) delete st.journal[`${a.location || here()}/${a.quest_name}`];
           break;
-        // перестройка фермы на этапах квестов (3-я и 4-я локации: store_state → set_* → exams): exe 0x4837bb…
+        // перестройка фермы на этапах квестов (3-я и 4-я локации: store_state → set_* → restore_state).
+        // Диспетчер действий — 0x4808f0 (огромная цепочка сравнений имени узла). set_barrels 0x483dcd и
+        // set_boxes 0x484015 ставят счётчик (count, без атрибута — 0x7fffffff) и уведомляют ферму
+        // (0x4a9f80/0x47d2a0): бочки и ящики стоят на стандартных местах из XML (бочки exe расставляет
+        // циклом 0x483e79 — позиции те же, что в water_storage). set_max_barrels 0x483d20 / set_max_boxes
+        // 0x483f68 — предел докупки.
         case "set_barrels":
           g.barrels = n;
           break;
@@ -288,28 +294,35 @@ export class QuestEngine {
           g.boxes = n;
           break;
         case "set_max_barrels":
-          st.maxBarrels = n;
+          st.maxBarrels = a.count === undefined ? undefined : n;
           break;
         case "set_max_boxes":
-          st.maxBoxes = n;
+          st.maxBoxes = a.count === undefined ? undefined : n;
           break;
-        // remove_well без count убирает колодец совсем, с count — на столько уровней; add_well ставит колодец (+1 уровень)
+        // exe атрибутов не читает: remove_well (0x48229c → 0x433560) убирает колодец целиком — count="1"
+        // в данных игнорируется; add_well (0x482312 → 0x4334b0) ставит колодец заново, только если его нет
+        // (проверка 0x436f90) — базовый
         case "remove_well":
-          g.wellLevel = a.count ? Math.max(0, g.wellLevel - n) : 0;
-          g.well = g.wellLevel > 0;
+          g.well = false;
+          g.wellLevel = 0;
           break;
         case "add_well":
-          g.wellLevel += 1;
-          g.well = true;
+          if (!g.well) {
+            g.well = true;
+            g.wellLevel = 1;
+          }
           break;
         case "enable_buy_water":
-          st.waterBuy = a.enable !== "false";
+          // exe 0x483bd8: тот же обнулённый байт — без атрибута покупка воды запрещается
+          st.waterBuy = a.enable ? a.enable !== "false" : false;
           break;
         case "enable_manual_work":
-          st.manualWork = a.enable !== "false";
+          // exe 0x483c7c: без атрибута ручная работа запрещается
+          st.manualWork = a.enable ? a.enable !== "false" : false;
           break;
         case "set_ridges": {
-          // installed — сколько грядок стоит (начальные + купленные), not_installed — сколько ещё можно докупить
+          // exe 0x4840c2: installed — сколько грядок стоит, not_installed — сколько можно докупить
+          // (0x44afc0 → уведомление 0x434f20)
           const at = g.rules.ridges.length;
           const installed = Number(a.installed ?? 0);
           st.ridgeCap = Math.min(at, installed);
@@ -317,9 +330,10 @@ export class QuestEngine {
           g.boughtRidges = Array.from({ length: Math.max(0, Math.min(installed - at, g.rules.ridges_for_sale.length)) }, (_, i) => i);
           break;
         }
-        // **допущение**: предмет из вредителей (item) забывается — квест выдаёт его заново
+        // exe 0x4809b5 → 0x44b430: запись о предмете в списке падающих обнуляется — предмет перестаёт падать
+        // (инвентарь не трогается)
         case "reset_bug_item":
-          g.items[a.item] = 0;
+          g.bugItems[a.item] = 0;
           break;
         case "update_quest_title": {
           const e = st.journal?.[`${a.location || here()}/${a.quest_name}`];
@@ -416,7 +430,8 @@ export class QuestEngine {
           g.bouquets = { next: 0, orders: [], done: 0 };
           break;
         case "enable_bug_item":
-          g.bugItems[a.item] = (g.bugItems[a.item] ?? 0) + n;
+          // exe 0x480926 → 0x44b550: запись создаётся или обновляется — лимит назначается, а не прибавляется
+          g.bugItems[a.item] = n;
           break;
         case "enable_town":
         case "disable_town":
