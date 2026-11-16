@@ -137,10 +137,12 @@ export interface Options {
   dayStats: boolean;
   /** Звёздочки у счётчиков панели, когда значение меняется. */
   sparkles: boolean;
+  /** «Широкий экран»: игра растягивается на всё окно, как в оригинале (картинка при этом искажается); выключено — поля 4:3. */
+  wide: boolean;
 }
 
 export function loadOptions(): Options {
-  const def: Options = { music: 0.5, sound: 0.7, cursors: true, warnings: true, dayStats: false, sparkles: true };
+  const def: Options = { music: 0.5, sound: 0.7, cursors: true, warnings: true, dayStats: false, sparkles: true, wide: false };
   try {
     return { ...def, ...(JSON.parse(localStorage.getItem(OPTIONS_KEY) ?? "{}") as Partial<Options>) };
   } catch {

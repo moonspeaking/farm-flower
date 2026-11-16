@@ -394,7 +394,16 @@ def export_gameplay(props, loc1_props, skills_xml):
     progresses = {c.tag: {"image": c.attrib["image"].rsplit("/", 1)[-1], "max": int(c.attrib["max_hearts"]),
                           "offset": vec(c.attrib["center_offset"])} for c in prog}
     weather = {w.tag: {k: float(v) for k, v in w.attrib.items()} for w in props.find("common/whether")}
-    marks = {m.tag: int(m.attrib["day"]) for m in props.find("set_mark_by_day/set")}
+    # дни меток (exe 0x499390: узел root/set_mark_by_day/set; атрибут marks — перечень имён через «;», для каждого имени читается
+    # дочерний узел с day). В «Цветке Стихий» дни лежат в properties.xml, а перечень marks — в properties_ru.xml и урезан:
+    # сова (shop_owl*) в него не входит, значит по дням она не открывается — только квестом (add_owl, shop_owl_2/3)
+    allowed = None
+    for sm in props.findall("set_mark_by_day"):
+        st = sm.find("set")
+        if st is not None and "marks" in st.attrib:
+            allowed = {n.strip() for n in st.attrib["marks"].split(";") if n.strip()}
+    marks = {m.tag: int(m.attrib["day"]) for m in props.find("set_mark_by_day/set")
+             if allowed is None or m.tag in allowed}
     common = props.find("common").attrib
     return {
         "exp_levels": levels, "skill_limits": limits, "skills": skills, "skill_events": events,

@@ -59,12 +59,21 @@ async function main() {
   app.stage.addChild(world);
   const fit = () => {
     const k = Math.min(app.screen.width / W, app.screen.height / H);
+    if (audio.options.wide) {
+      // «Широкий экран»: на всё окно, масштаб по осям свой (как оригинал на весь экран)
+      const kx = app.screen.width / W, ky = app.screen.height / H;
+      world.scale.set(kx, ky);
+      setSharp(Math.min(kx, ky) * devicePixelRatio >= 1.75);
+      world.position.set(0, 0);
+      return;
+    }
     world.scale.set(k);
     setSharp(k * devicePixelRatio >= 1.75);
     world.position.set((app.screen.width - W * k) / 2, (app.screen.height - H * k) / 2);
   };
   fit();
   app.renderer.on("resize", fit);
+  window.addEventListener("iris-layout", fit);
   // в портретной ориентации экран 4:3 вписывается по ширине и всё мелко — просим повернуть телефон (можно закрыть)
   const rotate = document.getElementById("rotate");
   const checkRotate = () => {
@@ -227,6 +236,7 @@ async function main() {
   let entering = false;
   /** Комиксы показываются по очереди. */
   let comicsQueue: Promise<void> = Promise.resolve();
+  if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__comics = (key: string) => comicsScreen(world, rules, key); // отладка: показать комикс
   const enter = async (g: Game, n: number, scene: "farm" | "town") => {
     if (entering) return;
     entering = true;

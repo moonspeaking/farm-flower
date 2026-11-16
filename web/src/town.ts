@@ -22,7 +22,7 @@ export class Town extends Container {
   private readonly people: Record<string, Container[]> = {};
   private readonly overlay = new Container();
   private busy = false;
-  private readonly reminder = new Reminder();
+  private readonly reminder = new Reminder("town");
   private readonly hud: Hud;
   private readonly nameTip = new Container();
 

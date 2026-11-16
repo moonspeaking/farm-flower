@@ -122,17 +122,18 @@ export function shopButton(kind: "small" | "medium", top: string, bottom: string
   if (kind === "small") {
     const price = pop(top, "palatino_14", COLOR.price, { align: "center" });
     price.anchor.set(0.5, 0.5);
-    price.position.set(0, -12);
+    price.position.set(0, -14);
     texts.push(price);
     if (bottom) {
       const act = pop(bottom, "palatino_14", COLOR.shop, { align: "center" });
       act.anchor.set(0.5, 0.5);
-      act.position.set(0, 13);
+      act.position.set(0, 9); // выше, чтобы подпись не липла к нижнему краю свитка
       texts.push(act);
     }
   } else {
     const t = pop(top, "palatino_14", COLOR.shop, { align: "center", lineOffset: -4 });
     t.anchor.set(0.5, 0.5);
+    t.position.set(0, -4); // две строки чуть выше середины: нижняя не должна касаться края свитка
     // длинные названия («Денежное дерево») — дощечка шире, по центру
     if (bg instanceof NineSliceSprite && t.textWidth > 80) {
       bg.width = t.textWidth + 44;
@@ -244,7 +245,7 @@ export function dialog(
     bodyAlign?: "left" | "center";
     /** Получает функцию закрытия окна — для кнопок внутри content. */
     bind?: (close: (value: string) => void) => void;
-    /** Свой отступ заголовка и текста от верха свитка (по умолчанию 63 и 97): у длинных страниц заголовок не должен лезть на лозу у верхнего края. */
+    /** Свой отступ заголовка и текста от верха свитка (по умолчанию 98 и 126 с заголовком, 97 без): у длинных страниц заголовок не должен лезть на лозу у верхнего края. */
     titleY?: number;
     bodyY?: number;
     /** Раскладка new_or_continue_game: кнопки столбиком посередине свитка. */
@@ -253,6 +254,7 @@ export function dialog(
 ): Promise<string> {
   return new Promise((resolve) => {
     const layer = new Container();
+    layer.label = "modal"; // ферма по метке знает, что открыто окно, и не показывает поверх него напоминания
     const shade = new Graphics().rect(0, 0, W, H).fill({ color: 0x000000, alpha: 0.4 });
     shade.eventMode = "static";
     layer.addChild(shade);
@@ -265,16 +267,19 @@ export function dialog(
     box.position.set(Math.round((W - 798) / 2), Math.round((H - 531) / 2));
     box.addChild(image("dialog"));
     const items: Container[] = [];
-    let y = opts.stack ? 107 : (opts.bodyY ?? 97);
+    // с заголовком (не stack) текст ниже: заголовок на свитке под лозой верхнего края, а не поверх неё
+    let y = opts.stack ? 107 : (opts.bodyY ?? (opts.title ? 126 : 97));
     if (opts.title) {
       const t = pop(opts.title, "stat_control_fonts_menu_normal", COLOR.white, { align: "center" });
-      t.position.set(399, opts.titleY ?? y - 34);
+      t.position.set(399, opts.titleY ?? (opts.stack ? y - 34 : 98));
       items.push(t);
     }
     if (opts.body) {
-      const center = opts.stack || opts.bodyAlign === "center";
+      const center = opts.stack || opts.bodyAlign !== "left";
       const wrap = opts.stack ? 400 : 630;
       const t = pop(opts.body, opts.stack ? "Dialog" : "Dialog2", COLOR.black, { align: center ? "center" : "left", wrap });
+      // короткий вопрос без заголовка и содержимого (Да / Нет) — по центру пергамента, а не прижат к верху
+      if (!opts.stack && !opts.title && !opts.content && !opts.bodyY) y = Math.max(y, Math.round(205 - t.textHeight / 2));
       t.position.set(center ? 399 : 84, y);
       y += t.textHeight + 10;
       items.push(t);

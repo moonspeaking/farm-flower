@@ -1,5 +1,5 @@
 // Ферма первой локации «Фермы Айрис»: подготовка к дню (магазин на объектах) → день → итоги.
-import { Container, Graphics, NineSliceSprite, Sprite, Texture } from "pixi.js";
+import { Container, Graphics, Sprite, Texture } from "pixi.js";
 import { audio } from "./audio";
 import { BouquetScreen } from "./bouquets";
 import { CELL_H, CELL_W, PathGrid, cellNear } from "./pathgrid";
@@ -21,7 +21,7 @@ import { Statue } from "./statue";
 import { rollPrize } from "./prizes";
 import { ParticleLayer } from "./particles";
 import { bugForDifficulty, parseBugSpec } from "./bugs";
-import { COLOR, dialog, floatPoints, H, image, loadImages, pop, roundButton, shopButton, type ShopButton, tex, textButton, toast, W } from "./ui";
+import { COLOR, dialog, floatPoints, H, image, loadImages, pop, roundButton, shopButton, type ShopButton, tex, toast, W } from "./ui";
 
 /** Шаги обучения, уже сдвинутые под перенесённые кнопки. */
 const shiftedSteps = new WeakSet<object>();
@@ -166,7 +166,7 @@ export class Farm extends Container {
   private lastTick = -1;
   private bugs: Bug[] = [];
   /** «Нажмите эту кнопку для начала дня» каждые 10 с, когда растение уже куплено (exe 0x48e960, метка first_vegetation). */
-  private readonly startReminder = new Reminder();
+  private readonly startReminder = new Reminder("farm");
   // состояние волн хранится в игре (по локации): между днями и при уходе с фермы не сбрасывается
   private readonly arriver: BugArriver;
   /** Картинка метки-препятствия (дерево-идол 5-й локации растёт по меткам treemark_N). */
@@ -504,7 +504,7 @@ export class Farm extends Container {
     this.tutorial.update(dt);
     this.bouquets?.update(dt);
     if (this.paused || waiting) return;
-    if (this.mode !== "day" && !this.bouquets && this.startBtn.visible) {
+    if (this.mode !== "day" && !this.bouquets && this.startBtn.visible && !this.ui.children.some((c) => c.label === "modal")) {
       this.startReminder.tick(dt, this.tutorial, this.game.tutorial.includes("@first_vegetation"), () => this.tutorial.show("start_day_baloon", 630, 70, true));
     }
     this.weatherFx.update(dt);
@@ -1478,33 +1478,39 @@ export class Farm extends Container {
 
   /** Окно «Покупка воды» (controls/buy_water): литр или «Заполнить Все», цена за литр с умением «торговля». */
   private openBuyWater() {
+    this.markTutorial("@buy_water"); // exe 0x4ae846: нажали «Купить воду» — пузырь buy_water больше не нужен
+    // пергамент окна — из первой «Фермы Айрис» (water_paper.webp, 722×334): в «Цветке Стихий» у controls/buy_water своей картинки нет
+    void loadImages(["water_paper"]).then(() => this.buildBuyWater());
+  }
+
+  private buildBuyWater() {
     const t = this.rules.texts;
     const g = this.game;
-    this.markTutorial("@buy_water"); // exe 0x4ae846: нажали «Купить воду» — пузырь buy_water больше не нужен
     const layer = new Container();
+    layer.label = "modal";
     const shade = new Graphics().rect(0, 0, W, H).fill({ color: 0x000000, alpha: 0.4 });
     shade.eventMode = "static";
     layer.addChild(shade);
     const box = new Container();
     layer.addChild(box);
     this.ui.addChild(layer);
-    // «Цветок Стихий», controls/buy_water: окно 400×300 по центру. Своей картинки фона у окна нет, тексты белые —
-    // **допущение**: фон — «резина» buy_shop_item_screen/rubber_back (зелёная середина, чёрная рамка 2 px), растянутая на окно
-    const back = new NineSliceSprite({ texture: tex("rubber_back"), leftWidth: 2, rightWidth: 2, topHeight: 2, bottomHeight: 2 });
-    back.width = 400;
-    back.height = 300;
-    box.addChild(back);
-    box.position.set(Math.round((W - 400) / 2), Math.round((H - 300) / 2));
-    // тексты шрифтом root/font/default (BritannicBold14): title жёлтым, desc / money / water белым, по центру окна;
-    // title (136; 10), desc (65; 42) 300×50, water (197; 133), water_price (91; 167) по левому краю
-    const title = pop(t.buy_water.title ?? "Покупка воды", "BritannicBold14", rgb(255, 255, 0), { align: "center", scale: 1.2 });
-    title.position.set(200, 20);
-    const desc = pop(t.buy_water.desc ?? "", "BritannicBold14", COLOR.white, { align: "center", wrap: 300 });
-    desc.position.set(200, 52);
-    const water = pop("", "BritannicBold14", COLOR.white, { align: "center" });
-    water.position.set(200, 138);
-    const priceLabel = pop("", "BritannicBold14", COLOR.white);
-    priceLabel.position.set(91, 172);
+    // как в первой игре: пергамент 470×330 правее панели, чёрные заголовок и строки, «Вода: N / M» синим,
+    // три кнопки столбиком с золотым шрифтом (стиль normal)
+    const roll = image("water_paper");
+    roll.width = 470;
+    roll.height = 330;
+    roll.x = -235;
+    box.addChild(roll);
+    box.position.set(W / 2 + 30, 120);
+    const ink = COLOR.black;
+    const title = pop(t.buy_water.title ?? "Покупка воды", "BritannicBold14", ink, { align: "center", scale: 1.2 });
+    title.position.set(0, 46);
+    const desc = pop(t.buy_water.desc ?? "", "BritannicBold14", ink, { align: "center", wrap: 420 });
+    desc.position.set(0, 80);
+    const water = pop("", "BritannicBold14", rgb(60, 60, 160), { align: "center" });
+    water.position.set(0, 110);
+    const priceLabel = pop("", "BritannicBold14", ink, { align: "center" });
+    priceLabel.position.set(0, 136);
     box.addChild(title, desc, water, priceLabel);
     const close = () => {
       layer.destroy({ children: true });
@@ -1529,14 +1535,23 @@ export class Farm extends Container {
       // бочки полны — окно покупки закрывается само, как в оригинале
       if (g.water >= g.waterMax) close();
     };
-    // buy (−1; 203), buy_all (−1; 233), exit (0; 263) — рамки 400×34, текст по центру
-    const b1 = textButton(t.buttons.buy_water ?? "Купить литр воды", () => buy(1));
-    b1.position.set(199, 203 + 17);
-    const b2 = textButton(t.buttons.buy_water_all ?? "Заполнить Все", () => buy(1e9));
-    b2.position.set(199, 233 + 17);
-    const b3 = textButton(t.buttons.buy_water_exit ?? "Закрыть", close);
-    b3.position.set(200, 263 + 17);
-    box.addChild(b1, b2, b3);
+    // кнопки как в первой игре: шрифт rubius_24, золотой 250;190;100, при наведении светлее
+    const gold = (text: string, y: number, fn: () => void) => {
+      const b = pop(text, "rubius_24", COLOR.normal, { align: "center" });
+      b.anchor.set(0.5, 0.5);
+      b.position.set(0, y);
+      b.eventMode = "static";
+      b.cursor = "pointer";
+      b.on("pointerover", () => b.setColor(COLOR.normalActive));
+      b.on("pointerout", () => b.setColor(COLOR.normal));
+      b.on("pointertap", fn);
+      return b;
+    };
+    box.addChild(
+      gold(t.buttons.buy_water ?? "Купить литр воды", 180, () => buy(1)),
+      gold(t.buttons.buy_water_all ?? "Заполнить Все", 214, () => buy(1e9)),
+      gold(t.buttons.buy_water_exit ?? "Закрыть", 248, close),
+    );
     shade.on("pointertap", close);
     refresh();
   }

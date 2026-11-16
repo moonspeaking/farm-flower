@@ -14,18 +14,25 @@ function forDevice(text: string) {
     .replace(/левую кнопку мыши/g, "палец");
 }
 
+/** Напоминание уже показывалось с момента загрузки страницы: в порте оно один раз за загрузку, а не по кругу. */
+const reminderShown = new Set<string>();
+
 /**
  * Напоминание экрана (exe: таймер 10 с в конструкторе экрана — 0x479ff0 карта, город и магазин так же; обновление
- * 0x479170 / 0x492b40 / 0x48e960): пока не открыта подсказка, таймер убывает, на нуле показывается пузырь и отсчёт снова 10 с.
+ * 0x479170 / 0x492b40 / 0x48e960): пока не открыта подсказка, таймер убывает, на нуле показывается пузырь.
+ * В оригинале отсчёт после этого начинается снова; в порте — по просьбе один раз за загрузку страницы.
  */
 export class Reminder {
   private left = 10;
 
+  /** screen — какой экран напоминает (ферма, город, карта): у каждого своё напоминание на загрузку. */
+  constructor(private readonly screen: string) {}
+
   tick(dt: number, tut: Tutorial, ready: boolean, show: () => void) {
-    if (!ready || tut.active) return;
+    if (reminderShown.has(this.screen) || !ready || tut.active) return;
     this.left -= dt;
     if (this.left > 0) return;
-    this.left = 10;
+    reminderShown.add(this.screen);
     show();
   }
 }
@@ -121,17 +128,21 @@ export class Tutorial extends Container {
     let bx = pointer ? (rightTail ? tip[0] + 11 - w : tip[0] - 11) : tip[0];
     bx = Math.max(4, Math.min(W - w - 4, bx));
     const by = pointer ? (above ? tip[1] - 17 - h : tip[1] + 17) : Math.max(4, Math.min(H - h - 4, tip[1]));
+    // пузырь одним контуром вместе с хвостиком (картинка buy_veg_baloon давала двойную линию и ступеньку на стыке с рамкой):
+    // хвост — прямоугольный треугольник 14 × 17: вертикальный край в 11 px от угла, скос уходит к середине пузыря
     const balloon = new Graphics();
-    balloon.roundRect(bx, by, w, h, 3).fill({ color: 0x116615, alpha: 230 / 255 }).stroke({ color: 0x000000, width: 1 });
+    const o = 0.5; // рамка в 1 px ложится ровно на пиксели
+    const L = bx + o, R = bx + w + o, T = by + o, B = by + h + o, r = 3;
+    const tx = (rightTail ? bx + w - 11 : bx + 11) + o;
+    const run = rightTail ? -14 : 14;
+    balloon.moveTo(L + r, T);
+    if (pointer && !above) balloon.lineTo(...(rightTail ? [tx + run, T] : [tx, T]) as [number, number]).lineTo(tx, T - 17).lineTo(rightTail ? tx : tx + run, T);
+    balloon.lineTo(R - r, T).quadraticCurveTo(R, T, R, T + r).lineTo(R, B - r).quadraticCurveTo(R, B, R - r, B);
+    if (pointer && above) balloon.lineTo(rightTail ? tx : tx + run, B).lineTo(tx, B + 17).lineTo(...(rightTail ? [tx + run, B] : [tx, B]) as [number, number]);
+    balloon.lineTo(L + r, B).quadraticCurveTo(L, B, L, B - r).lineTo(L, T + r).quadraticCurveTo(L, T, L + r, T).closePath();
+    balloon.fill({ color: 0x116615, alpha: 230 / 255 }).stroke({ color: 0x000000, width: 1 });
     const bubble = new Container();
     bubble.addChild(balloon);
-    if (pointer) {
-      const tail = image("veg_baloon");
-      tail.scale.set(rightTail ? 1 : -1, above ? 1 : -1);
-      // правый край картинки совпадает с правым краем пузыря (остриё на 11 px левее), у зеркальной — левый с левым
-      tail.position.set(rightTail ? bx + w - 27 : bx + 27, above ? by + h - 3 : by + 3);
-      bubble.addChild(tail);
-    }
     label.position.set(bx + 7, by + 5);
     bubble.addChild(label);
     if (withClose) {

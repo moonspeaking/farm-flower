@@ -294,7 +294,7 @@ export function optionsScreen(parent: Container, rules: Rules, onClose: () => vo
   const canFs =
     typeof document.documentElement.requestFullscreen === "function" ||
     typeof (document.documentElement as HTMLElement & { webkitRequestFullscreen?: unknown }).webkitRequestFullscreen === "function";
-  const fsCheck = check(t.fullscreen ?? "На весь экран", 102, 227, 247, 224, () => !!fsElement(), (v) => {
+  const fsCheck = check(t.fullscreen ?? "На весь экран", 102, 221, 247, 218, () => !!fsElement(), (v) => {
     // браузер может отказать (нет жеста пользователя, встроенный просмотр) — тогда галочка просто не встанет
     void (v ? enterFs() : exitFs()).catch(() => undefined);
     fsCheck.sync();
@@ -308,19 +308,24 @@ export function optionsScreen(parent: Container, rules: Rules, onClose: () => vo
     document.removeEventListener("webkitfullscreenchange", syncFs);
   });
   if (!canFs) fsCheck.hide(); // полного экрана у устройства нет — строка прячется
-  check("Блестки", 101, 249, 247, 247, () => cur.sparkles, (v) => {
+  check("Широкий экран", 101, 240, 247, 238, () => cur.wide, (v) => {
+    cur.wide = v;
+    audio.setOptions({ ...cur });
+  });
+  check("Блестки", 101, 259, 247, 257, () => cur.sparkles, (v) => {
     cur.sparkles = v;
     audio.setOptions({ ...cur });
   });
-  check(t.custom_cursor ?? "Специальные курсоры", 98, 269, 245, 276, () => cur.cursors, (v) => {
+  // длинное «Специальные курсоры» сокращено до одной строки, чтобы в окне хватило места на ещё один флажок
+  check((t.custom_cursor ?? "Специальные курсоры").replace("Специальные", "Спец."), 98, 278, 245, 276, () => cur.cursors, (v) => {
     cur.cursors = v;
     audio.setOptions({ ...cur });
-  }, -10);
-  check(t.game_warnings ?? "Предупреждения", 97, 305, 245, 303, () => cur.warnings, (v) => {
+  });
+  check(t.game_warnings ?? "Предупреждения", 97, 297, 245, 295, () => cur.warnings, (v) => {
     cur.warnings = v;
     audio.setOptions({ ...cur });
   });
-  check("Итоги дня", 97, 325, 245, 323, () => cur.dayStats, (v) => {
+  check("Итоги дня", 97, 316, 245, 314, () => cur.dayStats, (v) => {
     cur.dayStats = v;
     audio.setOptions({ ...cur });
   });
@@ -700,14 +705,52 @@ export function comicsCaption(rules: Rules, key: string) {
 }
 
 /**
- * Комикс целиком (location_N_comix при первом приходе в локацию N, win_var_N_comics в концовке): картинка 800×600, подпись
- * и круглая кнопка «Продолжить» (ok (611; 517) 206×199, как у вступительного комикса). Разрешается, когда кнопку нажали.
+ * Кадры комиксов между локациями и концовок (прямоугольники x, y, ширина, высота по чёрным разделителям картинки 800×600;
+ * найдены по картинке, порядок — верхний ряд слева направо, затем нижний). top — сколько кадров в верхнем ряду:
+ * с первого кадра нижнего ряда появляются и нижняя полоса со свитком, и подпись.
+ */
+const COMICS_REVEAL: Record<string, { top: number; rects: [number, number, number, number][] }> = {
+  "2": { top: 3, rects: [[13, 12, 205, 241], [222, 12, 333, 239], [558, 12, 230, 264], [11, 258, 216, 252], [230, 258, 250, 252], [483, 281, 304, 229]] },
+  "3": { top: 3, rects: [[10, 8, 321, 245], [339, 7, 194, 297], [541, 8, 249, 245], [10, 258, 299, 252], [316, 308, 226, 202], [546, 261, 244, 249]] },
+  "4": { top: 3, rects: [[8, 8, 306, 213], [321, 8, 212, 296], [539, 7, 254, 217], [7, 227, 306, 283], [321, 310, 219, 200], [547, 233, 245, 277]] },
+  "5": { top: 3, rects: [[9, 8, 312, 180], [329, 8, 203, 225], [539, 8, 252, 221], [9, 198, 289, 312], [305, 240, 252, 270], [564, 239, 227, 271]] },
+  win_var_1: { top: 3, rects: [[7, 6, 332, 304], [344, 6, 214, 305], [563, 5, 229, 306], [8, 314, 380, 196], [394, 314, 398, 196]] },
+  win_var_2: { top: 3, rects: [[7, 6, 332, 304], [344, 6, 214, 305], [564, 5, 228, 306], [8, 316, 277, 194], [292, 315, 256, 195], [556, 316, 235, 194]] },
+};
+/** Пауза между кадрами и проявление кадра, затем пауза и проявление кнопки, с — как у вступительного комикса. */
+const REVEAL_GAP = 1.6;
+const REVEAL_FADE = 0.7;
+const REVEAL_BUTTON_WAIT = 0.8;
+const REVEAL_BUTTON_FADE = 0.6;
+
+/**
+ * Комикс (location_N_comix при первом приходе в локацию N, win_var_N_comics в концовке): кадры появляются по очереди, как у
+ * вступительного; щелчок показывает следующий кадр (или проявляет текущий), подпись — с нижнего ряда, круглая кнопка
+ * «Продолжить» (ok (611; 517) 206×199) — после последнего кадра. Разрешается, когда кнопку нажали.
  */
 export async function comicsScreen(parent: Container, rules: Rules, key: string): Promise<void> {
   await loadImages([`comics_${key}`]);
   return new Promise((resolve) => {
     const layer = new Container();
-    layer.addChild(image(`comics_${key}`), comicsCaption(rules, key));
+    layer.addChild(new Graphics().rect(0, 0, W, H).fill(0x000000));
+    const def = COMICS_REVEAL[key];
+    const rects = def?.rects ?? [[0, 0, W, 510] as [number, number, number, number]];
+    const top = def?.top ?? rects.length;
+    const panels = rects.map((r, index) => {
+      const c = new Container();
+      const mask = new Graphics().rect(...r);
+      // с первого кадра нижнего ряда проявляется и нижняя полоса со свитком для подписи
+      if (index === top || (!def && index === 0)) mask.rect(0, 505, W, H - 505);
+      mask.fill(0xffffff);
+      c.addChild(image(`comics_${key}`), mask);
+      c.mask = mask;
+      c.alpha = 0;
+      layer.addChild(c);
+      return c;
+    });
+    const caption = comicsCaption(rules, key);
+    caption.alpha = 0;
+    layer.addChild(caption);
     layer.eventMode = "static";
     const ok = roundButton(rules.texts.buttons_menu.continue_game || "Продолжить", () => {
       layer.destroy({ children: true });
@@ -718,17 +761,46 @@ export async function comicsScreen(parent: Container, rules: Rules, key: string)
     ok.children[0].rotation = Math.PI;
     ok.children[1].y = -36;
     ok.children[1].scale.set(1.15);
+    ok.alpha = 0;
+    ok.eventMode = "none"; // кнопка нажимается только после появления
     layer.addChild(ok);
-    layer.alpha = 0;
     parent.addChild(layer);
-    // плавное появление за 0,7 с
-    let t = 0;
+
+    let shown = 0;
+    let t = REVEAL_GAP;
+    let last = performance.now();
+    layer.on("pointertap", () => {
+      // щелчок мимо кнопки: кадр ещё появляется — сразу весь, иначе следующий; после последнего — сразу кнопка
+      if (shown > 0 && t < REVEAL_FADE) {
+        panels[shown - 1].alpha = 1;
+        t = REVEAL_FADE;
+      }
+      if (shown >= panels.length) {
+        t = Math.max(t, REVEAL_FADE + REVEAL_BUTTON_WAIT + REVEAL_BUTTON_FADE);
+        return;
+      }
+      shown += 1;
+      t = 0;
+    });
     const tick = () => {
       if (layer.destroyed) return;
-      t += 1 / 60;
-      layer.alpha = Math.min(1, t / 0.7);
-      if (layer.alpha < 1) requestAnimationFrame(tick);
+      const now = performance.now();
+      t += (now - last) / 1000;
+      last = now;
+      if (shown < panels.length && t >= REVEAL_GAP) {
+        shown += 1;
+        t = 0;
+      }
+      caption.alpha = shown > top ? 1 : 0;
+      for (let i = 0; i < shown; i++) panels[i].alpha = i < shown - 1 ? 1 : Math.min(1, t / REVEAL_FADE);
+      if (shown === panels.length) {
+        const k = (t - REVEAL_FADE - REVEAL_BUTTON_WAIT) / REVEAL_BUTTON_FADE;
+        ok.alpha = Math.max(0, Math.min(1, k));
+        if (k >= 1) ok.eventMode = "static";
+      }
+      requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
   });
 }
+

@@ -20,7 +20,7 @@ export class WorldMap extends Container {
   private readonly tipBack = new Graphics();
   private readonly fx = new ParticleLayer();
   private sparks: Emitter[] = [];
-  private readonly reminder = new Reminder();
+  private readonly reminder = new Reminder("map");
 
   constructor(private readonly rules: Rules, private readonly game: Game, private readonly events: MapEvents, private readonly tut: Tutorial) {
     super();
