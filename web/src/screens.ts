@@ -256,9 +256,10 @@ export function optionsScreen(parent: Container, rules: Rules, onClose: () => vo
 
   // флажки: надпись stat_control_fonts_1 слева (левый верх из XML), квадратик 28×24 справа:
   // fullscreen текст (102; 233) / флажок (247; 230), acc_3d (101; 255) / (247; 253), custom_cursor (98; 275) / (245; 282),
-  // game_warnings (97; 314) / (245; 312). Строки acc_3d (3D-ускоритель) в вебе нет — на её месте «Блестки»; «Итоги дня» — ниже
-  const check = (text: string, tx: number, ty: number, cx: number, cy: number, get: () => boolean, set: (v: boolean) => void) => {
-    const l = pop(text, "stat_control_fonts_1", COLOR.white, { wrap: 160 }); // рамки надписей 150–160 px
+  // game_warnings (97; 314) / (245; 312) — в порте строки надписи курсоров сближены (line_offset −10), ниже ряды подтянуты: (97; 305) / (245; 303), «Итоги дня» (97; 325); весь ряд после «На весь экран» поднят на 6 px. Строки acc_3d (3D-ускоритель) в вебе нет — на её месте «Блестки»; «Итоги дня» — ниже
+  const check = (text: string, tx: number, ty: number, cx: number, cy: number, get: () => boolean, set: (v: boolean) => void, lineOffset = 0) => {
+    // длинная надпись (в русском «Специальные курсоры») переносится на две строки; lineOffset сближает строки, чтобы ряды ниже встали плотнее
+    const l = pop(text, "stat_control_fonts_1", COLOR.white, { wrap: 160, lineOffset }); // рамки надписей 150–160 px
     l.position.set(tx, ty);
     box.addChild(l);
     const on = image("options_check");
@@ -293,7 +294,7 @@ export function optionsScreen(parent: Container, rules: Rules, onClose: () => vo
   const canFs =
     typeof document.documentElement.requestFullscreen === "function" ||
     typeof (document.documentElement as HTMLElement & { webkitRequestFullscreen?: unknown }).webkitRequestFullscreen === "function";
-  const fsCheck = check(t.fullscreen ?? "На весь экран", 102, 233, 247, 230, () => !!fsElement(), (v) => {
+  const fsCheck = check(t.fullscreen ?? "На весь экран", 102, 227, 247, 224, () => !!fsElement(), (v) => {
     // браузер может отказать (нет жеста пользователя, встроенный просмотр) — тогда галочка просто не встанет
     void (v ? enterFs() : exitFs()).catch(() => undefined);
     fsCheck.sync();
@@ -307,19 +308,19 @@ export function optionsScreen(parent: Container, rules: Rules, onClose: () => vo
     document.removeEventListener("webkitfullscreenchange", syncFs);
   });
   if (!canFs) fsCheck.hide(); // полного экрана у устройства нет — строка прячется
-  check("Блестки", 101, 255, 247, 253, () => cur.sparkles, (v) => {
+  check("Блестки", 101, 249, 247, 247, () => cur.sparkles, (v) => {
     cur.sparkles = v;
     audio.setOptions({ ...cur });
   });
-  check(t.custom_cursor ?? "Специальные курсоры", 98, 275, 245, 282, () => cur.cursors, (v) => {
+  check(t.custom_cursor ?? "Специальные курсоры", 98, 269, 245, 276, () => cur.cursors, (v) => {
     cur.cursors = v;
     audio.setOptions({ ...cur });
-  });
-  check(t.game_warnings ?? "Предупреждения", 97, 314, 245, 312, () => cur.warnings, (v) => {
+  }, -10);
+  check(t.game_warnings ?? "Предупреждения", 97, 305, 245, 303, () => cur.warnings, (v) => {
     cur.warnings = v;
     audio.setOptions({ ...cur });
   });
-  check("Итоги дня", 97, 336, 245, 334, () => cur.dayStats, (v) => {
+  check("Итоги дня", 97, 325, 245, 323, () => cur.dayStats, (v) => {
     cur.dayStats = v;
     audio.setOptions({ ...cur });
   });
@@ -499,7 +500,7 @@ const ABOUT_PAGES: { title: string; body: string }[] = [
     title: "Об игре",
     body:
       "Ферма Айрис (Magic Farm) для браузера. Это личный порт: картинки и анимации взяты из оригинальной игры.\n" +
-      "Автор порта: moonspeaking\ngithub.com/moonspeaking/farm",
+      "Автор порта: moonspeaking\ngithub.com/moonspeaking/farm-flower",
   },
 ];
 
@@ -512,7 +513,7 @@ export async function aboutScreen(parent: Container, rules: Rules) {
       ...(page > 0 ? [{ text: rules.texts.buttons.back ?? "Назад", value: "prev" }] : []),
       { text: last ? (rules.texts.buttons.tutorial_baloon_close ?? "Закрыть") : "Далее", value: last ? "cancel" : "next" },
     ];
-    const r = await dialog(parent, { title: `${ABOUT_PAGES[page].title} (${page + 1}/${ABOUT_PAGES.length})`, body: ABOUT_PAGES[page].body, bodyAlign: "left", buttons, width: 660 }); // 550 px под текст: «…борьба с вредителями.» (535 px) влезает в строку
+    const r = await dialog(parent, { title: `${ABOUT_PAGES[page].title} (${page + 1}/${ABOUT_PAGES.length})`, body: ABOUT_PAGES[page].body, bodyAlign: "left", buttons, width: 660, titleY: 102, bodyY: 134 }); // 550 px под текст: «…борьба с вредителями.» (535 px) влезает в строку
     if (r === "next") page += 1;
     else if (r === "prev") page -= 1;
     else return;

@@ -70,6 +70,7 @@ IMAGES = {
     "rubber_back": "game/shop/buy_shop_item_back",
     # «Цветок Стихий»: стручки-полоски умений (10 кадров анимации), рамки выбранного / наведённого умения
     "lu_bob": "game/level_up/bob_prog",
+    "hud_bob": "game/level_up/bob_progress",  # 26 кадров 99×39: стручок опыта на панели целиком, с горошинами
     "lu_bob_inv": "game/level_up/bob_prog_inv",
     "lu_bob_sel": "game/level_up/bob_prog_sel",
     "lu_bob_sel_inv": "game/level_up/bob_prog_sel_inv",

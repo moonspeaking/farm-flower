@@ -68,11 +68,6 @@ export class Menu extends Container {
     item(b.menu_trophy_room || "Награды", 118, 344, () => this.events.trophies());
     // на месте «Выхода» (118; 383), которого в браузере нет, — «Об игре»
     item("Об игре", 118, 383, () => this.events.about());
-    // «Загрузить» (main_menu/load: 71×40 в (193; 400), стиль menu, текст выровнен по левому краю рамки)
-    const load = textButton(b.menu_load || "Загрузить", () => this.load(), "menu");
-    load.anchor.set(0, 0.5);
-    load.position.set(193, 420);
-    this.addChild(load);
     // кнопка version (25; 570) 38×25, стиль root/button_styles/version: подписи нет — exe читает ProductVersion
     // из ресурса game.exe (0x6234f0), а у этой сборки ресурса VERSIONINFO нет, так что кнопка невидима,
     // но кликабельна и открывает титры (CreditsScreen 0x518aa0, обработчик 0x532740)

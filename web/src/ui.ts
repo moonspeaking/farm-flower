@@ -244,6 +244,9 @@ export function dialog(
     bodyAlign?: "left" | "center";
     /** Получает функцию закрытия окна — для кнопок внутри content. */
     bind?: (close: (value: string) => void) => void;
+    /** Свой отступ заголовка и текста от верха свитка (по умолчанию 63 и 97): у длинных страниц заголовок не должен лезть на лозу у верхнего края. */
+    titleY?: number;
+    bodyY?: number;
     /** Раскладка new_or_continue_game: кнопки столбиком посередине свитка. */
     stack?: boolean;
   },
@@ -262,10 +265,10 @@ export function dialog(
     box.position.set(Math.round((W - 798) / 2), Math.round((H - 531) / 2));
     box.addChild(image("dialog"));
     const items: Container[] = [];
-    let y = opts.stack ? 107 : 97;
+    let y = opts.stack ? 107 : (opts.bodyY ?? 97);
     if (opts.title) {
       const t = pop(opts.title, "stat_control_fonts_menu_normal", COLOR.white, { align: "center" });
-      t.position.set(399, y - 34);
+      t.position.set(399, opts.titleY ?? y - 34);
       items.push(t);
     }
     if (opts.body) {

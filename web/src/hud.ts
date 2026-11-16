@@ -1,13 +1,20 @@
 // Левая панель Айрис (stat_control + game_screen/item_stat «Цветка Стихий»): опыт, склад, вода, деньги, день, «Меню».
-import { Container, Graphics, Sprite } from "pixi.js";
-import { bobFrame } from "./levelup";
+import { Container, Graphics, Rectangle, Sprite, Texture } from "pixi.js";
 import type { PopLabel } from "./popfont";
 import { rgb } from "./popfont";
 import type { Rules } from "./rules";
 import type { Game } from "./state";
 import { audio } from "./audio";
 import { ParticleLayer } from "./particles";
-import { COLOR, image, pop, textButton } from "./ui";
+import { COLOR, image, pop, tex, textButton } from "./ui";
+
+/** Стручок опыта на панели — полоса hud_bob (bob_progress.jpg): 26 кадров 99×39, от пустого стручка до полного, с крупными горошинами. */
+const HUD_BOB_FRAMES = 26;
+function hudBobFrame(frame: number) {
+  const t = tex("hud_bob");
+  const h = Math.floor(t.height / HUD_BOB_FRAMES);
+  return new Texture({ source: t.source, frame: new Rectangle(t.frame.x, t.frame.y + frame * h, t.width, h) });
+}
 
 export interface HudEvents {
   /** Нажали на полоску опыта (view_button) — открыть окно умений. */
@@ -20,7 +27,8 @@ export interface HudEvents {
 export class Hud extends Container {
   private readonly values: Record<"storage" | "water" | "money" | "day" | "level", PopLabel>;
   private readonly pea = new Sprite();
-  private readonly glow = new Graphics();
+  /** Подсветка нового уровня: тот же стручок, подсвеченный и мигающий по его форме (не прямоугольником). */
+  private readonly glow = new Sprite();
   private blink = 0;
   /** Можно ли сейчас улучшать умения (не во время дня) — иначе рамка опыта не мигает. */
   blinkOn = true;
@@ -76,9 +84,18 @@ export class Hud extends Container {
     };
 
     // полоска опыта exp (56;110) 60×10; при свободных очках умений мигает. Нажатие — view_button (19;94) 90×25
-    this.pea.position.set(58, 98);
-    this.pea.scale.set(0.5);
-    this.addChild(this.glow, this.pea, this.particles);
+    // стручок по скриншоту оригинала: левый кончик у кружка уровня, горошины над ним; сам кружок (диск 26 px с центром (44;119)
+    // на фоне панели) лежит поверх стручка, поэтому копируем его кусок фона и кладём выше, а число уровня — выше всего
+    this.pea.position.set(15, 86);
+    const disc = new Sprite(new Texture({ source: tex(crystals ? "stat_panel_5" : "stat_panel").source, frame: new Rectangle(30, 105, 28, 28) }));
+    disc.position.set(30, 105);
+    const round = new Graphics().circle(44, 119, 13.5).fill(0xffffff);
+    disc.mask = round;
+    this.glow.position.set(15, 86);
+    this.glow.blendMode = "add";
+    this.glow.tint = 0xffee66;
+    this.glow.visible = false;
+    this.addChild(this.pea, this.glow, disc, round, this.values.level, this.particles);
     const hit = new Graphics().rect(19, 94, 90, 25).fill({ color: 0xffffff, alpha: 0.001 });
     hit.eventMode = "static";
     hit.cursor = "pointer";
@@ -124,18 +141,19 @@ export class Hud extends Container {
     this.values.level.text = String(g.level);
     const [cur, need] = g.levelProgress;
     // опыт — стручок на панели: кадр bob_prog (10 кадров) по доле до следующего уровня, горошины растут слева направо
-    const frame = Math.min(9, Math.floor(Math.min(1, cur / need) * 10 + 0.5));
-    this.pea.texture = bobFrame("lu_bob", frame);
+    const frame = Math.round(Math.min(1, cur / need) * (HUD_BOB_FRAMES - 1));
+    this.pea.texture = hudBobFrame(frame);
   }
 
   /** Мигание рамки, пока есть неиспользованные очки умений. */
   tick(dt: number) {
     this.blink += dt;
     this.particles.update(dt);
-    this.glow.clear();
-    if (this.blinkOn && this.game.skillPoints > 0) {
-      const a = 0.35 + 0.35 * Math.sin(this.blink * 6);
-      this.glow.roundRect(53, 107, 66, 16, 7).stroke({ color: 0xffee66, width: 3, alpha: a });
+    const on = this.blinkOn && this.game.skillPoints > 0;
+    this.glow.visible = on;
+    if (on) {
+      this.glow.texture = this.pea.texture;
+      this.glow.alpha = 0.25 + 0.25 * Math.sin(this.blink * 6);
     }
   }
 }

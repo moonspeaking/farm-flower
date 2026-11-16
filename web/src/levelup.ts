@@ -147,12 +147,8 @@ export class LevelUp extends Container {
   private render() {
     const g = this.game;
     this.marks.removeChildren().forEach((c) => c.destroy());
-    // опыт героя — тоже стручок (experience_progress: рамка (20; 10), anim_pos (18; 88)); кадр по доле набранного до следующего уровня
-    const [cur, need] = g.levelProgress;
-    const xpFrame = Math.min(BOB_FRAMES - 1, Math.floor(Math.min(1, cur / need) * BOB_FRAMES + 0.5));
-    const xp = new Sprite(bobFrame("lu_bob", xpFrame));
-    xp.position.set(20 + 18, 10 + 88);
-    this.marks.addChild(xp);
+    // стручка опыта героя в этом окне нет: experience_progress (рамка (20; 10), anim_pos (18; 88)) создаётся конструктором панели статистики
+    // (0x572e76, рядом с stat_back_loc5 и кнопкой quest), а не окна умений — в порте он на панели (hud.ts)
     for (const skill of SKILLS) {
       const slot = SLOTS[skill];
       const level = g.skills[skill];
