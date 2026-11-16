@@ -159,6 +159,8 @@ export class Farm extends Container {
   /** «Закончить День» — досрочное завершение, на месте кнопки «Начать День». */
   private readonly pointer: Sprite;
   private readonly weatherIcon: Sprite;
+  private readonly weatherIconSmall = new Sprite();
+  private readonly clockSmall = new Container();
   private bouquets: BouquetScreen | null = null;
   private dayLeft = 0;
   private harvestedToday = 0;
@@ -245,6 +247,16 @@ export class Farm extends Container {
     this.weatherIcon.position.set(111 - this.weatherIcon.width, 0);
     clock.addChild(this.pointer, this.weatherIcon, image("clock_fore"));
     clock.position.set(689, 0);
+    // exe 0x58b5e0: флаг «малые часы» (+0x28) ставится при создании фермы (0x584cb6) и больше не снимается, так что в оригинале
+    // всегда рисуются только small_back, значок погоды и small_fore (справа вплотную к краю, y = 0); циферблата и стрелки нет
+    clock.visible = false;
+    const sb = image("weather_back");
+    sb.x = 111 - sb.width - 51;
+    const sf = image("weather_fore");
+    sf.x = 111 - sf.width - 51;
+    this.clockSmall.addChild(sb, this.weatherIconSmall, sf);
+    this.clockSmall.position.set(689 + 51, 0);
+    this.setWeatherIcon("weather_normal");
     this.startBtn = roundButton(t.buttons.start_new_day ?? "Начать День", () => void this.startDay());
     // в XML 527; −110, но кнопка заходит на часы дня — сдвинута влево, чтобы не накладываться на них
     this.startBtn.position.set(482 + 103, -110 + 99);
@@ -261,7 +273,7 @@ export class Farm extends Container {
     });
     this.townBtn.position.set(193 + 103, -110 + 99);
     // часы дня рисуются поверх кнопки «Начать День»: её правый край заходит под них
-    this.top.addChild(this.startBtn, this.townBtn, clock);
+    this.top.addChild(this.startBtn, this.townBtn, clock, this.clockSmall);
 
     // ---------------- сохранение
     this.buildRidges();
@@ -309,6 +321,14 @@ export class Farm extends Container {
 
   // ================================================================ режимы
 
+  /** Значок погоды: прижат к правому верхнему углу окна (exe 0x58b5e0: x = ширина элемента − ширина значка, y = 0). */
+  private setWeatherIcon(name: string) {
+    this.weatherIcon.texture = tex(name);
+    this.weatherIcon.x = 111 - this.weatherIcon.width;
+    this.weatherIconSmall.texture = tex(name);
+    this.weatherIconSmall.position.set(111 - this.weatherIconSmall.width - 51, 0);
+  }
+
   private enterShop() {
     this.mode = "shop";
     this.startBtn.visible = true;
@@ -316,7 +336,7 @@ export class Farm extends Container {
     this.pointer.rotation = CLOCK_ANGLE[0];
     for (const r of this.ridges) r.pause();
     this.weatherFx.set("normal");
-    this.weatherIcon.texture = tex("weather_normal");
+    this.setWeatherIcon("weather_normal");
     this.syncWell();
     this.renderShop();
     this.renderStats();
@@ -396,8 +416,7 @@ export class Farm extends Container {
     const w: Weather = this.game.day < 5 ? "normal" : (["normal", "sun", "rain"] as const)[Math.floor(Math.random() * 3)];
     this.game.weather = w;
     this.weatherFx.set(w);
-    this.weatherIcon.texture = tex(w === "normal" ? "weather_normal" : `weather_${w}`);
-    this.weatherIcon.x = 111 - this.weatherIcon.width;
+    this.setWeatherIcon(w === "normal" ? "weather_normal" : `weather_${w}`);
     for (const rid of this.ridges) {
       rid.resetThirst();
       rid.setDay(true);
@@ -1271,12 +1290,12 @@ export class Farm extends Container {
     // «Купить Воду» (433; 32) и «Продать Цветы» (547; 86) — средние кнопки
     // нечего покупать (бочки полны) и нечего продавать (нет плодов и собранных букетов) — кнопок нет
     if (g.water < g.waterMax && g.quests.waterBuy !== false) {
-      const water = shopButton("medium", fmt(t.buttons.shop_button_buy_water ?? "Купить\nВоду"), null, () => this.openBuyWater());
+      const water = shopButton("medium", fmt(t.buttons.shop_button_buy_water ?? "Купить\nВоду"), null, () => this.openBuyWater(), true);
       // в XML (433; 32), но «Начать День» сдвинута влево от часов и кнопка заходила бы под неё — «Купить Воду» сдвинута левее на 32 px
       add(water, this.rules.shop_positions.buy_water[0] + 50 - 32, this.rules.shop_positions.buy_water[1] + 30);
     }
     if (g.storageCount() > 0 || g.bouquets.orders.some((o) => o.placed.some(Boolean))) {
-      const sell = shopButton("medium", fmt(t.buttons.shop_button_sell_prod ?? "Продать\nЦветы"), null, () => this.openBouquets());
+      const sell = shopButton("medium", fmt(t.buttons.shop_button_sell_prod ?? "Продать\nЦветы"), null, () => this.openBouquets(), true);
       add(sell, this.rules.shop_positions.sell_prod[0] + 50, this.rules.shop_positions.sell_prod[1] + 30);
     }
     void names;

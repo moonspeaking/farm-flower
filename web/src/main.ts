@@ -16,7 +16,7 @@ import { Game, type Difficulty } from "./state";
 import { Town } from "./town";
 import { Tutorial } from "./tutorial";
 import { WorldMap } from "./worldmap";
-import { loadFonts } from "./popfont";
+import { loadFonts, setTextAspect } from "./popfont";
 import { creditsScreen } from "./credits";
 import { aboutScreen, comicsScreen, gameMenu, highscoresScreen, optionsScreen, pauseOverlay, recordScore, saveLoadScreen, trophyAwardPopup, trophyRoomScreen } from "./screens";
 import { H, hasImages, loadImages, setSharp, toast, unloadImages, W } from "./ui";
@@ -63,11 +63,13 @@ async function main() {
       // «Широкий экран»: на всё окно, масштаб по осям свой (как оригинал на весь экран)
       const kx = app.screen.width / W, ky = app.screen.height / H;
       world.scale.set(kx, ky);
+      setTextAspect(ky / kx);
       setSharp(Math.min(kx, ky) * devicePixelRatio >= 1.75);
       world.position.set(0, 0);
       return;
     }
     world.scale.set(k);
+    setTextAspect(1);
     setSharp(k * devicePixelRatio >= 1.75);
     world.position.set((app.screen.width - W * k) / 2, (app.screen.height - H * k) / 2);
   };

@@ -107,11 +107,11 @@ export interface ShopButton extends Container {
  * Кнопка магазина оригинала (shop_button_small / medium, 100×60). Малая — две дощечки: цена сверху
  * (palatino, 220;236;110) и действие снизу (shop-стиль, 176;140;64). Средняя — одна дощечка с двумя строками.
  */
-export function shopButton(kind: "small" | "medium", top: string, bottom: string | null, onTap: () => void): ShopButton {
+export function shopButton(kind: "small" | "medium", top: string, bottom: string | null, onTap: () => void, blue = false): ShopButton {
   const c = new Container() as ShopButton;
   // средняя дощечка растягивается по ширине под длинное название, рамка не искажается (девятизонная нарезка)
   const bg: Sprite | NineSliceSprite =
-    kind === "medium" ? new NineSliceSprite({ texture: tex("shop_medium"), leftWidth: 10, rightWidth: 10, topHeight: 10, bottomHeight: 10 }) : image("shop_small");
+    kind === "medium" ? new NineSliceSprite({ texture: tex(blue ? "shop_medium_blue" : "shop_medium"), leftWidth: 10, rightWidth: 10, topHeight: 10, bottomHeight: 10 }) : image("shop_small");
   if (bg instanceof Sprite) bg.anchor.set(0.5);
   else {
     bg.x = -bg.width / 2;
@@ -145,7 +145,7 @@ export function shopButton(kind: "small" | "medium", top: string, bottom: string
   let enabled = true;
   c.setEnabled = (on) => {
     enabled = on;
-    bg.texture = tex(on ? `shop_${kind}` : `shop_${kind}_cant`);
+    bg.texture = tex(on ? (blue ? "shop_medium_blue" : `shop_${kind}`) : `shop_${kind}_cant`);
     for (const t of texts) t.alpha = on ? 1 : 0.8;
   };
   press(c, 0.95, () => enabled && onTap());

@@ -32,6 +32,7 @@ IMAGES = {
     "shop_small_cant": "game/shop/shop_button_small_cant_buy",
     "shop_medium": "game/shop/shop_button_medium",
     "shop_medium_cant": "game/shop/shop_button_medium_cant_buy",
+    "shop_medium_blue": "game/shop/shop_button_medium_2",  # «Купить Воду» и «Продать Цветы»: buy_img в properties_ru.xml
     "veg_baloon": "game/shop/buy_veg_baloon",
     "clock_back": "game/whether_time_ctrl/back",
     "clock_fore": "game/whether_time_ctrl/fore",

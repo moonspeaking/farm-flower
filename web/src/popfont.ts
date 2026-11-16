@@ -63,7 +63,14 @@ export interface PopOptions {
  * Надпись шрифтом оригинала. Начало координат — левый край (align=left), центр (center) или правый край (right)
  * блока; anchor.set(ax, ay) задаёт другую точку привязки, как у обычного текста.
  */
+/** «Широкий экран»: масштаб мира по осям разный, буквы сжимаются по X на ky/kx, чтобы не растягиваться (в обычном режиме 1). */
+let textAspect = 1;
+export function setTextAspect(v: number) {
+  textAspect = v;
+}
+
 export class PopLabel extends Container {
+  private readonly body = new Container();
   private value = "";
   private ax = 0;
   private ay = 0;
@@ -80,6 +87,12 @@ export class PopLabel extends Container {
 
   constructor(readonly font: FontName, text: string, private readonly opts: PopOptions = {}) {
     super();
+    this.addChild(this.body);
+    // буквы лежат в body: его сжимают по X вокруг точки привязки надписи
+    this.body.onRender = () => {
+      this.body.scale.x = textAspect;
+      this.body.x = this.pivot.x * (1 - textAspect);
+    };
     this.color = opts.color ?? 0xffffff;
     // по умолчанию точка привязки — по краю выравнивания: left — слева, center — по центру, right — справа
     this.ax = opts.align === "center" ? 0.5 : opts.align === "right" ? 1 : 0;
@@ -91,14 +104,14 @@ export class PopLabel extends Container {
   }
 
   set text(v: string) {
-    if (v === this.value && this.children.length) return;
+    if (v === this.value && this.body.children.length) return;
     this.value = v;
     this.layout();
   }
 
   setColor(color: number) {
     this.color = color;
-    for (const c of this.children) (c as Sprite).tint = color;
+    for (const c of this.body.children) (c as Sprite).tint = color;
   }
 
   private lines(f: FontData): string[] {
@@ -130,7 +143,7 @@ export class PopLabel extends Container {
 
   private layout() {
     const f = fonts.get(this.font);
-    this.removeChildren().forEach((c) => c.destroy());
+    this.body.removeChildren().forEach((c) => c.destroy());
     if (!f) return;
     const k = this.opts.scale ?? 1;
     const lineH = (f.height + (this.opts.lineOffset ?? 0)) * k;
@@ -148,7 +161,7 @@ export class PopLabel extends Container {
           s.tint = this.color;
           s.scale.set(k);
           s.position.set(x + g[5] * k, row * lineH + g[6] * k);
-          this.addChild(s);
+          this.body.addChild(s);
         }
         x += this.advance(f, ch) * k;
       }
