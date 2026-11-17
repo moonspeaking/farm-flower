@@ -231,6 +231,7 @@ async function main() {
     farms[n] = f;
     if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__farm = f; // отладка в браузере
     towns[n] = t;
+    if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__town = t; // отладка в браузере
     world.addChild(f, t);
   };
 

@@ -142,7 +142,7 @@ export interface Options {
 }
 
 export function loadOptions(): Options {
-  const def: Options = { music: 0.5, sound: 0.7, cursors: true, warnings: true, dayStats: false, sparkles: true, wide: false };
+  const def: Options = { music: 0.5, sound: 0.7, cursors: true, warnings: true, dayStats: false, sparkles: false, wide: false };
   try {
     return { ...def, ...(JSON.parse(localStorage.getItem(OPTIONS_KEY) ?? "{}") as Partial<Options>) };
   } catch {
