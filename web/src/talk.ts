@@ -5,6 +5,8 @@ import type { Answer, DialogNode } from "./quests";
 import { fmt } from "./rules";
 import { COLOR, H, hasImage, image, pop, tex, textButton, W } from "./ui";
 
+const TEXT_K = 1.25;
+
 export class Talk extends Container {
   private readonly portrait: Sprite;
   private text: PopLabel;
@@ -22,7 +24,9 @@ export class Talk extends Container {
     this.portrait.anchor.set(0, 1);
     this.portrait.position.set(-1, H);
     // text: (122; 144) 540×170, Dialog2 чёрным по центру; имени говорящего в окне нет — его показывает портрет
-    this.text = pop("", "Dialog2", COLOR.black, { align: "center", wrap: 540 });
+    // текст крупнее (на свитке много места): масштаб TEXT_K, перенос по 540 / TEXT_K; по вертикали — по центру рамки 170
+    this.text = pop("", "Dialog2", COLOR.black, { align: "center", wrap: 540 / TEXT_K });
+    this.text.scale.set(TEXT_K);
     this.text.position.set(122 + 270, 144);
     this.addChild(shade, roll, this.portrait, this.text, this.controls);
   }
@@ -33,6 +37,7 @@ export class Talk extends Container {
     if (this.portrait.visible) this.portrait.texture = tex(`talker_${talker}`);
     this.portrait.scale.set(0.95);
     this.text.text = fmt(text);
+    this.text.y = Math.round(144 + (170 - this.text.textHeight * TEXT_K) / 2);
   }
 
   private clearControls() {

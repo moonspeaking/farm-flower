@@ -163,22 +163,23 @@ export class BouquetScreen extends Container {
 
   /**
    * Нажатие на свободное место букета (exe 0x510950). Уровень 1: нужный цветок сам переносится из корзины (0x510b80).
-   * Уровень 2: то же, а если перенести не вышло (такого цветка нет) — букет заполняется всем, что есть (0x510da0).
+   * Уровень 2 («достаточно нажать на нужный букет»): в букет переносятся все подходящие цветы, какие есть в корзине (0x510da0).
    */
   private autoTap(oi: number, si: number) {
     const ab = this.rules.auto_bouquet;
     if (!ab) return;
     const level = autoBouquetLevel(ab.thresholds, this.game.autoSold).level;
     if (level <= 0) return;
-    if (this.autoMove(oi, si)) return this.afterAuto(oi);
-    if (level >= 2) {
-      const o = this.game.bouquets.orders[oi];
-      let moved = false;
-      o.items.forEach((_, i) => {
-        if (!o.placed[i] && this.autoMove(oi, i)) moved = true;
-      });
-      if (moved) this.afterAuto(oi);
+    if (level < 2) {
+      if (this.autoMove(oi, si)) this.afterAuto(oi);
+      return;
     }
+    const o = this.game.bouquets.orders[oi];
+    let moved = false;
+    o.items.forEach((_, i) => {
+      if (!o.placed[i] && this.autoMove(oi, i)) moved = true;
+    });
+    if (moved) this.afterAuto(oi);
   }
 
   /** Перенести нужный месту si цветок из корзины: склад − 1, цветок пропадает из корзины. */

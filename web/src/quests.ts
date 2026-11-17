@@ -382,6 +382,12 @@ export class QuestEngine {
           break;
         case "set_quest_status":
           st.status[questName] = a.status;
+          // выполненная часть закрывается: иначе персонаж снова предлагает то же задание (например, «50 монет на сыщика»),
+          // а запись в журнале остаётся висеть; названные далее enable_sub_quest / next_sub_quest включат следующую часть
+          if (a.status === "done") {
+            if (current) disable(current);
+            if (st.journal) delete st.journal[`${here()}/${questName}`];
+          }
           break;
         case "set_mark":
           if (!g.marks.includes(a.mark)) {

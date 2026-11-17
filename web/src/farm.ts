@@ -170,6 +170,8 @@ export class Farm extends Container {
   private bugs: Bug[] = [];
   /** «Нажмите эту кнопку для начала дня» каждые 10 с, когда растение уже куплено (exe 0x48e960, метка first_vegetation). */
   private readonly startReminder = new Reminder("farm");
+  /** Напоминание о неиспользованных очках умений: пузырь level_up у значка уровня, если очки так и не потрачены. */
+  private readonly levelReminder = new Reminder("farm_level");
   // состояние волн хранится в игре (по локации): между днями и при уходе с фермы не сбрасывается
   private readonly arriver: BugArriver;
   /** Картинка метки-препятствия (дерево-идол 5-й локации растёт по меткам treemark_N). */
@@ -529,6 +531,7 @@ export class Farm extends Container {
     if (this.paused || waiting) return;
     if (this.mode !== "day" && !this.bouquets && this.startBtn.visible && !this.ui.children.some((c) => c.label === "modal")) {
       this.startReminder.tick(dt, this.tutorial, this.game.tutorial.includes("@first_vegetation"), () => this.tutorial.show("start_day_baloon", 630, 70, true));
+      this.levelReminder.tick(dt, this.tutorial, this.game.skillPoints > 0, () => this.tutorial.show("level_up", 52, 140));
     }
     this.weatherFx.update(dt);
     // Робин работает только в течение дня, между днями его на ферме нет

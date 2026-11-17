@@ -183,18 +183,21 @@ export class LevelUp extends Container {
     const points = g.skillPoints;
     this.setDesc(this.selected ? fmt(t.skill_desc[this.selected]) : points > 0 ? fmt(t.tutorial.level_up) : `${t.stats.hero_title}: ${g.level}`);
 
-    // level_up_button (271; 417) 50×33 и ok (283; 417) 26×24 — на одном листе, видна одна из них; стиль normal_small
+    // «Поднять» — на левом листе (как в первой игре), активна, когда выбрано умение и есть очки; «ОК» на правом листе только закрывает окно
     this.buttonHolder.removeChildren().forEach((c) => c.destroy({ children: true }));
-    const can = !!this.selected && points > 0 && g.skills[this.selected] < this.max(this.selected);
-    const b = can
-      ? textButton(t.buttons.level_up ?? "ОК", () => this.raise(), "small")
-      : textButton(t.buttons.ok ?? "OK", () => this.close(), "small");
-    b.position.set(can ? 271 + 25 : 283 + 13, can ? 417 + 16 : 417 + 12);
-    this.buttonHolder.addChild(b);
+    const up = textButton("Поднять", () => this.raise(), "small");
+    up.position.set(128, 417 + 12);
+    // активна, пока есть неиспользованные очки (выбранное умение при нажатии повышается; без выбора нажатие ничего не тратит)
+    up.alpha = points > 0 ? 1 : 0.4;
+    up.eventMode = points > 0 ? "static" : "none";
+    const b = textButton(t.buttons.ok ?? "OK", () => this.close(), "small");
+    b.position.set(283 + 13, 417 + 12);
+    this.buttonHolder.addChild(up, b);
   }
 
   private raise() {
-    const s = this.selected!;
+    const s = this.selected;
+    if (!s || this.game.skillPoints <= 0 || this.game.skills[s] >= this.max(s)) return;
     this.game.skills[s] += 1;
     audio.play("level_up");
     this.game.changed();

@@ -156,7 +156,7 @@ export class Menu extends Container {
       const mask = new Graphics();
       for (const rect of r) mask.rect(...rect);
       mask.fill(0xffffff);
-      // у последнего кадра — копия без нарисованной «лужи» кнопки (tools/make_comics_clean.py), пока кнопка не появилась
+      // у последнего кадра — копия без нарисованной «лужи» кнопки (tools/make_comics_clean.py): вместо неё оригинальная round_button
       c.addChild(image(index === COMICS_PANELS.length - 1 ? "comics_clean" : "comics"));
       c.addChild(mask);
       c.mask = mask;
@@ -168,19 +168,21 @@ export class Menu extends Container {
     const caption = comicsCaption(this.rules, "1");
     caption.alpha = 0;
     layer.addChild(caption);
-    const ok = roundButton(this.rules.texts.buttons_menu.continue_game || "Продолжить", () => {
+    const go = () => {
       layer.destroy({ children: true });
       this.events.play(true, difficulty);
-    });
+    };
+    const ok = roundButton(this.rules.texts.buttons_menu.continue_game || "Продолжить", go);
     // first_comics/ok: 612; 517 — кнопка уходит за нижний край
     ok.position.set(612 + 103, 517 + 99);
     // подложка перевёрнута (ободок снизу), подпись остаётся прямой и лежит в видимой части экрана (y ≈ 570);
-    // кнопка не «выскакивает», а плавно проявляется сразу в нормальном размере
-    ok.children[0].rotation = Math.PI;
-    ok.children[1].y = -36;
-    ok.children[1].scale.set(1.15); // подпись в оригинале примерно на 15% крупнее и ниже, у нижнего края кнопки
-    ok.alpha = 0;
-    ok.eventMode = "none"; // кнопка нажимается только после появления подписи
+    ok.children[0].rotation = Math.PI; // ободок снизу, как в оригинале
+    // подпись — по стилю кнопки first_comics/ok (menu_small): золотистый шрифт меню, при наведении светлеет; её размер вписывается в ободок
+    ok.children[1].visible = false;
+    const label = textButton(this.rules.texts.buttons_menu.continue_game || "Продолжить", go, "menuSmall");
+    label.position.set(0, -36);
+    ok.addChild(label);
+    // все кадры уже на экране — кнопка рисуется сразу, без задержки и проявления
     layer.addChild(ok);
     this.overlay.addChild(layer);
 
@@ -216,12 +218,6 @@ export class Menu extends Container {
       if (shown < panels.length && t >= COMICS_GAP) next();
       caption.alpha = shown >= 4 ? 1 : 0;
       for (let i = 0; i < shown; i++) panels[i].alpha = i < shown - 1 ? 1 : Math.min(1, t / COMICS_FADE);
-      // комикс закончился (последний кадр проявился) — после короткой паузы плавно появляется кнопка, сразу в нормальном размере
-      if (shown === panels.length) {
-        const k = (t - COMICS_FADE - COMICS_BUTTON_WAIT) / COMICS_BUTTON_FADE;
-        ok.alpha = Math.max(0, Math.min(1, k));
-        if (k >= 1) ok.eventMode = "static";
-      }
       requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);

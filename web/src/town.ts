@@ -186,14 +186,22 @@ export class Town extends Container {
       const sprite = this.people[holder]?.[0];
       const cx = sprite ? sprite.x + sprite.width / 2 : W / 2;
       const cy = sprite ? sprite.y + sprite.height / 2 : H / 2;
+      // в exe подложки нет, но на живом фоне кнопки не читаются — кладём пергамент dialog_roll по центру экрана, как у остальных окон
+      void cx;
+      void cy;
+      const shade = new Graphics().rect(0, 0, W, H).fill({ color: 0x000000, alpha: 0.35 });
+      layer.addChild(shade);
+      const roll = image("dialog");
+      roll.position.set(Math.round((W - 798) / 2), Math.round((H - 531) / 2));
+      layer.addChild(roll);
       const box = new Container();
-      box.position.set(Math.round(cx - 739 / 2), Math.round(cy - 426 / 2));
+      box.position.set(Math.round(W / 2 - 360), Math.round(H / 2 - 170));
       layer.addChild(box);
       const entries: { text: string; pick: Entry | null }[] = [
         ...list.map((q) => ({ text: q.data.header || this.rules.quests[q.quest]?.header || q.quest, pick: q as Entry })),
         { text: this.rules.texts.buttons.return || "Вернуться", pick: null },
       ];
-      const buttons = entries.map((e) => ({ e, b: textButton(e.text, () => finish(e.pick), "normal") }));
+      const buttons = entries.map((e) => ({ e, b: textButton(e.text, () => finish(e.pick)) }));
       const total = buttons.reduce((a, x) => a + x.b.textHeight, 0);
       let y = 170 - total / 2;
       for (const { b } of buttons) {

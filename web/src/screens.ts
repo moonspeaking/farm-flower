@@ -665,8 +665,8 @@ export function selectDifficultyScreen(parent: Container, rules: Rules): Promise
     item("casual", "Легкий", 154);
     item("hardcore", "Сложный", 185);
     const label = pop(t.headers.enable_tutorial_check_box ?? "Включить Туториал", "Dialog", COLOR.black);
-    // надпись выравнивается по вертикальному центру флажка (28×24 в (85; 225))
-    label.position.set(114, Math.round(225 + 12 - label.textHeight / 2));
+    // надпись выравнивается по центру видимого кружка флажка (в картинке 28×24 он занимает y 9–24, центр 16,5)
+    label.position.set(114, Math.round(225 + 16.5 - label.textHeight / 2));
     const toggle = () => {
       audio.setOptions({ ...audio.options, warnings: !audio.options.warnings });
       sync();

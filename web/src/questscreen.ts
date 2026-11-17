@@ -40,7 +40,7 @@ export class QuestScreen extends Container {
 
     // header_text (167; 37) 400×50: «Окно заданий» шрифтом stat_control_fonts_menu_normal по центру рамки
     const title = pop(t.quest_title || "Окно заданий", "stat_control_fonts_menu_normal", COLOR.white, { align: "center" });
-    title.position.set(167 + 200, 37);
+    title.position.set(BACK_W / 2, 37); // по центру рамки (в XML 167 + 200 при rect_alignment center — смещение от иной опоры, на рамке выходило правее)
     box.addChild(title);
 
     this.list.position.set(LIST.x, LIST.y);
