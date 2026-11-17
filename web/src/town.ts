@@ -134,6 +134,31 @@ export class Town extends Container {
       const has = this.quests.available(name).length > 0;
       for (const c of this.people[name]) c.visible = has;
     }
+    this.spreadPeople();
+  }
+
+  /**
+   * Позиции в XML заданы для каждого персонажа отдельно и пересекаются; когда в городе стоят сразу несколько,
+   * они раздвигаются по горизонтали (допускается небольшое наложение, как в толпе), чтобы не стоять друг на друге.
+   */
+  private spreadPeople() {
+    const shown = Object.entries(this.people)
+      .filter(([, list]) => list[0].visible)
+      .map(([name, list]) => ({ s: list[0], x: this.rules.holders[name].position[0] }))
+      .sort((a, b) => a.x - b.x);
+    const gap = 0.75;
+    let edge = 0;
+    for (const p of shown) {
+      p.x = Math.max(p.x, edge);
+      edge = p.x + p.s.width * gap;
+    }
+    // справа за экран выходить нельзя: сдвигаем ряд влево (каждый не правее, чем следующий минус свой отступ)
+    for (let i = shown.length - 1; i >= 0; i--) {
+      const p = shown[i];
+      const max = i === shown.length - 1 ? 800 - p.s.width : shown[i + 1].x - p.s.width * gap;
+      p.x = Math.min(p.x, max);
+    }
+    for (const p of shown) p.s.x = Math.max(0, p.x);
   }
 
   private async talk(holder: string) {
