@@ -112,8 +112,6 @@ export function newQuestState(quests: Record<string, Quest>): QuestState {
 export interface QuestHooks {
   /** Убрать все растения с грядок (remove_all_vegetations). */
   removeAllVegetations(): void;
-  /** Сообщение игроку о событии квеста. */
-  notify(text: string): void;
   /** add_vegetation: посадить растение name на свободную грядку (false — места нет или такого растения нет). */
   addVegetation(name: string): boolean;
   /** remove_vegetation: убрать с грядок все растения name. */
@@ -398,11 +396,11 @@ export class QuestEngine {
         case "reset_mark":
           g.marks = g.marks.filter((m) => m !== a.mark);
           break;
+        // exe 0x480a21 → 0x44be90 (money) / 0x44bb70 (items): только меняет деньги/инвентарь, без всплывашки.
         case "add_items":
           if (a.name === "money") g.gold += n;
           else if (g.rules.products[a.name]) g.storage.set(a.name, (g.storage.get(a.name) ?? 0) + n);
           else g.items[a.name] = (g.items[a.name] ?? 0) + n;
-          if (a.name === "money") this.hooks.notify(`+${n}$`);
           break;
         case "remove_items":
           if (a.name === "money") g.gold = Math.max(0, g.gold - n);
@@ -434,9 +432,9 @@ export class QuestEngine {
         case "remove_all_vegetations":
           this.hooks.removeAllVegetations();
           break;
+        // exe 0x481871: enable_helper только создаёт Робина (0x4c6ce0/0x45a5f0) — без окна и надписи.
         case "enable_helper":
           st.helper = true;
-          this.hooks.notify("Робин теперь живёт на ферме");
           break;
         case "disable_helper":
           st.helper = false;

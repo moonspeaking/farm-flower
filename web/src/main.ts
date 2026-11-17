@@ -19,7 +19,7 @@ import { WorldMap } from "./worldmap";
 import { loadFonts, setTextAspect } from "./popfont";
 import { creditsScreen } from "./credits";
 import { aboutScreen, comicsScreen, gameMenu, highscoresScreen, optionsScreen, pauseOverlay, recordScore, saveLoadScreen, trophyAwardPopup, trophyRoomScreen } from "./screens";
-import { H, hasImages, loadImages, setSharp, toast, unloadImages, W } from "./ui";
+import { H, hasImages, loadImages, setSharp, unloadImages, W } from "./ui";
 
 async function main() {
   const app = new Application();
@@ -191,7 +191,6 @@ async function main() {
     });
     const quests = new QuestEngine(lr.quests, g, {
       removeAllVegetations: () => f.removeAllPlants(),
-      notify: (s) => toast(world, s),
       marked: (m) => {
         // комикс концовки (exe 0x5226b0): при метке win_var_N вместе с win — ставится метка win_var_N_comics
         // (0x44c2c0) и показывается комикс win_var_N_comics (0x516ef0); проверка идёт при постановке любой
