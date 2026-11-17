@@ -185,8 +185,9 @@ export class Menu extends Container {
     this.overlay.addChild(layer);
 
     // показ по очереди: i — сколько кадров уже начали появляться, t — время с начала появления последнего
-    let shown = 0;
-    let t = COMICS_GAP;
+    // все кадры показываются сразу, затем (после короткой паузы) появляется кнопка
+    let shown = panels.length;
+    let t = COMICS_FADE;
     let last = performance.now();
     const next = () => {
       if (shown >= panels.length) return;

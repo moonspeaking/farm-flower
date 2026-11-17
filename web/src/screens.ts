@@ -665,17 +665,22 @@ export function selectDifficultyScreen(parent: Container, rules: Rules): Promise
     item("casual", "Легкий", 154);
     item("hardcore", "Сложный", 185);
     const label = pop(t.headers.enable_tutorial_check_box ?? "Включить Туториал", "Dialog", COLOR.black);
-    label.position.set(114, 225);
+    // надпись выравнивается по вертикальному центру флажка (28×24 в (85; 225))
+    label.position.set(114, Math.round(225 + 12 - label.textHeight / 2));
+    const toggle = () => {
+      audio.setOptions({ ...audio.options, warnings: !audio.options.warnings });
+      sync();
+    };
+    label.eventMode = "static";
+    label.cursor = "pointer";
+    label.on("pointertap", toggle);
     const on = image("options_check");
     const off = image("options_check_off");
     for (const s of [on, off]) {
       s.position.set(85, 225);
       s.eventMode = "static";
       s.cursor = "pointer";
-      s.on("pointertap", () => {
-        audio.setOptions({ ...audio.options, warnings: !audio.options.warnings });
-        sync();
-      });
+      s.on("pointertap", toggle);
     }
     const sync = () => {
       on.visible = audio.options.warnings;

@@ -161,6 +161,7 @@ export class Farm extends Container {
   private readonly weatherIcon: Sprite;
   private readonly weatherIconSmall = new Sprite();
   private readonly clockSmall = new Container();
+  private readonly clockBig = new Container();
   private bouquets: BouquetScreen | null = null;
   private dayLeft = 0;
   private harvestedToday = 0;
@@ -236,7 +237,7 @@ export class Farm extends Container {
     }
 
     // ---------------- часы дня (whether_time_ctrl) и круглые кнопки (start_day: 527; -110, to_town: 193; -110)
-    const clock = new Container();
+    const clock = this.clockBig;
     clock.addChild(image("clock_back"));
     this.pointer = image("clock_pointer");
     // стрелка: rotate_pos 20; 2 и rotate_center 85; 7 из controls/time — вращение вокруг (105; 9) элемента (0x4b02d0)
@@ -249,7 +250,7 @@ export class Farm extends Container {
     clock.position.set(689, 0);
     // exe 0x58b5e0: флаг «малые часы» (+0x28) ставится при создании фермы (0x584cb6) и больше не снимается, так что в оригинале
     // всегда рисуются только small_back, значок погоды и small_fore (справа вплотную к краю, y = 0); циферблата и стрелки нет
-    clock.visible = false;
+    clock.visible = true;
     const sb = image("weather_back");
     sb.x = 111 - sb.width - 51;
     const sf = image("weather_fore");
@@ -519,6 +520,9 @@ export class Farm extends Container {
     this.hud.tick(dt);
     this.flyFx.update(dt);
     // днём окно подсказки с затемнением ставит игру на паузу до «Закрыть» (exe 0x476cd0); простой пузырь — нет, он гаснет через 10 с
+    // в день — большие часы со стрелкой, вне дня — малое окно погоды
+    this.clockBig.visible = this.mode === "day";
+    this.clockSmall.visible = this.mode !== "day";
     const waiting = this.mode === "day" && this.tutorial.blocking;
     this.tutorial.update(dt);
     this.bouquets?.update(dt);
