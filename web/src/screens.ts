@@ -733,10 +733,17 @@ const REVEAL_BUTTON_FADE = 0.6;
  * вступительного; щелчок показывает следующий кадр (или проявляет текущий), подпись — с нижнего ряда, круглая кнопка
  * «Продолжить» (ok (611; 517) 206×199) — после последнего кадра. Разрешается, когда кнопку нажали.
  */
-export async function comicsScreen(parent: Container, rules: Rules, key: string): Promise<void> {
+export async function comicsScreen(parent: Container, rules: Rules, key: string, registerClose?: (close: () => void) => void): Promise<void> {
   await loadImages([`comics_${key}`]);
   return new Promise((resolve) => {
     const layer = new Container();
+    /** Закрытие извне (переход в другую сцену): убираем слой и завершаем обещание, иначе очередь комиксов встанет. */
+    const close = () => {
+      if (layer.destroyed) return;
+      layer.destroy({ children: true });
+      resolve();
+    };
+    registerClose?.(close);
     layer.addChild(new Graphics().rect(0, 0, W, H).fill(0x000000));
     const def = COMICS_REVEAL[key];
     const rects = def?.rects ?? [[0, 0, W, 510] as [number, number, number, number]];
@@ -757,10 +764,7 @@ export async function comicsScreen(parent: Container, rules: Rules, key: string)
     caption.alpha = 0;
     layer.addChild(caption);
     layer.eventMode = "static";
-    const ok = roundButton(rules.texts.buttons_menu.continue_game || "Продолжить", () => {
-      layer.destroy({ children: true });
-      resolve();
-    });
+    const ok = roundButton(rules.texts.buttons_menu.continue_game || "Продолжить", close);
     ok.position.set(611 + 103, 517 + 99);
     // подложка перевёрнута (ободок снизу), подпись лежит в видимой части экрана — как у вступительного комикса
     ok.children[0].rotation = Math.PI;

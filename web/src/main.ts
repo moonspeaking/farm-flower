@@ -123,6 +123,11 @@ async function main() {
   const frame = new Graphics().rect(0, 0, W, H).fill(0xffffff);
   world.addChild(frame);
   world.mask = frame;
+  // Комиксы живут в отдельном слое: show() переключает сцены и не должен прятать/show-ить комикс —
+  // иначе он становится невидимым вместе с кнопкой «Продолжить», а очередь комиксов застревает.
+  const comicOverlay = new Container();
+  world.addChild(comicOverlay);
+  let closeComic: (() => void) | null = null;
 
   let game: Game | null = null;
   // у каждой локации своя ферма, город и набор квестов; создаются при первом заходе
@@ -138,7 +143,11 @@ async function main() {
     // подсказки не переходят с экрана на экран
     worldTut?.dismiss();
     for (const f of Object.values(farms)) f.dismissTutorial();
-    for (const c of world.children) if (c !== frame && c !== worldTut) c.visible = c === scene;
+    // смена сцены закрывает висящий комикс (иначе его обещание не завершится и новые комиксы не появятся)
+    closeComic?.();
+    closeComic = null;
+    comicOverlay.removeChildren().forEach((c) => c.destroy({ children: true }));
+    for (const c of world.children) if (c !== frame && c !== worldTut && c !== comicOverlay) c.visible = c === scene;
   };
 
   /** Картинки локации n (вредители, фоны, портреты) грузятся при первом заходе — так в памяти нет неиспользуемых локаций; на это время виден экран загрузки. */
@@ -198,7 +207,7 @@ async function main() {
         const winComic = (v: "win_var_1" | "win_var_2") => {
           if (g.marks.includes(v) && g.marks.includes("win") && !g.marks.includes(`${v}_comics`)) {
             g.marks.push(`${v}_comics`);
-            comicsQueue = comicsQueue.then(() => comicsScreen(world, rules, v));
+            void playComic(v);
           }
         };
         if (m === "win_var_1" || m === "win_var_2" || m === "win") {
@@ -236,9 +245,21 @@ async function main() {
 
   /** Переход в локацию n: ферма текущей сохраняется, состояние игры переключается. */
   let entering = false;
-  /** Комиксы показываются по очереди. */
+  /** Комиксы показываются по очереди, в отдельном слое поверх сцен. */
   let comicsQueue: Promise<void> = Promise.resolve();
-  if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__comics = (key: string) => comicsScreen(world, rules, key); // отладка: показать комикс
+  const playComic = (key: string) => {
+    closeComic?.(); // если предыдущий комикс ещё висит, закрываем его — иначе очередь встанет
+    comicsQueue = comicsQueue.then(async () => {
+      world.setChildIndex(comicOverlay, world.children.length - 1);
+      await comicsScreen(comicOverlay, rules, key, (close) => { closeComic = close; });
+      closeComic = null;
+    });
+    return comicsQueue;
+  };
+  if (import.meta.env.DEV) Object.assign(window, {
+    __comics: (key: string) => playComic(key), // отладка: показать комикс
+    __closeComic: () => closeComic?.(), // отладка: закрыть висящий комикс
+  });
   const enter = async (g: Game, n: number, scene: "farm" | "town") => {
     if (entering) return;
     entering = true;
@@ -255,10 +276,14 @@ async function main() {
     farms[n].refresh();
     towns[n].refresh();
     if (scene === "town") towns[n].entered();
-    // первый приход в локацию 2–5 — комикс location_N_comix (метка comix_N, чтобы не показывать снова)
+    // первый приход в локацию 2–5 — комикс location_N_comix (exe 0x524600: метка location_N_comix, показ - 0x516ef0).
+    // Метку ставим только перед самим показом: если комикс не дошёл (перезагрузка, смена сцены), он покажется при следующем входе.
     if (n >= 2 && !g.marks.includes(`comix_${n}`)) {
-      g.marks.push(`comix_${n}`);
-      comicsQueue = comicsQueue.then(() => comicsScreen(world, rules, String(n)));
+      void comicsQueue.then(async () => {
+        if (g.marks.includes(`comix_${n}`)) return;
+        g.marks.push(`comix_${n}`);
+        await playComic(String(n));
+      });
     }
   };
 

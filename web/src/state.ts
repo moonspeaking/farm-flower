@@ -31,9 +31,12 @@ export interface BouquetOrder {
 
 export type Weather = "normal" | "rain" | "sun";
 
-/** Сколько уровней ёмкости есть у фермы с начала: подряд идущие, стоящие 0 (в локации 2 первый ящик стоит 1500 — его нет). */
+/**
+ * Сколько уровней ёмкости есть у фермы с начала: первый (как и бочка воды) бесплатный на всех фермах —
+ * в том числе на 3-й, где в XML у него стоит 150; дальше идут подряд уровни с ценой 0.
+ */
 export function ownedLevels(levels: { price: number }[]) {
-  let n = 0;
+  let n = Math.min(1, levels.length);
   while (n < levels.length && levels[n].price === 0) n++;
   return n;
 }
@@ -578,6 +581,8 @@ export class Game {
         });
         this.mergeOldMarks();
         this.restore(s.farms[s.loc]);
+        // миграция старых сохранений: первый ящик бесплатный на всех фермах, раньше 3-я ферма стартовала с 0
+        if (this.boxes < 1) this.boxes = 1;
         // сохранения до уровней совы: add_owl ставил только флаг owl — сова первой фермы первого уровня
         if (this.owl && !s.farms[1]?.owlLevel && this.loc === 1) this.owlLevel = Math.max(this.owlLevel, 1);
         this.fillOrders();
@@ -596,6 +601,7 @@ export class Game {
       });
       this.mergeOldMarks();
       this.storage = new Map(Object.entries(s.storage));
+      if (this.boxes < 1) this.boxes = 1;
       this.fillOrders();
       return true;
     } catch {
