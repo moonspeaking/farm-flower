@@ -727,7 +727,7 @@ def export_location(n, props, xml_dir, items_root, ru, vegetations, products, bu
         "prices": {"ridge": int(items_root.find(f"items/ridges/location_{n}").attrib["price"]),
                    "water": int(items_root.find("items/water").attrib["price"])},
         "waves": waves,
-        # пауза после волны (атрибут delay у wave.): отсчитывается, когда группы вышли и поле чистое (exe 0x40ced0)
+        # пауза после волны (атрибут delay у wave.): отсчитывается, когда группы вышли и поле чистое (exe 0x41b870); delay в секундах
         "wave_delays": [float(w.attrib.get("delay", 0)) for w in next(l for l in props.iter(f"location_{n}") if l.find("bug_arriver") is not None).find("bug_arriver/waves")],
         # ключ волны (key у wave.) и wave_loop — с какой волны начинать круг заново (exe 0x41c400)
         **wave_keys(next(l for l in props.iter(f"location_{n}") if l.find("bug_arriver") is not None).find("bug_arriver")),
