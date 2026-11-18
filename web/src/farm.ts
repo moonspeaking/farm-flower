@@ -923,12 +923,12 @@ export class Farm extends Container {
 
   /** Робин появляется после квеста слуги (enable_helper). */
   private syncHelper() {
-    if (!this.game.quests.helper && this.helper) {
+    if (!this.game.helper && this.helper) {
       // disable_helper: Робин уходит с фермы
       this.helper.destroy({ children: true });
       this.helper = null;
     }
-    if (!this.game.quests.helper || this.helper) return;
+    if (!this.game.helper || this.helper) return;
     const helper = (this.helper = new Helper(this.rules, this.game, [255, 285]));
     helper.visible = this.mode === "day";
     // нажатие по жаждущему Робину поит его (exe 0x430370 → 0x4c80b0): расходуется вода, срок жажды заводится заново
@@ -1628,7 +1628,7 @@ export class Farm extends Container {
   openLevelUp() {
     if (this.paused) return;
     this.paused = true;
-    const screen = new LevelUp(this.rules, this.game, !!this.game.quests.helper, () => {
+    const screen = new LevelUp(this.rules, this.game, !!this.game.helper, () => {
       this.paused = false;
       this.persist();
     });

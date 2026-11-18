@@ -83,6 +83,8 @@ interface SaveV3 {
   loc: number;
   farms: Record<number, FarmState>;
   weapons?: string[];
+  /** Робин: общий для всех ферм; в старых сохранениях флаг лежал в questStates. */
+  helper?: boolean;
   owl?: boolean;
   medals?: Record<string, number>;
   trophies?: Record<string, TrophyState>;
@@ -213,6 +215,11 @@ export class Game {
   bugItems: Record<string, number> = {};
   /** Оружие из квестов (add_weapon: лопата, меч…), сова на ферме (add_owl), медали дракона для комнаты трофеев. */
   weapons: string[] = [];
+  /**
+   * Робин живёт на всех фермах: в exe указатель помощника лежит в игре (+0x58c, чтение 0x44c1d0, запись 0x44c1f0),
+   * а не в состоянии отдельной локации. enable_helper есть только в квесте 1-й фермы, но disable_helper — в экзаменах 2–4.
+   */
+  helper = false;
   owl = false;
   medals: Record<string, number> = {};
   /** Награды комнаты трофеев: ступень и счётчик к следующей (общие для игрока, exe — в GameHolder). */
@@ -518,7 +525,7 @@ export class Game {
       kills: this.kills, gathered: this.gathered, attackSpecific: this.attackSpecific, productSpecific: this.productSpecific,
       tutorial: this.tutorial, loc: this.loc, farms: { ...this.farms, [this.loc]: this.snapshot(plants) },
       questStates: this.questStates, world: this.world, marks: this.marks, items: this.items, bugItems: this.bugItems,
-      weapons: this.weapons, owl: this.owl, medals: this.medals, trophies: this.trophies, difficulty: this.difficulty,
+      weapons: this.weapons, helper: this.helper, owl: this.owl, medals: this.medals, trophies: this.trophies, difficulty: this.difficulty,
       savedAt: Date.now(),
     };
     try {
@@ -565,7 +572,9 @@ export class Game {
           day: s.day, gold: s.gold, exp: s.exp, skills: s.skills, kills: s.kills, gathered: s.gathered,
           attackSpecific: s.attackSpecific, productSpecific: s.productSpecific, tutorial: s.tutorial,
           questStates: s.questStates, world: s.world, farms: s.farms, loc: s.loc, marks: s.marks ?? [], items: s.items ?? {}, bugItems: s.bugItems ?? {},
-          weapons: s.weapons ?? [], owl: !!s.owl, medals: s.medals ?? {}, trophies: s.trophies ?? {}, difficulty: s.difficulty ?? "casual",
+          weapons: s.weapons ?? [],
+          helper: !!s.helper || Object.values(s.questStates).some((q) => q.helper === true),
+          owl: !!s.owl, medals: s.medals ?? {}, trophies: s.trophies ?? {}, difficulty: s.difficulty ?? "casual",
         });
         this.mergeOldMarks();
         this.restore(s.farms[s.loc]);
@@ -583,7 +592,7 @@ export class Game {
         day: s.day, gold: s.gold, water: s.water, exp: s.exp, skills: s.skills, kills: s.kills, gathered: s.gathered,
         attackSpecific: s.attackSpecific, productSpecific: s.productSpecific, barrels: s.barrels, boxes: s.boxes, well: !!s.well,
         boughtRidges: s.boughtRidges, savedPlants: s.plants, seeds: s.seeds, bouquets: s.bouquets, tutorial: s.tutorial,
-        loc: 1, questStates: { 1: s.quests }, marks: [], items: {}, bugItems: {},
+        loc: 1, questStates: { 1: s.quests }, marks: [], items: {}, bugItems: {}, helper: !!s.quests?.helper,
       });
       this.mergeOldMarks();
       this.storage = new Map(Object.entries(s.storage));

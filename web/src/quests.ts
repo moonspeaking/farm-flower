@@ -53,7 +53,7 @@ export interface QuestState {
   bugItems?: Record<string, number>;
   /** disable_bug_wave: названия вредителей, которые пока не появляются (enable_bug_wave возвращает их). */
   bugsOff?: string[];
-  /** enable_helper: Робин живёт на ферме. */
+  /** Устарело: Робин хранится в Game.helper (общий для всех ферм); поле нужно только старым сохранениям. */
   helper?: boolean;
   /** enable_buy_water: можно ли покупать воду (по умолчанию да). */
   waterBuy?: boolean;
@@ -98,7 +98,7 @@ export interface StoredState {
   statues?: Record<string, number>;
   boughtRidges: number[];
   /** Ключ вредителей, Робин и ограничения магазина, которые меняют квесты этапов (exe: снимок шире, 0x47ef60). */
-  limits?: Pick<QuestState, "pestsKey" | "ridgeCap" | "saleCap" | "maxBarrels" | "maxBoxes" | "waterBuy" | "manualWork" | "helper"> & { wellBuy: boolean };
+  limits?: Pick<QuestState, "pestsKey" | "ridgeCap" | "saleCap" | "maxBarrels" | "maxBoxes" | "waterBuy" | "manualWork"> & { wellBuy: boolean; helper: boolean };
   world: { towns: Record<string, boolean>; farms: Record<string, boolean> };
 }
 
@@ -232,7 +232,7 @@ export class QuestEngine {
             boughtRidges: [...g.boughtRidges], world: structuredClone(g.world),
             limits: {
               pestsKey: st.pestsKey, ridgeCap: st.ridgeCap, saleCap: st.saleCap, maxBarrels: st.maxBarrels, maxBoxes: st.maxBoxes,
-              waterBuy: st.waterBuy, manualWork: st.manualWork, wellBuy: g.wellBuy, helper: st.helper,
+              waterBuy: st.waterBuy, manualWork: st.manualWork, wellBuy: g.wellBuy, helper: g.helper,
             },
           };
           break;
@@ -249,7 +249,7 @@ export class QuestEngine {
               g.wellBuy = wellBuy;
               Object.assign(st, { pestsKey: undefined, ridgeCap: undefined, saleCap: undefined, maxBarrels: undefined, maxBoxes: undefined, waterBuy: undefined, manualWork: undefined }, rest);
               // exe 0x47f9e0: +0x9c хранит наличие Робина; restore удаляет или создаёт его заново
-              if (helper !== undefined) st.helper = helper;
+              if (helper !== undefined) g.helper = helper;
             }
           }
           break;
@@ -435,11 +435,12 @@ export class QuestEngine {
           this.hooks.removeAllVegetations();
           break;
         // exe 0x481871: enable_helper только создаёт Робина (0x4c6ce0/0x45a5f0) — без окна и надписи.
+        // Оба действия пишут в общий объект игры (+0x58c), поэтому Робин не привязан к текущей ферме.
         case "enable_helper":
-          st.helper = true;
+          g.helper = true;
           break;
         case "disable_helper":
-          st.helper = false;
+          g.helper = false;
           break;
         case "clear_bouquets":
           // испытания детектива начинают ферму заново: заказы букетов и собранные цветы пропадают
