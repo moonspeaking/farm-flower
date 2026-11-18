@@ -826,6 +826,15 @@ export class BugArriver {
     return picked;
   }
 
+  /**
+   * Конец дня: exe 0x42f670 → 0x41afc0/0x41c400 выбирает следующую волну и очищает текущие группы.
+   * Порт очищает группы и ждёт 0: первая же проверка нового дня сама возьмёт следующую волну (с учётом ключа).
+   */
+  nextDay() {
+    this.state.groups = [];
+    this.state.wait = 0;
+  }
+
   /** Имя вредителя, которому пора появиться (не больше одного за кадр), или null. */
   tick(rules: Rules, dt: number, fieldEmpty: boolean, arrive: number, key = "", difficulty = "casual"): string | null {
     const s = this.state;

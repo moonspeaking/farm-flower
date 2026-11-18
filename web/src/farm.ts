@@ -500,6 +500,8 @@ export class Farm extends Container {
     const day = this.game.day;
     this.game.trophyBook.dayEnded();
     this.game.day += 1;
+    // exe 0x42f670: на границе дней BugArriver выбирает новую волну — длинные паузы группы не переносятся
+    this.arriver.nextDay();
     this.game.advanceDayLength();
     this.events.dayEnded();
     this.game.changed();

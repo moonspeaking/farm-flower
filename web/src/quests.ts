@@ -97,8 +97,8 @@ export interface StoredState {
   owlLevel?: number;
   statues?: Record<string, number>;
   boughtRidges: number[];
-  /** Ключ вредителей и ограничения магазина, которые меняют квесты этапов (exe: снимок шире, 0x47ef60). */
-  limits?: Pick<QuestState, "pestsKey" | "ridgeCap" | "saleCap" | "maxBarrels" | "maxBoxes" | "waterBuy" | "manualWork"> & { wellBuy: boolean };
+  /** Ключ вредителей, Робин и ограничения магазина, которые меняют квесты этапов (exe: снимок шире, 0x47ef60). */
+  limits?: Pick<QuestState, "pestsKey" | "ridgeCap" | "saleCap" | "maxBarrels" | "maxBoxes" | "waterBuy" | "manualWork" | "helper"> & { wellBuy: boolean };
   world: { towns: Record<string, boolean>; farms: Record<string, boolean> };
 }
 
@@ -232,7 +232,7 @@ export class QuestEngine {
             boughtRidges: [...g.boughtRidges], world: structuredClone(g.world),
             limits: {
               pestsKey: st.pestsKey, ridgeCap: st.ridgeCap, saleCap: st.saleCap, maxBarrels: st.maxBarrels, maxBoxes: st.maxBoxes,
-              waterBuy: st.waterBuy, manualWork: st.manualWork, wellBuy: g.wellBuy,
+              waterBuy: st.waterBuy, manualWork: st.manualWork, wellBuy: g.wellBuy, helper: st.helper,
             },
           };
           break;
@@ -245,9 +245,11 @@ export class QuestEngine {
             g.boughtRidges = [...v.boughtRidges];
             g.world = structuredClone(v.world);
             if (v.limits) {
-              const { wellBuy, ...rest } = v.limits;
+              const { wellBuy, helper, ...rest } = v.limits;
               g.wellBuy = wellBuy;
               Object.assign(st, { pestsKey: undefined, ridgeCap: undefined, saleCap: undefined, maxBarrels: undefined, maxBoxes: undefined, waterBuy: undefined, manualWork: undefined }, rest);
+              // exe 0x47f9e0: +0x9c хранит наличие Робина; restore удаляет или создаёт его заново
+              if (helper !== undefined) st.helper = helper;
             }
           }
           break;
