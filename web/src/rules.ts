@@ -47,6 +47,8 @@ export interface StorageLevel extends Place {
   /** На сколько пикселей опускается содержимое при пустой ёмкости (progress_height). */
   progress_height: number;
   image_offset: [number, number];
+  /** Бочки: картинки бочки, воды и маски этой локации (resource.xml root/water_storage/<объект>). */
+  images?: string[];
 }
 
 export interface BugAnim {

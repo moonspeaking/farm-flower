@@ -1079,7 +1079,9 @@ export class Farm extends Container {
     const place = (list: Filled[], levels: StorageLevel[], owned: number, base: string, content: string, mask: string, onTap?: () => void) => {
       while (list.length < owned) {
         const lv = levels[list.length];
-        const f = new Filled(base, content, mask, lv.progress_height);
+        // у бочек локации свои картинки (barrel_01 / _04 / _05 по resource.xml)
+        const [b, c, m] = lv.images ?? [base, content, mask];
+        const f = new Filled(b, c, m, lv.progress_height);
         f.position.set(lv.position[0], lv.position[1]);
         if (onTap) {
           f.eventMode = "static";
@@ -1254,7 +1256,7 @@ export class Farm extends Container {
     // бочка (с 5-го дня), ящик (с 6-го), колодец (с 12-го)
     const nextBarrel = this.rules.water_storage[g.barrels];
     if (nextBarrel && g.hasMark("shop_barrel") && g.barrels < (g.quests.maxBarrels ?? Infinity)) {
-      const ghost = image("barrel");
+      const ghost = image(nextBarrel.images?.[0] ?? "barrel");
       ghost.alpha = 0.4;
       ghost.position.set(...nextBarrel.position);
       ghostOf("barrel", ghost);

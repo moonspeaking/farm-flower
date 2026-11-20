@@ -619,19 +619,25 @@ export async function trophyAwardPopup(parent: Container, rules: Rules, name: st
   const { normal } = trophyImages(rules, name, level);
   await loadImages([normal]);
   const layer = new Container();
+  // на голой ферме награда «висела в воздухе», а белый текст сливался с травой — кладём её на свиток dialog_roll, как окна сообщений
   layer.addChild(shade());
-  const header = pop(rules.texts.medal_header || "Вы получили награду!", "stat_control_fonts_menu_normal", COLOR.white, { align: "center" });
+  const box = new Container();
+  box.position.set(Math.round((W - 798) / 2), Math.round((H - 531) / 2));
+  box.addChild(image("dialog"));
+  const cx = 798 / 2;
+  const header = pop(rules.texts.medal_header || "Вы получили награду!", "Dialog2", COLOR.black, { align: "center", wrap: 650 });
   header.anchor.set(0.5, 0.5);
-  header.position.set(W / 2, 150);
+  header.position.set(cx, 85);
   const medal = image(normal);
   medal.anchor.set(0.5, 0.5);
-  medal.position.set(W / 2, 300);
-  const text = pop(((rules.texts.medals ?? {})[`${name}_${Math.min(level, (rules.trophies?.[name]?.images ?? 1) - 1)}`] ?? "").replace(/\\n/g, "\n"), "stat_control_fonts_1", COLOR.white, { align: "center", wrap: 560 });
+  medal.position.set(cx, 150);
+  const text = pop(((rules.texts.medals ?? {})[`${name}_${Math.min(level, (rules.trophies?.[name]?.images ?? 1) - 1)}`] ?? "").replace(/\\n/g, "\n"), "Dialog", COLOR.black, { align: "center", wrap: 560 });
   text.anchor.set(0.5, 0);
-  text.position.set(W / 2, 420);
+  text.position.set(cx, 200);
   const ok = textButton(rules.texts.buttons.ok ?? "OK", () => layer.destroy({ children: true }));
-  ok.position.set(W / 2, 540);
-  layer.addChild(header, medal, text, ok);
+  ok.position.set(cx, 431);
+  box.addChild(header, medal, text, ok);
+  layer.addChild(box);
   parent.addChild(layer);
 }
 

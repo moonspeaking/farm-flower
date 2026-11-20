@@ -739,7 +739,7 @@ def export_location(n, props, xml_dir, items_root, ru, vegetations, products, bu
                  **{k: float(well[k]) for k in ("delay", "fill_time", "water_capacity", "price", "pail_height")}},
         **well_levels(farm, objects, items_root),
         "prices": {"ridge": int(items_root.find(f"items/ridges/location_{n}").attrib["price"]),
-                   "water": int(items_root.find("items/water").attrib["price"])},
+                   "water": int(items_root.find("items/water").attrib.get(f"location_{n}_price") or items_root.find("items/water").attrib["price"])},
         "waves": waves,
         # пауза после волны (атрибут delay у wave.): отсчитывается, когда группы вышли и поле чистое (exe 0x41b870); delay в секундах
         "wave_delays": [float(w.attrib.get("delay", 0)) for w in next(l for l in props.iter(f"location_{n}") if l.find("bug_arriver") is not None).find("bug_arriver/waves")],
@@ -986,6 +986,10 @@ def main():
     rules["global_map"] = {c.tag: {"position": vec(c.attrib["position"]), "dimensions": vec(c.attrib["dimensions"]),
                                     "image": c.attrib.get("active_image", "")}
                            for gm in props.findall("global_map") for c in gm if "position" in c.attrib}
+    # В XML зоны ферм 4 и 5 стоят не там, где нарисованы: farm_4 (681;50) лежит на храме города 5, farm_5 (645;159) — на пустой скале.
+    # Картинки при подборе по global_map_back совпадают с фоном в (722;220) — пирамида, и (524;28) — кольцо; зоны ставим туда.
+    rules["global_map"]["farm_4"]["position"] = [722.0, 220.0]
+    rules["global_map"]["farm_5"]["position"] = [524.0, 28.0]
 
     # ---------------- опыт, умения, букеты, прогрессы, погода
     rules.update(export_gameplay(props, loc1_props=next(l for l in props.iter("location_1") if l.find("bouquet_set") is not None),
@@ -1088,6 +1092,14 @@ def main():
                     names[nm] = src
             ctrl = well_ctrl.find(pn)
             it["pail_pos"] = vec(ctrl.attrib["position"]) if ctrl is not None else None
+    # бочки по resource.xml: root/water_storage/<объект>/barrel|water|mask (у 4-й и 5-й локаций свои картинки, barrel_04 / barrel_05)
+    for loc in [rules] + list(rules["locations"].values()):
+        for lv in loc["water_storage"]:
+            parts = [res.get(f"root/water_storage/{lv['object']}/{k}", "") for k in ("barrel", "water", "mask")]
+            if all(parts):
+                lv["images"] = [f"{k}_{Path(src).name}" for k, src in zip(("barrel", "barrelw", "barrelm"), parts)]
+                for nm, src in zip(lv["images"], parts):
+                    names[nm] = src
     for item in {b["items"] for b in bugs.values() if b["items"]}:
         names[f"item_{item}"] = f"quest_items/{item}"
     for icon in ("attack_icon", "pour_icon", "product_icon"):
