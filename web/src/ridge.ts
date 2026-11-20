@@ -40,6 +40,9 @@ interface Plant extends PlantSave {
   ripeFor: number[];
 }
 
+/** Сколько литров даёт капля воды кактуса (по памяти игрока — 3; в exe одно применение бонуса кладёт 1 единицу воды). */
+export const CACTUS_WATER = 3;
+
 export interface RidgeEvents {
   /** Нажатие по лунке или растению (ферма решает, что делать). */
   tap(ridge: RidgeView): void;
@@ -146,6 +149,13 @@ export class RidgeView extends Container {
     view.on("pointertap", () => this.events.tap(this));
     view.on("pointerover", () => this.events.hover(this));
     this.plantLayer.addChild(view);
+    // капли жажды — у основания растения: у высоких растений (поздние стадии, ананас, кактус) основание лежит заметно ниже точки опоры
+    // (у romashka_3 — на 35 px), и капли на стандартном смещении висели над самим растением
+    const hungerOffset = this.rules.progresses.vegetation_hunger.offset;
+    // смещение (0; −10) в данных — центр ряда капель, а не нижний край: картинка капли 20 × 34, ряд центрируется по этой точке (exe 0x425860)
+    const base = this.anchorPoint[1] + hungerOffset[1] + tex("drop").height / 2;
+    const bottom = view.y + view.height;
+    this.drops.y = Math.max(base, bottom - 10); // низкие растения остаются на стандартном смещении, высокие — капли встают у их основания
     const dry = new Sprite(silhouette(name));
     dry.eventMode = "none";
     dry.alpha = 0;
@@ -247,8 +257,17 @@ export class RidgeView extends Container {
     const next = p.def.upgrade_to_vegetation;
     if (next && p.def.upgrade > 0 && p.pours >= p.def.upgrade && this.rules.vegetations[next]) {
       const keep = { thirstIn: p.thirstIn, thirstTotal: p.thirstTotal, thirstLost: p.thirstLost, harvested: p.harvested };
+      // несобранные плоды переходят на новую стадию (на тех же узлах, где они есть), а не пропадают при смене картинки
+      const ripe = p.products.map((n, i) => ({ n, f: p.ripeFor[i] }));
       this.setPlant(next);
       Object.assign(this.plant!, keep);
+      const np = this.plant!;
+      ripe.forEach(({ n, f }, i) => {
+        if (!n || i >= np.products.length) return;
+        np.products[i] = n;
+        np.ripeFor[i] = f;
+        this.showProduct(i, n);
+      });
       this.events.grew(this);
     }
     return true;
@@ -302,11 +321,13 @@ export class RidgeView extends Container {
     if (!p || !name) return;
     const g = this.game;
     const ripeFor = p.ripeFor[i];
-    if (g.storageCount() >= g.storageMax) {
+    // вода кактуса (bonuses="add_water") — отдельный узел, независимый от плодов: вместо плода в ящик в бочку уходит вода, место в ящиках не нужно
+    const water = this.rules.products[name]?.bonuses === "add_water";
+    if (water) g.water = Math.min(g.waterMax, g.water + CACTUS_WATER);
+    else if (g.storageCount() >= g.storageMax) {
       const at = { x: this.x + this.anchorPoint[0], y: this.y - 20 };
       return this.events.say(this.rules.texts.events.no_room ?? "Хранилище заполнено", at.x, at.y);
-    }
-    g.storage.set(name, (g.storage.get(name) ?? 0) + 1);
+    } else g.storage.set(name, (g.storage.get(name) ?? 0) + 1);
     const at = { x: this.x + p.view.x + p.def.nodes[i][0], y: this.y + p.view.y + p.def.nodes[i][1] - 20 };
     p.views[i]?.destroy();
     p.views[i] = null;
@@ -320,14 +341,17 @@ export class RidgeView extends Container {
     const p = this.plant!;
     const free = p.products.findIndex((s) => s === null);
     if (free < 0) return false;
-    // продукт выбирается по вероятностям probability из XML
-    const total = p.def.probabilities.reduce((a, b) => a + b, 0);
+    // плод выбирается по вероятностям probability из XML: из списка узла, если у узла он свой (капля воды кактуса), иначе из общего списка растения
+    const list = p.def.node_products?.[free];
+    const names = list ? list.map((x) => x.product) : p.def.products;
+    const probs = list ? list.map((x) => x.probability) : p.def.probabilities;
+    const total = probs.reduce((a, b) => a + b, 0);
     let r = Math.random() * total;
     let k = 0;
-    while (k < p.def.products.length - 1 && (r -= p.def.probabilities[k]) > 0) k++;
-    p.products[free] = p.def.products[k];
+    while (k < names.length - 1 && (r -= probs[k]) > 0) k++;
+    p.products[free] = names[k];
     p.ripeFor[free] = 0;
-    this.showProduct(free, p.def.products[k]);
+    this.showProduct(free, names[k]);
     const at = { x: this.x + p.view.x + p.def.nodes[free][0], y: this.y + p.view.y + p.def.nodes[free][1] };
     this.events.appeared(this, at.x, at.y);
     return true;
@@ -404,7 +428,9 @@ export class RidgeView extends Container {
     if (this.thirsty) this.drops.setValue(p.thirstIn, p.thirstTotal / 10);
     else this.drops.set(0);
     p.dry.alpha = Math.max(0, Math.min(1, 3 * (0.25 - p.thirstIn / p.thirstTotal)));
-    this.lives.set(this.eatenFor > 0 && p.damage > 0 ? Math.max(1, Math.ceil((3 * (max - p.damage)) / max)) : 0);
+    // цветочки жизни — тот же ряд, что у капель (exe 0x425860): один цветочек = жизнь / max, а если жизни не больше max — ровно 1; последний уменьшается на долю остатка
+    if (this.eatenFor > 0 && p.damage > 0) this.lives.setValue(Math.max(0, max - p.damage), max > this.lives.max ? max / this.lives.max : 1);
+    else this.lives.set(0);
   }
 
   /** Перерыв между днями: капли и таймеры стоят. */

@@ -120,6 +120,12 @@ export interface FarmEvents {
   dayEnded(): void;
 }
 
+/**
+ * Где Робин начинает день на ферме: свободная от препятствий точка. На ферме 1, 3 и 5 хватает исходной (255; 285), а на 2-й там стоят
+ * ящики, на 4-й — бочки (клетка (10; 19) сетки занята); точки — ближайшие клетки, свободные вместе с соседями (Робин занимает квадрат 3 × 3).
+ */
+const HELPER_HOME: Record<number, [number, number]> = { 2: [175, 315], 4: [200, 345] };
+
 export class Farm extends Container {
   private mode: Mode = "shop";
   /** Пауза: меню, окна умений и т. п. — таймеры дня стоят. */
@@ -371,7 +377,7 @@ export class Farm extends Container {
       const free = this.rules.ridges_for_sale[idx];
       if (free && tut.show("new_ridge", free.position[0] + 24, free.position[1] + 4)) this.setBuyTarget(`ridge:${idx}`);
     }
-    if (g.hasMark("shop_well") && !g.well && tut.show("well", 188, 480)) this.setBuyTarget("well");
+    if (g.hasMark("shop_well") && !g.well && tut.show("well", this.well.x + this.well.width / 2, this.well.y + this.well.height / 2)) this.setBuyTarget("well");
     // tutorial/<вид>: пузырь у статуи, пока её можно купить (baloon_pos из properties_ru.xml)
     for (const st of this.statues) {
       const at = STATUE_BALLOONS[st.kind];
@@ -388,6 +394,7 @@ export class Farm extends Container {
     const free = this.game.storageMax - this.game.storageCount();
     let warning = "";
     if (this.game.water < plants) warning = t.warnings.low_water;
+    else if (free <= 0) warning = t.warnings.full_storage ?? "Нет места на складе. \\n\\nВсе равно начать день?"; // места нет совсем
     else if (free < plants) warning = t.warnings.low_storage_capacity;
     if (warning && audio.options.warnings) {
       const r = await dialog(this.ui, {
@@ -639,7 +646,9 @@ export class Farm extends Container {
       },
       harvested: (_ridge, product, x, y, ripeFor) => {
         audio.play("product_harvest");
-        this.flyToPanel("pq", product, x, y, [77, 240]);
+        const water = this.rules.products[product]?.bonuses === "add_water";
+        // вода кактуса летит в бочки, а не в ящик, и не считается собранным цветком (медали, умения по виду)
+        this.flyToPanel("pq", product, x, y, water ? [32, 355] : [77, 240], water ? "water" : "product");
         // плод дерева-идола — метка mega_fruit, открывающая финальный квест (exe 0x479260: при сборе
         // с растения idol_tree — 0x413610 — ставится метка mega_fruit, 0x44c2c0)
         if (_ridge.plant?.name === "idol_tree" && !this.game.marks.includes("mega_fruit")) {
@@ -648,9 +657,10 @@ export class Farm extends Container {
         const base = this.rules.products[product]?.exp ?? 0;
         const exp = this.bonusEvent("gather", ripeFor, x, y - 40, base);
         this.harvestedToday += 1;
-        this.game.trophyBook.gathered(product);
         this.renderStorages();
         this.gainExp(exp, x, y - 10);
+        if (water) return;
+        this.game.trophyBook.gathered(product);
         const fam = family(product);
         this.specific("product", fam, this.rules.texts.names[fam] ?? fam);
         if (this.game.storageCount() >= this.game.storageMax) this.tutorial.show("first_no_room", x, y);
@@ -929,7 +939,7 @@ export class Farm extends Container {
       this.helper = null;
     }
     if (!this.game.helper || this.helper) return;
-    const helper = (this.helper = new Helper(this.rules, this.game, [255, 285]));
+    const helper = (this.helper = new Helper(this.rules, this.game, HELPER_HOME[this.rules.location] ?? [255, 285]));
     helper.visible = this.mode === "day";
     // нажатие по жаждущему Робину поит его (exe 0x430370 → 0x4c80b0): расходуется вода, срок жажды заводится заново
     helper.onClick = () => {

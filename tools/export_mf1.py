@@ -448,6 +448,19 @@ def export_tutorial(props):
 
 
 
+def node_products(el):
+    """Свои плоды узлов растения: у узла с available_products > 0 плод берётся из его списка, у остальных — из общего списка
+    растения; null — узел без своего списка. Так у кактуса (cactus_2 узел 3, cactus_3 узел 4) устроена капля воды: плод и вода
+    независимы — вода появляется на своём узле, плоды на остальных. В XML «Цветка Стихий» у такого узла product пустой, а
+    p_cactus_water (bonuses="add_water", картинки в pak) остаётся единственным кандидатом, поэтому пустое имя заменяется на него."""
+    out = []
+    for n in el.find("nodes"):
+        k = int(n.attrib.get("available_products", 0))
+        out.append([{"product": p.attrib["product"] or "p_cactus_water", "probability": float(p.attrib.get("probability", 1))}
+                    for p in list(n)[:k]] if k else None)
+    return out
+
+
 def collect_vegetations(seeds, veg_root, prod_root, vegetations, products):
     """Растения посева и те, во что они вырастают, + их продукты (накапливаются в общих словарях)."""
     queue = list(seeds)
@@ -460,12 +473,13 @@ def collect_vegetations(seeds, veg_root, prod_root, vegetations, products):
         v["nodes"] = [vec(n.attrib["offset"]) for n in el.find("nodes")]
         v["products"] = [p.attrib["product"] for p in el.find("products")]
         v["probabilities"] = [float(p.attrib.get("probability", 1)) for p in el.find("products")]
+        v["node_products"] = node_products(el)
         vegetations[name] = v
         nxt = v.get("upgrade_to_vegetation")
         if nxt and veg_root.find(nxt) is not None:
             queue.append(nxt)
     for v in vegetations.values():
-        for p in v["products"]:
+        for p in v["products"] + [q["product"] for n in v["node_products"] if n for q in n]:
             if p in products:
                 continue
             el = prod_root.find(p)
@@ -783,13 +797,14 @@ def main():
         v["nodes"] = [vec(n.attrib["offset"]) for n in el.find("nodes")]
         v["products"] = [p.attrib["product"] for p in el.find("products")]
         v["probabilities"] = [float(p.attrib.get("probability", 1)) for p in el.find("products")]
+        v["node_products"] = node_products(el)
         vegetations[name] = v
         nxt = v.get("upgrade_to_vegetation")
         if nxt and veg_root.find(nxt) is not None:
             queue.append(nxt)
     prod_root = props.find("products")
     for v in vegetations.values():
-        for p in v["products"]:
+        for p in v["products"] + [q["product"] for n in v["node_products"] if n for q in n]:
             el = prod_root.find(p)
             inner = el.find(p)
             products[p] = {"price": int(el.attrib["price"]), "exp": int(el.attrib.get("exp", 0)),

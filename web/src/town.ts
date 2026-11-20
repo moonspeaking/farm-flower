@@ -12,6 +12,8 @@ import { COLOR, image, pop, roundButton, textButton, toast, H, W } from "./ui";
 export interface TownEvents {
   toFarm(): void;
   toMap(): void;
+  /** Отплытие по квесту: открыть город другой локации. */
+  travel(n: number): void;
   saved(): void;
   /** Кнопка «Меню» левой панели. */
   menu(): void;
@@ -227,12 +229,18 @@ export class Town extends Container {
         { text: this.rules.texts.buttons.return || "Вернуться", pick: null },
       ];
       const buttons = entries.map((e) => ({ e, b: textButton(e.text, () => finish(e.pick)) }));
-      const total = buttons.reduce((a, x) => a + x.b.textHeight, 0);
-      let y = 170 - total / 2;
+      // подписи крупнее (шрифт кнопок оригинала мелкий на таком большом пергаменте) и с промежутками; стопка стоит по центру самого листа
+      // (рисунок пергамента: лист занимает 21…361 px по высоте картинки, внизу лозы), а не по точке (360; 170) из XML
+      const SCALE = 1.5;
+      const GAP = 14;
+      const total = buttons.reduce((acc, x) => acc + x.b.textHeight * SCALE, 0) + GAP * (buttons.length - 1);
+      const centerY = roll.y + 191 - box.y;
+      let y = centerY - total / 2;
       for (const { b } of buttons) {
         b.anchor.set(0.5, 0.5);
-        b.position.set(360, y + b.textHeight / 2);
-        y += b.textHeight;
+        b.scale.set(SCALE);
+        b.position.set(Math.round(W / 2) - 6 - box.x, y + (b.textHeight * SCALE) / 2);
+        y += b.textHeight * SCALE + GAP;
         box.addChild(b);
       }
       // проявление за 0,25 с (альфа = прогресс · 255)
@@ -268,6 +276,8 @@ export class Town extends Container {
     this.busy = false;
     this.refresh();
     this.events.saved();
+    const to = this.quests.takeTravel();
+    if (to) return this.events.travel(to);
     // после первого разговора — на ферму (town_show_farm_baloon)
     this.tut.show("town_show_farm_baloon", 630, 60);
   }

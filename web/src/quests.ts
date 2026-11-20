@@ -195,6 +195,15 @@ export class QuestEngine {
 
   // ---------------------------------------------------------------- действия
 
+  /** Локация, куда игрока нужно перенести после разговора (отплытие: город текущей закрыт или игрок плывёт в город другой локации). */
+  private travel: number | null = null;
+
+  takeTravel() {
+    const n = this.travel;
+    this.travel = null;
+    return n;
+  }
+
   /** current — часть квеста, чьи действия выполняются (для next_sub_quest и disable_sub_quest без имени). */
   run(actions: Action[], questName: string, current = "") {
     const g = this.game;
@@ -202,6 +211,14 @@ export class QuestEngine {
     const enable = (sub: string) => (st.enabled[questName] = [...new Set([...(st.enabled[questName] ?? []), sub])]);
     const disable = (sub: string) => (st.enabled[questName] = (st.enabled[questName] ?? []).filter((s) => s !== sub));
     const here = () => `location_${this.hooks.location()}`;
+    // «Да, я готова к отплытию» / «Да, поплыли!» (travel, wait_travel): после разговора игрок оказывается в городе другой локации,
+    // а не остаётся в городе, который только что закрылся
+    const sails = actions.some((x) => x.type === "disable_sub_quest" && (x.name === "travel" || x.name === "wait_travel"));
+    if (sails || actions.some((x) => x.type === "disable_town" && x.name === here())) {
+      const to = actions.find((x) => x.type === "enable_town" && x.name !== here());
+      const n = Number(to?.name?.replace("location_", ""));
+      if (n) this.travel = n;
+    }
     for (const a of actions) {
       const n = Number(a.count ?? 0);
       switch (a.type) {
@@ -452,11 +469,12 @@ export class QuestEngine {
           break;
         case "enable_town":
         case "disable_town":
-          g.world.towns[a.name] = a.type === "enable_town";
+          // name — список через «;» («location_1; location_3; location_4»): exe разбивает его (0x412ce0) и применяет к каждому (0x44b1b0)
+          for (const name of String(a.name).split(";").map((x) => x.trim()).filter(Boolean)) g.world.towns[name] = a.type === "enable_town";
           break;
         case "enable_farm":
         case "disable_farm":
-          g.world.farms[a.name] = a.type === "enable_farm";
+          for (const name of String(a.name).split(";").map((x) => x.trim()).filter(Boolean)) g.world.farms[name] = a.type === "enable_farm";
           break;
       }
     }

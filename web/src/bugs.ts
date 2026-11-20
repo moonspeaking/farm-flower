@@ -282,7 +282,7 @@ export class Bug extends Actor {
   }
 
   /** Удар: игрок (оружие simple_sword и умения) или Робин. */
-  hit(n: number, byHelper = false) {
+  hit(n: number, byHelper = false, hold = 0) {
     if (this.dead || this.reincornTo) return;
     this.life -= n;
     this.hearts.set(this.life > 0 ? (this.life / this.maxLife) * this.hearts.max : 0);
@@ -293,7 +293,8 @@ export class Bug extends Actor {
         this.playHitOverlay();
       } else {
         this.play("hit", 0, 0, true);
-        this.busy = this.def.anims.hit?.time ?? 0.3;
+        // hold — сколько ещё держать вредителя на месте: Робин бьёт реже, чем длится анимация удара, и между ударами вредитель не должен уходить
+        this.busy = Math.max(this.def.anims.hit?.time ?? 0.3, hold);
       }
       return;
     }
@@ -596,7 +597,7 @@ export class Helper extends Actor {
         this.play("stand", bug.x - this.x, 0);
         if (this.cooldown <= 0) {
           // exe 0x456820: урон = attack · значение(helper_attack), таймер удара каждый раз заново = attack_period (умение его не ускоряет)
-          bug.hit(h.attack * (this.boosted ? 2 : 1) * (1 + this.game.bonus("helper_attack", "helper_attack")), true);
+          bug.hit(h.attack * (this.boosted ? 2 : 1) * (1 + this.game.bonus("helper_attack", "helper_attack")), true, h.attack_period + 0.1);
           this.cooldown = h.attack_period;
         }
         return;
@@ -615,7 +616,9 @@ export class Helper extends Actor {
       return;
     }
     const r = task.ridge;
-    const valid = task.kind === "pour" ? r.thirsty : r.readyProduct() >= 0;
+    // растение, к которому летит Робин, может одновременно хотеть пить и нести спелые плоды — на месте он делает оба дела сразу
+    const canGather = () => r.readyProduct() >= 0 && this.game.storageCount() < this.game.storageMax;
+    const valid = r.thirsty || canGather();
     if (!valid) {
       this.task = null;
       return;
@@ -623,10 +626,10 @@ export class Helper extends Actor {
     this.showIcon(task.kind);
     this.follow(dt, grid);
     if (this.path.length) return;
-    // пришёл (путь пройден) — действие при пустом списке путевых точек (0x45a2d0, 0x4570a0): полив только этого растения;
-    // сбор — всех спелых плодов на этом растении, пока в ящиках есть место (шанса «полить / собрать всё» в exe нет)
-    if (task.kind === "pour") onWater(r);
-    else while (r.readyProduct() >= 0 && this.game.storageCount() < this.game.storageMax) r.collect(r.readyProduct(), false);
+    // пришёл (путь пройден): поливает (0x45a2d0) и собирает все спелые плоды (0x4570a0) на этом растении за одно прибытие,
+    // пока в ящиках есть место
+    if (r.thirsty) onWater(r);
+    while (canGather()) r.collect(r.readyProduct(), false);
     this.task = null;
   }
 

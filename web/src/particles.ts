@@ -294,37 +294,28 @@ export class EmitterList {
 }
 
 /**
- * Путь полёта (0x46a790 + 0x46aff0): ключевые точки со временем, интерполяция Эрмита
- * h00·P0 + h10·m0 + h01·P1 + h11·m1. Касательные в игре нулевые (см. шапку), поэтому
- * участок — гладстеп; формулы касательных середины (0x46b4d0) при ненулевых
- * tension/continuity/bias сегмента: out = (next−k)(bias−tension)(1−continuity),
- * in = −(next−k)(tension+bias)(1−continuity) — здесь все три параметра равны 0.
+ * Путь полёта к панели: прямая от точки сбора до счётчика за time секунд с плавным разгоном и торможением (3u²−2u³).
+ * В exe (0x46a790 + 0x46aff0) путь шёл через промежуточную точку «середина + (−k, +k)» с нулевыми касательными: предмет
+ * уходил вбок и вниз, на мгновение замирал в изломе и только потом летел к панели — на экране это выглядело кривой
+ * ломаной, поэтому в порте полёт прямой (interpolator_k не используется).
  */
 class FlightPath {
   private keys: { x: number; y: number; t: number }[] = [];
 
-  /** 0x46a790: A@0, середина+(−k, +k)@T/2, B@T; касательные концов (0,0) из 0x46a630. */
-  build(from: [number, number], to: [number, number], time: number, k: number) {
+  build(from: [number, number], to: [number, number], time: number, _k: number) {
     this.keys = [
       { x: from[0], y: from[1], t: 0 },
-      { x: (from[0] + to[0]) / 2 - k, y: (from[1] + to[1]) / 2 + k, t: time / 2 },
       { x: to[0], y: to[1], t: time },
     ];
   }
 
-  /** 0x46aff0: значение в момент t (нулевые касательные → гладстеп на участке). */
   eval(t: number): [number, number] {
-    const ks = this.keys;
-    if (ks.length === 0) return [0, 0];
-    if (t <= ks[0].t) return [ks[0].x, ks[0].y];
-    const last = ks[ks.length - 1];
-    if (t >= last.t) return [last.x, last.y];
-    let i = 1;
-    while (ks[i].t < t) i++;
-    const a = ks[i - 1];
-    const b = ks[i];
+    const [a, b] = this.keys;
+    if (!a || !b) return [0, 0];
+    if (t <= a.t) return [a.x, a.y];
+    if (t >= b.t) return [b.x, b.y];
     const u = (t - a.t) / (b.t - a.t);
-    const s = u * u * (3 - 2 * u); // 3u²−2u³ — Эрмит с нулевыми касательными
+    const s = u * u * (3 - 2 * u);
     return [a.x + (b.x - a.x) * s, a.y + (b.y - a.y) * s];
   }
 }

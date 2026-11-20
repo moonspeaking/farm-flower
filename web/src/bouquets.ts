@@ -39,6 +39,8 @@ export class BouquetScreen extends Container {
   private readonly basket = new Container();
   private readonly orders = new Container();
   private readonly drag = new Container();
+  /** Описание плода (p_*_desc): показывается, пока курсор над иконкой цветка в ячейке продажи. */
+  private readonly tip = new Container();
   private loose: Loose[] = [];
   /** slot — откуда взят цветок, если он лежал в букете (а не в корзине). */
   private held: { product: string; sprite: Sprite; from: Sprite; slot?: { oi: number; si: number } } | null = null;
@@ -72,7 +74,8 @@ export class BouquetScreen extends Container {
     const t = rules.texts;
     // при открытии экрана пустые места заказов заполняются (exe 0x433fc0)
     game.fillOrders();
-    this.addChild(image(rules.location === 5 ? "bq_back_5" : "bq_back"), this.slots, this.orders, this.basket, this.drag);
+    this.addChild(image(rules.location === 5 ? "bq_back_5" : "bq_back"), this.slots, this.orders, this.basket, this.drag, this.tip);
+    this.tip.eventMode = "none";
     this.eventMode = "static";
     this.hitArea = new Rectangle(0, 0, 800, 600);
 
@@ -244,6 +247,7 @@ export class BouquetScreen extends Container {
 
   private render() {
     this.slots.removeChildren().forEach((c) => c.destroy({ children: true }));
+    this.hideTip();
     const t = this.rules.texts;
     this.products().slice(0, 9).forEach((product, i) => {
       const n = this.game.storage.get(product) ?? 0;
@@ -259,6 +263,11 @@ export class BouquetScreen extends Container {
       pic.anchor.set(0.5);
       pic.scale.set(Math.min(1, 60 / pic.texture.width, 50 / pic.texture.height));
       pic.position.set(30, 50);
+      // наведение на цветок — название и описание плода (как p_*_desc в первой части); на сенсорных экранах — нажатие
+      pic.eventMode = "static";
+      pic.on("pointerover", () => this.showTip(product, x + 30, y + 50));
+      pic.on("pointerdown", () => this.showTip(product, x + 30, y + 50));
+      for (const ev of ["pointerout", "pointerup", "pointerupoutside"]) pic.on(ev, () => this.hideTip());
       const count = pop(String(n), "Dialog", COLOR.black, { align: "center" });
       count.position.set(40, 75);
       slot.addChild(priceText, pic, count);
@@ -267,10 +276,33 @@ export class BouquetScreen extends Container {
       all.position.set(9 + 25, 99 + 9);
       const one = textButton(t.shop_buttons.sell ?? "Один", () => this.sell(product, 1), "shop");
       one.position.set(7 + 25, 130 + 9);
+      // область нажатия — вся нарисованная в фоне плашка (около 64 × 24), а не только буквы: на телефоне и планшете в них не попасть
+      for (const b of [one, all]) b.hitArea = new Rectangle(b.textWidth / 2 - 32, b.textHeight / 2 - 12, 64, 24);
       slot.addChild(one, all);
       this.slots.addChild(slot);
     });
     this.renderOrders();
+  }
+
+  private showTip(product: string, cx: number, cy: number) {
+    const names = this.rules.texts.names;
+    const text = fmt(names[`${product}_desc`] ?? "") || fmt(names[product] ?? "");
+    if (!text) return;
+    this.hideTip();
+    const label = pop(text.replace(/\s*\n\s*/g, "\n").trim(), "Dialog", COLOR.white, { wrap: 240 });
+    const bg = new Graphics();
+    this.tip.addChild(bg, label);
+    drawTooltip(bg, label);
+    const w = label.textWidth + 14;
+    const h = label.textHeight + 14;
+    // под иконкой; у нижнего и боковых краёв экрана сдвигается внутрь
+    this.tip.position.set(Math.max(4, Math.min(800 - w - 4, cx - w / 2)), Math.min(600 - h - 4, cy + 30));
+    this.tip.visible = true;
+  }
+
+  private hideTip() {
+    this.tip.visible = false;
+    this.tip.removeChildren().forEach((c) => c.destroy({ children: true }));
   }
 
   private sell(product: string, n: number) {

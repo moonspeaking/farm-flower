@@ -42,6 +42,9 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "tree": {
@@ -74,6 +77,10 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null,
+    null
    ]
   },
   "rose": {
@@ -102,6 +109,9 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "romashka_2": {
@@ -136,6 +146,10 @@
    "probabilities": [
     4.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null
    ]
   },
   "tree_2": {
@@ -174,6 +188,11 @@
    "probabilities": [
     2.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null,
+    null
    ]
   },
   "rose_2": {
@@ -208,6 +227,10 @@
    "probabilities": [
     3.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null
    ]
   },
   "romashka_3": {
@@ -247,6 +270,11 @@
     4.0,
     2.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null,
+    null
    ]
   },
   "tree_3": {
@@ -286,6 +314,11 @@
     3.0,
     2.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null,
+    null
    ]
   },
   "rose_3": {
@@ -325,6 +358,11 @@
     3.0,
     2.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null,
+    null
    ]
   },
   "klubnika_1": {
@@ -353,6 +391,9 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "bell_1": {
@@ -381,6 +422,9 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "heart_1": {
@@ -409,6 +453,9 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "klubnika_2": {
@@ -439,6 +486,9 @@
    "probabilities": [
     4.0,
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "bell_2": {
@@ -473,6 +523,10 @@
    "probabilities": [
     3.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null
    ]
   },
   "heart_2": {
@@ -507,6 +561,10 @@
    "probabilities": [
     4.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null
    ]
   },
   "klubnika_3": {
@@ -538,6 +596,9 @@
     4.0,
     2.0,
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "bell_3": {
@@ -569,6 +630,9 @@
     4.0,
     2.0,
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "heart_3": {
@@ -608,6 +672,11 @@
     4.0,
     2.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null,
+    null
    ]
   },
   "pineapple_1": {
@@ -636,6 +705,9 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "cactus_1": {
@@ -664,6 +736,9 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "nopal_1": {
@@ -696,6 +771,10 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null,
+    null
    ]
   },
   "pineapple_2": {
@@ -726,6 +805,9 @@
    "probabilities": [
     3.0,
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "cactus_2": {
@@ -764,6 +846,16 @@
    "probabilities": [
     3.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null,
+    [
+     {
+      "product": "p_cactus_water",
+      "probability": 1.0
+     }
+    ]
    ]
   },
   "nopal_2": {
@@ -806,6 +898,12 @@
    "probabilities": [
     4.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null,
+    null,
+    null
    ]
   },
   "pineapple_3": {
@@ -837,6 +935,9 @@
     4.0,
     2.0,
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "cactus_3": {
@@ -880,6 +981,17 @@
     5.0,
     3.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null,
+    null,
+    [
+     {
+      "product": "p_cactus_water",
+      "probability": 1.0
+     }
+    ]
    ]
   },
   "nopal_3": {
@@ -923,6 +1035,12 @@
     4.0,
     2.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null,
+    null,
+    null
    ]
   },
   "tiger_1": {
@@ -951,6 +1069,9 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "fern_1": {
@@ -979,6 +1100,9 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "fire_1": {
@@ -1007,6 +1131,9 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "tiger_2": {
@@ -1041,6 +1168,10 @@
    "probabilities": [
     4.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null
    ]
   },
   "fern_2": {
@@ -1079,6 +1210,11 @@
    "probabilities": [
     3.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null,
+    null
    ]
   },
   "fire_2": {
@@ -1109,6 +1245,9 @@
    "probabilities": [
     3.0,
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "tiger_3": {
@@ -1144,6 +1283,10 @@
     4.0,
     2.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null
    ]
   },
   "fern_3": {
@@ -1183,6 +1326,11 @@
     4.0,
     2.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null,
+    null
    ]
   },
   "fire_3": {
@@ -1214,6 +1362,9 @@
     4.0,
     2.0,
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "spiral": {
@@ -1242,6 +1393,9 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "bush": {
@@ -1270,6 +1424,9 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "ice": {
@@ -1298,6 +1455,9 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "idol_tree": {
@@ -1325,6 +1485,9 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "red_branch_1": {
@@ -1353,6 +1516,9 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "blue_branch_1": {
@@ -1381,6 +1547,9 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "yellow_branch_1": {
@@ -1409,6 +1578,9 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "green_branch_1": {
@@ -1437,6 +1609,9 @@
    ],
    "probabilities": [
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "spiral_2": {
@@ -1471,6 +1646,10 @@
    "probabilities": [
     2.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null
    ]
   },
   "bush_2": {
@@ -1501,6 +1680,9 @@
    "probabilities": [
     1.0,
     2.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "ice_2": {
@@ -1535,6 +1717,10 @@
    "probabilities": [
     3.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null
    ]
   },
   "red_branch_2": {
@@ -1565,6 +1751,9 @@
    "probabilities": [
     3.0,
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "blue_branch_2": {
@@ -1595,6 +1784,9 @@
    "probabilities": [
     1.0,
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "yellow_branch_2": {
@@ -1625,6 +1817,9 @@
    "probabilities": [
     3.0,
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "green_branch_2": {
@@ -1655,6 +1850,9 @@
    "probabilities": [
     3.0,
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "spiral_3": {
@@ -1694,6 +1892,11 @@
     3.0,
     2.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null,
+    null
    ]
   },
   "bush_3": {
@@ -1725,6 +1928,9 @@
     3.0,
     2.0,
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "ice_3": {
@@ -1764,6 +1970,11 @@
     4.0,
     2.0,
     1.0
+   ],
+   "node_products": [
+    null,
+    null,
+    null
    ]
   },
   "red_branch_3": {
@@ -1795,6 +2006,9 @@
     4.0,
     2.0,
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "blue_branch_3": {
@@ -1826,6 +2040,9 @@
     1.0,
     1.0,
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "yellow_branch_3": {
@@ -1857,6 +2074,9 @@
     4.0,
     2.0,
     1.0
+   ],
+   "node_products": [
+    null
    ]
   },
   "green_branch_3": {
@@ -1888,6 +2108,9 @@
     4.0,
     2.0,
     1.0
+   ],
+   "node_products": [
+    null
    ]
   }
  },
@@ -2404,6 +2627,15 @@
     -35.0
    ],
    "bonuses": ""
+  },
+  "p_cactus_water": {
+   "price": 3,
+   "exp": 3,
+   "offset": [
+    -15.0,
+    -10.0
+   ],
+   "bonuses": "add_water"
   }
  },
  "ridges": [
@@ -38059,6 +38291,7 @@
   "horn_3_action",
   "horn_3_active",
   "horn_3_stand",
+  "hud_bob",
   "ice",
   "ice_2",
   "ice_3",
@@ -38078,7 +38311,6 @@
   "lu_attack",
   "lu_back",
   "lu_bob",
-  "hud_bob",
   "lu_bob_inv",
   "lu_bob_sel",
   "lu_bob_sel_inv",
@@ -38223,6 +38455,7 @@
   "p_cactus_1",
   "p_cactus_2",
   "p_cactus_3",
+  "p_cactus_water",
   "p_fern_1",
   "p_fern_2",
   "p_fern_3",
@@ -38803,6 +39036,7 @@
   "horn_3_action",
   "horn_3_active",
   "horn_3_stand",
+  "hud_bob",
   "ice",
   "ice_2",
   "ice_3",
@@ -38815,7 +39049,6 @@
   "lu_attack",
   "lu_back",
   "lu_bob",
-  "hud_bob",
   "lu_bob_inv",
   "lu_bob_sel",
   "lu_bob_sel_inv",
@@ -38960,6 +39193,7 @@
   "p_cactus_1",
   "p_cactus_2",
   "p_cactus_3",
+  "p_cactus_water",
   "p_fern_1",
   "p_fern_2",
   "p_fern_3",
