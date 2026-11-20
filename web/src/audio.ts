@@ -63,7 +63,8 @@ class AudioManager {
   play(name: string, volume = 1) {
     const buf = this.buffers.get(name);
     if (!buf || !this.ctx || !this.soundGain) return;
-    if (this.ctx.state !== "running") return void this.ctx.resume().catch(() => undefined); // контекст мог уснуть (вкладка в фоне)
+    if (document.hidden) return; // экран погас или вкладка в фоне — звуки не играем и контекст не будим
+    if (this.ctx.state !== "running") return void this.ctx.resume().catch(() => undefined); // контекст мог уснуть
     const src = this.ctx.createBufferSource();
     src.buffer = buf;
     if (volume !== 1) {
@@ -112,6 +113,17 @@ class AudioManager {
       if (!m) return this.startTrack();
       if (m.paused && !m.ended && !m.error) void m.play().catch(() => undefined);
     }, 2000);
+  }
+
+  /** Игру свернули, экран погас или вкладка ушла в фон — музыка и звуки замолкают, при возвращении продолжаются. */
+  setVisible(visible: boolean) {
+    if (!visible) {
+      this.music?.pause();
+      void this.ctx?.suspend().catch(() => undefined);
+      return;
+    }
+    void this.ctx?.resume().catch(() => undefined);
+    if (this.unlocked && this.music && this.options.music > 0) void this.music.play().catch(() => undefined);
   }
 
   setOptions(o: Options) {

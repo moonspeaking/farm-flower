@@ -399,7 +399,8 @@ export class QuestEngine {
           }
           break;
         case "set_mark":
-          if (!g.marks.includes(a.mark)) {
+          // в квесте горна (loc4) есть два set_mark с пустым именем — это данные игры, метка без имени ничего не значит
+          if (a.mark && !g.marks.includes(a.mark)) {
             g.marks.push(a.mark);
             this.hooks.marked(a.mark);
           }

@@ -30,6 +30,41 @@ function silhouette(name: string) {
 }
 
 
+const alphaMasks = new Map<string, { w: number; h: number; a: Uint8Array }>();
+
+/**
+ * Область нажатия по непрозрачным пикселям картинки (с запасом в pad px): у больших растений (ананас 133 × 106, 206 × 185) прямоугольник
+ * спрайта в основном прозрачный, и растение, нарисованное спереди, перехватывало клик по плоду растения за ним.
+ */
+function alphaHit(name: string, pad = 3) {
+  let m = alphaMasks.get(name);
+  if (!m) {
+    const src = tex(name);
+    const cv = document.createElement("canvas");
+    cv.width = src.width;
+    cv.height = src.height;
+    const g = cv.getContext("2d", { willReadFrequently: true })!;
+    g.drawImage(src.source.resource as CanvasImageSource, 0, 0);
+    const d = g.getImageData(0, 0, cv.width, cv.height).data;
+    const a = new Uint8Array(cv.width * cv.height);
+    for (let i = 0; i < a.length; i++) a[i] = d[i * 4 + 3] > 24 ? 1 : 0;
+    m = { w: cv.width, h: cv.height, a };
+    alphaMasks.set(name, m);
+  }
+  const { w, h, a } = m;
+  return {
+    contains(x: number, y: number) {
+      const px = Math.floor(x);
+      const py = Math.floor(y);
+      if (px < -pad || py < -pad || px >= w + pad || py >= h + pad) return false;
+      for (let yy = Math.max(0, py - pad); yy <= Math.min(h - 1, py + pad); yy++) {
+        for (let xx = Math.max(0, px - pad); xx <= Math.min(w - 1, px + pad); xx++) if (a[yy * w + xx]) return true;
+      }
+      return false;
+    },
+  };
+}
+
 interface Plant extends PlantSave {
   def: Vegetation;
   view: Sprite;
@@ -98,8 +133,9 @@ export class RidgeView extends Container {
     // точка грядки в exe (0x439b60 / 0x439bf0) — position + dimensions / 2 целочисленным делением: к ней идут Робин и вредители
     this.anchorPoint = [Math.trunc(w / 2), Math.trunc(h / 2)];
     this.ground = image("ridge");
+    // картинка грядки (64×44) крупнее места (47×35) и ставится от его левого верхнего угла: земля уходит правее и ниже точки опоры
     this.ground.anchor.set(0.5);
-    this.ground.position.set(...this.anchorPoint);
+    this.ground.position.set(Math.trunc(this.ground.width / 2), Math.trunc(this.ground.height / 2));
     this.ground.eventMode = "static";
     this.ground.cursor = "default";
     // грядки дерева-идола и веток нарисованы самим растением
@@ -146,6 +182,7 @@ export class RidgeView extends Container {
     // image_offset из XML — сдвиг картинки растения от точки опоры
     view.position.set(this.anchorPoint[0] + def.image_offset[0], this.anchorPoint[1] + def.image_offset[1]);
     view.eventMode = "static";
+    view.hitArea = alphaHit(name, 2);
     view.on("pointertap", () => this.events.tap(this));
     view.on("pointerover", () => this.events.hover(this));
     this.plantLayer.addChild(view);
@@ -339,8 +376,10 @@ export class RidgeView extends Container {
 
   private spawnProduct() {
     const p = this.plant!;
-    const free = p.products.findIndex((s) => s === null);
-    if (free < 0) return false;
+    // узел выбирается случайно среди свободных (exe 0x42eed0, равномерно): иначе узел с водой кактуса, последний в списке, почти никогда не доставался бы
+    const frees = p.products.flatMap((s, i) => (s === null ? [i] : []));
+    if (!frees.length) return false;
+    const free = frees[Math.floor(Math.random() * frees.length)];
     // плод выбирается по вероятностям probability из XML: из списка узла, если у узла он свой (капля воды кактуса), иначе из общего списка растения
     const list = p.def.node_products?.[free];
     const names = list ? list.map((x) => x.product) : p.def.products;
@@ -365,6 +404,7 @@ export class RidgeView extends Container {
     // узел — от левого верхнего угла картинки растения, offset продукта — от узла
     s.position.set(p.view.x + nx + ox, p.view.y + ny + oy);
     s.eventMode = "static";
+    s.hitArea = alphaHit(name, 4);
     s.cursor = "gather_product";
     s.on("pointertap", (e) => {
       e.stopPropagation();

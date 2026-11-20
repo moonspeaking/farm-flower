@@ -273,8 +273,10 @@ export class Game {
 
   private restore(f: FarmState) {
     this.water = f.water;
-    this.barrels = f.barrels;
-    this.boxes = f.boxes;
+    // миграция старых сохранений: первый ящик (как и бочка) бесплатный на всех фермах — раньше 3-я ферма стартовала с 0 ящиков,
+    // и склад без места не принимал ни одного плода; делаем при каждом входе на ферму, а не только на той, где загрузили сохранение
+    this.barrels = Math.max(1, f.barrels);
+    this.boxes = Math.max(1, f.boxes);
     this.well = f.well;
     // старые сохранения: колодец куплен — первый уровень
     this.wellLevel = f.wellLevel ?? (f.well ? 1 : 0);

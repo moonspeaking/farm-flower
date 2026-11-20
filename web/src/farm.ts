@@ -810,20 +810,31 @@ export class Farm extends Container {
    * Приз на земле: первая проходимая клетка сетки в радиусе 3 от точки (exe 0x428870). Подбирается нажатием по
    * картинке (0x430370, 0x4b54d0).
    */
-  private placePrize(name: string, x: number, y: number) {
+  private placePrize(name: string, x: number, y: number, exact = false) {
     const it = this.rules.dropped_items?.[name];
     if (!it) return;
     const sprite = image(`prize_${it.image}`);
     sprite.anchor.set(0.5, 0.8);
     // exe ищет свободную клетку сетки в радиусе 3 от точки вредителя (0x428870); берём первую проходимую.
+    // приз алтаря (0x4fe7d0 → 0x432890, единственный вызов) кладётся ровно в точку, без поиска клетки: точка лежит на самой статуе,
+    // и поиск свободной клетки уводил бы его вбок
     const grid = this.pathGrid();
-    const near = cellNear(grid, grid.cellOf(x, y), 3);
+    const near = exact ? null : cellNear(grid, grid.cellOf(x, y), 3);
     const px = near ? near[0] * CELL_W + CELL_W / 2 : x;
     const py = near ? near[1] * CELL_H + CELL_H / 2 : y;
-    sprite.position.set(
-      Math.max(120 + sprite.width / 2, Math.min(800 - sprite.width / 2, px)),
-      Math.max(120, Math.min(590, py)),
-    );
+    if (exact) {
+      // точка алтаря (position + сдвиг в пределах drop_offset) — левый верхний угол картинки приза: при размере 65 × 80 низ приза
+      // приходится на y 580–600, то есть на нижнюю ступеньку алтаря (его основание — y 510–593)
+      sprite.anchor.set(0, 0);
+      sprite.position.set(Math.max(120, Math.min(800 - sprite.width, px)), Math.min(600 - sprite.height, py));
+      // приз лежит на самой статуе — рисуем его поверх неё (порядок по глубине иначе спрятал бы его за картинкой статуи)
+      Object.assign(sprite, { depth: 5e5 });
+    } else {
+      sprite.position.set(
+        Math.max(120 + sprite.width / 2, Math.min(800 - sprite.width / 2, px)),
+        Math.max(120, Math.min(590, py)),
+      );
+    }
     sprite.eventMode = "static";
     sprite.cursor = "gather_product";
     const entry = { sprite, name };
@@ -1225,7 +1236,7 @@ export class Farm extends Container {
         ghost.alpha = 0.45;
         const cx = place.position[0] + place.dimensions[0] / 2;
         const cy = place.position[1] + place.dimensions[1] / 2;
-        ghost.position.set(cx, cy);
+        ghost.position.set(place.position[0] + Math.trunc(ghost.width / 2), place.position[1] + Math.trunc(ghost.height / 2));
         ghostOf(`ridge:${i}`, ghost);
         const cost = g.buyPrice(this.rules.prices.ridge);
         buyables.push({
@@ -1478,7 +1489,7 @@ export class Farm extends Container {
       const name = items[Math.floor(Math.random() * items.length)];
       const at = String(p.position ?? "").split(";").map(Number);
       const off = String(p.drop_offset ?? "0;0").split(";").map(Number);
-      if (name && at.length === 2) this.placePrize(name, at[0] + Math.random() * off[0], at[1] + Math.random() * off[1]);
+      if (name && at.length === 2) this.placePrize(name, at[0] + Math.random() * off[0], at[1] + Math.random() * off[1], true);
     } else if (st.kind === "horn") {
       // горн (0x504bc0): призвать round(rand(min_bugs..max_bugs)) вредителей из bugs, по одному в секунду
       this.horn = {
