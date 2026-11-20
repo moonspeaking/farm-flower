@@ -598,7 +598,9 @@ export class Farm extends Container {
     floatPoints(this.ui, label, x, y, color);
     if (this.game.level > before) {
       audio.play("level_up");
-      toast(this.ui, `${this.rules.texts.stats.hero_title} ${this.game.level}`, 400, 200);
+      // заметный лист-уведомление на каждый новый уровень (подсказка level_up показывается только один раз и только с включённым туториалом)
+      const [cur, need] = this.game.levelProgress;
+      skillNotice(this.ui, `${this.rules.texts.stats.hero_title} ${this.game.level}!\nМожно улучшить умение`, cur, need, rgb(255, 205, 70));
       this.tutorial.show("level_up", 52, 140);
     }
   }

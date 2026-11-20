@@ -368,25 +368,17 @@ export class QuestEngine {
         case "add_weapon":
           if (!g.weapons.includes(a.name)) g.weapons.push(a.name);
           break;
-        // exe 0x433670 (сова), 0x433720 (Нептун)…: у совы — бесплатно на уровень выше; остальные статуи открываются в магазине для покупки
+        // exe 0x433670 (сова), 0x433720 (Нептун), 0x4337d0 (алтарь), 0x433880 (часы), горн — те же: пока уровень статуи меньше числа уровней
+        // (3, у часов 2), она получает +1 уровень бесплатно. Квесты (magic_statue, detective_second, chief_altar, horn, clock) выдают так
+        // первый уровень, а метки shop_<вид>_2 / _3, которые они ставят следом, открывают докупку следующих
         case "add_owl":
         case "add_neptun":
         case "add_altar":
         case "add_horn":
         case "add_clock": {
           const kind = a.type.slice(4);
-          if (kind === "owl") {
-            // сову квест дарит: бесплатно на уровень выше
-            g.owl = true;
-            g.statues[kind] = Math.min(g.rules.statues?.[kind]?.levels.length ?? 3, (g.statues[kind] ?? 0) + 1);
-          } else {
-            // остальные статуи квест лишь открывает в магазине — первый уровень покупается (метка shop_<вид>_1), а не выдаётся
-            const first = `shop_${kind}_1`;
-            if (!g.marks.includes(first)) {
-              g.marks.push(first);
-              this.hooks.marked(first);
-            }
-          }
+          if (kind === "owl") g.owl = true;
+          g.statues[kind] = Math.min(g.rules.statues?.[kind]?.levels.length ?? 3, (g.statues[kind] ?? 0) + 1);
           break;
         }
         // медали дракона (exe 0x481307/0x481400): берётся медаль «dragon_medal» (0x4f58e0) и проверяется уровень (0x4f6a70):

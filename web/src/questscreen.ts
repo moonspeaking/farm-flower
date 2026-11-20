@@ -1,6 +1,6 @@
 // Окно заданий «Цветка Стихий» (quest_screen): журнал, который ведут действия квестов add_quest / add_task / add_task_count.
 // Раскладка — properties_ru.xml (quest_screen) и properties.xml (count_text, quests_tasks); строка задания — exe 0x57cb40.
-import { Container, Graphics, Sprite } from "pixi.js";
+import { Container, Graphics, Sprite, Rectangle } from "pixi.js";
 import { rgb } from "./popfont";
 import type { JournalEntry } from "./quests";
 import type { Game } from "./state";
@@ -65,6 +65,21 @@ export class QuestScreen extends Container {
     };
     arrow("prev", 543, 73, -ICON);
     arrow("next", 541, 320, ICON);
+
+    // колесо мыши листает список (шаг — одна строка), на сенсорном экране список тянется пальцем
+    this.eventMode = "static";
+    this.on("wheel", (e) => {
+      e.preventDefault?.();
+      this.scrollBy(Math.sign(e.deltaY) * ICON);
+    });
+    let drag: { y: number; scroll: number } | null = null;
+    box.on("pointerdown", (e) => (drag = { y: e.global.y, scroll: this.scroll }));
+    box.eventMode = "static";
+    box.hitArea = new Rectangle(0, 0, BACK_W, BACK_H);
+    box.on("pointermove", (e) => {
+      if (drag && e.pointerType !== "mouse") this.scrollBy(drag.scroll - e.global.y + drag.y - this.scroll);
+    });
+    for (const ev of ["pointerup", "pointerupoutside"]) box.on(ev, () => (drag = null));
 
     // ok (320; 363) 25×24, стиль normal
     const ok = textButton(t.buttons.ok ?? "OK", () => this.close());
