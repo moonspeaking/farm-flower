@@ -3113,6 +3113,49 @@
     440.0
    ]
   },
+  "well_00": {
+   "position": [
+    140.0,
+    420.0
+   ],
+   "dimensions": [
+    110.0,
+    120.0
+   ],
+   "image_offset": [
+    -70.0,
+    -100.0
+   ],
+   "pail": {
+    "position": [
+     250.0,
+     470.0
+    ],
+    "dimensions": [
+     41.0,
+     30.0
+    ],
+    "image_offset": [
+     0.0,
+     0.0
+    ]
+   },
+   "delay": 25.0,
+   "fill_time": 4.0,
+   "water_capacity": 2.0,
+   "price": 150.0,
+   "pail_height": 17.0,
+   "image": "wellimg_well_00",
+   "pail_images": [
+    "pail_well_pail_00",
+    "pailw_well_pail_00",
+    "pailm_well_pail_00"
+   ],
+   "pail_pos": [
+    240.0,
+    440.0
+   ]
+  },
   "well_02": {
    "position": [
     140.0,
@@ -3191,49 +3234,6 @@
    "image": "",
    "pail_images": [],
    "pail_pos": null
-  },
-  "well_00": {
-   "position": [
-    140.0,
-    420.0
-   ],
-   "dimensions": [
-    110.0,
-    120.0
-   ],
-   "image_offset": [
-    -70.0,
-    -100.0
-   ],
-   "pail": {
-    "position": [
-     250.0,
-     470.0
-    ],
-    "dimensions": [
-     41.0,
-     30.0
-    ],
-    "image_offset": [
-     0.0,
-     0.0
-    ]
-   },
-   "delay": 25.0,
-   "fill_time": 4.0,
-   "water_capacity": 2.0,
-   "price": 150.0,
-   "pail_height": 17.0,
-   "image": "wellimg_well_00",
-   "pail_images": [
-    "pail_well_pail_00",
-    "pailw_well_pail_00",
-    "pailm_well_pail_00"
-   ],
-   "pail_pos": [
-    240.0,
-    440.0
-   ]
   }
  },
  "prices": {
@@ -12448,49 +12448,6 @@
     "pail_3": "well_pail_22"
    },
    "well_items": {
-    "well_22": {
-     "position": [
-      570.0,
-      200.0
-     ],
-     "dimensions": [
-      160.0,
-      130.0
-     ],
-     "image_offset": [
-      -49.0,
-      -49.0
-     ],
-     "pail": {
-      "position": [
-       570.0,
-       200.0
-      ],
-      "dimensions": [
-       130.0,
-       130.0
-      ],
-      "image_offset": [
-       -49.0,
-       -49.0
-      ]
-     },
-     "delay": 5.0,
-     "fill_time": 40.0,
-     "water_capacity": 12.0,
-     "price": 1000.0,
-     "pail_height": 17.0,
-     "image": "",
-     "pail_images": [
-      "pail_well_pail_22",
-      "pailw_well_pail_22",
-      "pailm_well_pail_22"
-     ],
-     "pail_pos": [
-      490.0,
-      150.0
-     ]
-    },
     "well_21": {
      "position": [
       570.0,
@@ -12571,6 +12528,49 @@
       "pail_well_pail_2",
       "pailw_well_pail_2",
       "pailm_well_pail_2"
+     ],
+     "pail_pos": [
+      490.0,
+      150.0
+     ]
+    },
+    "well_22": {
+     "position": [
+      570.0,
+      200.0
+     ],
+     "dimensions": [
+      160.0,
+      130.0
+     ],
+     "image_offset": [
+      -49.0,
+      -49.0
+     ],
+     "pail": {
+      "position": [
+       570.0,
+       200.0
+      ],
+      "dimensions": [
+       130.0,
+       130.0
+      ],
+      "image_offset": [
+       -49.0,
+       -49.0
+      ]
+     },
+     "delay": 5.0,
+     "fill_time": 40.0,
+     "water_capacity": 12.0,
+     "price": 1000.0,
+     "pail_height": 17.0,
+     "image": "",
+     "pail_images": [
+      "pail_well_pail_22",
+      "pailw_well_pail_22",
+      "pailm_well_pail_22"
      ],
      "pail_pos": [
       490.0,
@@ -18249,49 +18249,6 @@
     "pail_3": "well_pail_32"
    },
    "well_items": {
-    "well_3": {
-     "position": [
-      342.0,
-      0.0
-     ],
-     "dimensions": [
-      155.0,
-      180.0
-     ],
-     "image_offset": [
-      0.0,
-      0.0
-     ],
-     "pail": {
-      "position": [
-       342.0,
-       0.0
-      ],
-      "dimensions": [
-       155.0,
-       180.0
-      ],
-      "image_offset": [
-       0.0,
-       0.0
-      ]
-     },
-     "delay": 14.0,
-     "fill_time": 1.0,
-     "water_capacity": 1.0,
-     "price": 75.0,
-     "pail_height": 17.0,
-     "image": "",
-     "pail_images": [
-      "pail_well_pail_3",
-      "pailw_well_pail_3",
-      "pailm_well_pail_3"
-     ],
-     "pail_pos": [
-      342.0,
-      0.0
-     ]
-    },
     "well_31": {
      "position": [
       342.0,
@@ -18372,6 +18329,49 @@
       "pail_well_pail_32",
       "pailw_well_pail_32",
       "pailm_well_pail_32"
+     ],
+     "pail_pos": [
+      342.0,
+      0.0
+     ]
+    },
+    "well_3": {
+     "position": [
+      342.0,
+      0.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       342.0,
+       0.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 14.0,
+     "fill_time": 1.0,
+     "water_capacity": 1.0,
+     "price": 75.0,
+     "pail_height": 17.0,
+     "image": "",
+     "pail_images": [
+      "pail_well_pail_3",
+      "pailw_well_pail_3",
+      "pailm_well_pail_3"
      ],
      "pail_pos": [
       342.0,
@@ -24208,49 +24208,6 @@
       153.0
      ]
     },
-    "well_42": {
-     "position": [
-      632.0,
-      100.0
-     ],
-     "dimensions": [
-      155.0,
-      180.0
-     ],
-     "image_offset": [
-      0.0,
-      0.0
-     ],
-     "pail": {
-      "position": [
-       632.0,
-       100.0
-      ],
-      "dimensions": [
-       155.0,
-       180.0
-      ],
-      "image_offset": [
-       0.0,
-       0.0
-      ]
-     },
-     "delay": 20.0,
-     "fill_time": 5.0,
-     "water_capacity": 5.0,
-     "price": 1100.0,
-     "pail_height": 17.0,
-     "image": "",
-     "pail_images": [
-      "pail_well_pail_42",
-      "pailw_well_pail_42",
-      "pailm_well_pail_42"
-     ],
-     "pail_pos": [
-      631.0,
-      153.0
-     ]
-    },
     "well_4": {
      "position": [
       632.0,
@@ -24288,6 +24245,49 @@
       "pail_well_pail_4",
       "pailw_well_pail_4",
       "pailm_well_pail_4"
+     ],
+     "pail_pos": [
+      631.0,
+      153.0
+     ]
+    },
+    "well_42": {
+     "position": [
+      632.0,
+      100.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       632.0,
+       100.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 20.0,
+     "fill_time": 5.0,
+     "water_capacity": 5.0,
+     "price": 1100.0,
+     "pail_height": 17.0,
+     "image": "",
+     "pail_images": [
+      "pail_well_pail_42",
+      "pailw_well_pail_42",
+      "pailm_well_pail_42"
      ],
      "pail_pos": [
       631.0,
@@ -32284,6 +32284,49 @@
     "pail_3": "well_pail_52"
    },
    "well_items": {
+    "well_51": {
+     "position": [
+      98.0,
+      391.0
+     ],
+     "dimensions": [
+      155.0,
+      180.0
+     ],
+     "image_offset": [
+      0.0,
+      0.0
+     ],
+     "pail": {
+      "position": [
+       98.0,
+       391.0
+      ],
+      "dimensions": [
+       155.0,
+       180.0
+      ],
+      "image_offset": [
+       0.0,
+       0.0
+      ]
+     },
+     "delay": 20.0,
+     "fill_time": 3.0,
+     "water_capacity": 3.0,
+     "price": 225.0,
+     "pail_height": 17.0,
+     "image": "",
+     "pail_images": [
+      "pail_well_pail_51",
+      "pailw_well_pail_51",
+      "pailm_well_pail_51"
+     ],
+     "pail_pos": [
+      98.0,
+      391.0
+     ]
+    },
     "well_5": {
      "position": [
       98.0,
@@ -32364,49 +32407,6 @@
       "pail_well_pail_52",
       "pailw_well_pail_52",
       "pailm_well_pail_52"
-     ],
-     "pail_pos": [
-      98.0,
-      391.0
-     ]
-    },
-    "well_51": {
-     "position": [
-      98.0,
-      391.0
-     ],
-     "dimensions": [
-      155.0,
-      180.0
-     ],
-     "image_offset": [
-      0.0,
-      0.0
-     ],
-     "pail": {
-      "position": [
-       98.0,
-       391.0
-      ],
-      "dimensions": [
-       155.0,
-       180.0
-      ],
-      "image_offset": [
-       0.0,
-       0.0
-      ]
-     },
-     "delay": 20.0,
-     "fill_time": 3.0,
-     "water_capacity": 3.0,
-     "price": 225.0,
-     "pail_height": 17.0,
-     "image": "",
-     "pail_images": [
-      "pail_well_pail_51",
-      "pailw_well_pail_51",
-      "pailm_well_pail_51"
      ],
      "pail_pos": [
       98.0,
@@ -39077,14 +39077,6 @@
   "clock_back",
   "clock_fore",
   "clock_pointer",
-  "comics",
-  "comics_2",
-  "comics_3",
-  "comics_4",
-  "comics_5",
-  "comics_clean",
-  "comics_win_var_1",
-  "comics_win_var_2",
   "cursor_attack",
   "cursor_buy",
   "cursor_gather",
@@ -39107,7 +39099,6 @@
   "fire_3",
   "flower",
   "game_menu_bg",
-  "global_map_back",
   "green_branch_1",
   "green_branch_2",
   "green_branch_3",
@@ -39119,7 +39110,6 @@
   "helper_attack_icon",
   "helper_pour_icon",
   "helper_product_icon",
-  "highscores_bg",
   "horn_1_action",
   "horn_1_active",
   "horn_1_stand",
@@ -39159,22 +39149,6 @@
   "lu_progress",
   "lu_selected",
   "lu_trade",
-  "map_farm_1",
-  "map_farm_2",
-  "map_farm_3",
-  "map_farm_4",
-  "map_farm_5",
-  "map_town_1",
-  "map_town_2",
-  "map_town_3",
-  "map_town_4",
-  "map_town_5",
-  "mark_idol-tree-00",
-  "mark_idol-tree-01",
-  "mark_idol-tree-02",
-  "mark_idol-tree-03",
-  "mark_idol-tree-04",
-  "mark_idol-tree-05",
   "menu_bg",
   "menu_title",
   "mini_captain",
@@ -39594,89 +39568,9 @@
   "tiger_1",
   "tiger_2",
   "tiger_3",
-  "tr_bouqet_medal_0",
-  "tr_bouqet_medal_0_o",
-  "tr_bouqet_medal_1",
-  "tr_bouqet_medal_1_o",
-  "tr_bouqet_medal_2",
-  "tr_bouqet_medal_2_o",
-  "tr_bouqet_medal_3",
-  "tr_bouqet_medal_3_o",
-  "tr_bug_kill_0",
-  "tr_bug_kill_0_o",
-  "tr_bug_kill_1",
-  "tr_bug_kill_1_o",
-  "tr_bug_kill_2",
-  "tr_bug_kill_2_o",
-  "tr_bug_kill_3",
-  "tr_bug_kill_3_o",
-  "tr_dont_die_vegetation_0",
-  "tr_dont_die_vegetation_0_o",
-  "tr_dont_die_vegetation_1",
-  "tr_dont_die_vegetation_1_o",
-  "tr_dont_die_vegetation_2",
-  "tr_dont_die_vegetation_2_o",
-  "tr_dont_die_vegetation_3",
-  "tr_dont_die_vegetation_3_o",
-  "tr_dont_hit_vegetation_0",
-  "tr_dont_hit_vegetation_0_o",
-  "tr_dont_hit_vegetation_1",
-  "tr_dont_hit_vegetation_1_o",
-  "tr_dont_hit_vegetation_2",
-  "tr_dont_hit_vegetation_2_o",
-  "tr_dont_hit_vegetation_3",
-  "tr_dont_hit_vegetation_3_o",
-  "tr_dragon_medal_0",
-  "tr_dragon_medal_0_o",
-  "tr_dragon_medal_1",
-  "tr_dragon_medal_1_o",
-  "tr_dragon_medal_2",
-  "tr_dragon_medal_2_o",
-  "tr_dragon_medal_3",
-  "tr_dragon_medal_3_o",
-  "tr_fast_reaction_0",
-  "tr_fast_reaction_0_o",
-  "tr_fast_reaction_1",
-  "tr_fast_reaction_1_o",
-  "tr_fast_reaction_2",
-  "tr_fast_reaction_2_o",
-  "tr_fast_reaction_3",
-  "tr_fast_reaction_3_o",
-  "tr_game_complete_0",
-  "tr_game_complete_0_o",
-  "tr_game_complete_1",
-  "tr_game_complete_1_o",
-  "tr_game_complete_2",
-  "tr_game_complete_2_o",
-  "tr_game_complete_3",
-  "tr_game_complete_3_o",
-  "tr_game_win_0",
-  "tr_game_win_1",
-  "tr_game_win_1_o",
-  "tr_gather_product_0",
-  "tr_gather_product_0_o",
-  "tr_gather_product_1",
-  "tr_gather_product_1_o",
-  "tr_gather_product_2",
-  "tr_gather_product_2_o",
-  "tr_gather_product_3",
-  "tr_gather_product_3_o",
-  "tr_target_clicks_0",
-  "tr_target_clicks_0_o",
-  "tr_target_clicks_1",
-  "tr_target_clicks_1_o",
-  "tr_trade_medal_0",
-  "tr_trade_medal_0_o",
-  "tr_trade_medal_1",
-  "tr_trade_medal_1_o",
-  "tr_trade_medal_2",
-  "tr_trade_medal_2_o",
-  "tr_trade_medal_3",
-  "tr_trade_medal_3_o",
   "tree",
   "tree_2",
   "tree_3",
-  "trophy_back",
   "tut_basket",
   "tut_bouquets",
   "tut_circle",
@@ -40308,6 +40202,12 @@
    "holder_shaman",
    "item_ghost_weight",
    "item_lemur",
+   "mark_idol-tree-00",
+   "mark_idol-tree-01",
+   "mark_idol-tree-02",
+   "mark_idol-tree-03",
+   "mark_idol-tree-04",
+   "mark_idol-tree-05",
    "stat_panel_5",
    "talker_explorer",
    "talker_father",
@@ -40315,6 +40215,116 @@
    "talker_pirate_leader",
    "talker_shaman",
    "town_bg_5"
+  ]
+ },
+ "lazy_images": {
+  "comics": [
+   "comics",
+   "comics_2",
+   "comics_3",
+   "comics_4",
+   "comics_5",
+   "comics_clean",
+   "comics_win_var_1",
+   "comics_win_var_2"
+  ],
+  "map": [
+   "global_map_back",
+   "map_farm_1",
+   "map_farm_2",
+   "map_farm_3",
+   "map_farm_4",
+   "map_farm_5",
+   "map_town_1",
+   "map_town_2",
+   "map_town_3",
+   "map_town_4",
+   "map_town_5"
+  ],
+  "scores": [
+   "highscores_bg"
+  ],
+  "trophy": [
+   "tr_bouqet_medal_0",
+   "tr_bouqet_medal_0_o",
+   "tr_bouqet_medal_1",
+   "tr_bouqet_medal_1_o",
+   "tr_bouqet_medal_2",
+   "tr_bouqet_medal_2_o",
+   "tr_bouqet_medal_3",
+   "tr_bouqet_medal_3_o",
+   "tr_bug_kill_0",
+   "tr_bug_kill_0_o",
+   "tr_bug_kill_1",
+   "tr_bug_kill_1_o",
+   "tr_bug_kill_2",
+   "tr_bug_kill_2_o",
+   "tr_bug_kill_3",
+   "tr_bug_kill_3_o",
+   "tr_dont_die_vegetation_0",
+   "tr_dont_die_vegetation_0_o",
+   "tr_dont_die_vegetation_1",
+   "tr_dont_die_vegetation_1_o",
+   "tr_dont_die_vegetation_2",
+   "tr_dont_die_vegetation_2_o",
+   "tr_dont_die_vegetation_3",
+   "tr_dont_die_vegetation_3_o",
+   "tr_dont_hit_vegetation_0",
+   "tr_dont_hit_vegetation_0_o",
+   "tr_dont_hit_vegetation_1",
+   "tr_dont_hit_vegetation_1_o",
+   "tr_dont_hit_vegetation_2",
+   "tr_dont_hit_vegetation_2_o",
+   "tr_dont_hit_vegetation_3",
+   "tr_dont_hit_vegetation_3_o",
+   "tr_dragon_medal_0",
+   "tr_dragon_medal_0_o",
+   "tr_dragon_medal_1",
+   "tr_dragon_medal_1_o",
+   "tr_dragon_medal_2",
+   "tr_dragon_medal_2_o",
+   "tr_dragon_medal_3",
+   "tr_dragon_medal_3_o",
+   "tr_fast_reaction_0",
+   "tr_fast_reaction_0_o",
+   "tr_fast_reaction_1",
+   "tr_fast_reaction_1_o",
+   "tr_fast_reaction_2",
+   "tr_fast_reaction_2_o",
+   "tr_fast_reaction_3",
+   "tr_fast_reaction_3_o",
+   "tr_game_complete_0",
+   "tr_game_complete_0_o",
+   "tr_game_complete_1",
+   "tr_game_complete_1_o",
+   "tr_game_complete_2",
+   "tr_game_complete_2_o",
+   "tr_game_complete_3",
+   "tr_game_complete_3_o",
+   "tr_game_win_0",
+   "tr_game_win_1",
+   "tr_game_win_1_o",
+   "tr_gather_product_0",
+   "tr_gather_product_0_o",
+   "tr_gather_product_1",
+   "tr_gather_product_1_o",
+   "tr_gather_product_2",
+   "tr_gather_product_2_o",
+   "tr_gather_product_3",
+   "tr_gather_product_3_o",
+   "tr_target_clicks_0",
+   "tr_target_clicks_0_o",
+   "tr_target_clicks_1",
+   "tr_target_clicks_1_o",
+   "tr_trade_medal_0",
+   "tr_trade_medal_0_o",
+   "tr_trade_medal_1",
+   "tr_trade_medal_1_o",
+   "tr_trade_medal_2",
+   "tr_trade_medal_2_o",
+   "tr_trade_medal_3",
+   "tr_trade_medal_3_o",
+   "trophy_back"
   ]
  },
  "audio": [

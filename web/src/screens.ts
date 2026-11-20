@@ -5,7 +5,7 @@ import { Game, type Difficulty } from "./state";
 import { rgb } from "./popfont";
 import { fmt, type Rules } from "./rules";
 import { SAVE_SLOTS } from "./profiles";
-import { COLOR, dialog, drawTooltip, H, hasImage, image, loadImages, pop, roundButton, textButton, toast, W } from "./ui";
+import { COLOR, dialog, drawTooltip, H, hasImage, image, loadImages, pop, roundButton, textButton, toast, unloadImages, W } from "./ui";
 
 function shade(onTap?: () => void) {
   const s = new Graphics().rect(0, 0, W, H).fill({ color: 0x000000, alpha: 0.45 });
@@ -381,7 +381,8 @@ export function recordScore(rules: Rules, name: string, days: number, money: num
   return top;
 }
 
-export function highscoresScreen(parent: Container, rules: Rules, onClose: () => void) {
+export async function highscoresScreen(parent: Container, rules: Rules, onClose: () => void) {
+  await loadImages(["highscores_bg"]);
   const layer = new Container();
   const t = rules.texts.headers;
   layer.addChild(image("highscores_bg"));
@@ -438,6 +439,7 @@ export function highscoresScreen(parent: Container, rules: Rules, onClose: () =>
   const ok = textButton(rules.texts.buttons.ok ?? "OK", () => {
     layer.destroy({ children: true });
     onClose();
+    void unloadImages(["highscores_bg"]);
   });
   ok.position.set(233 + 205, 451 + 17);
   layer.addChild(ok);
@@ -600,6 +602,7 @@ export async function trophyRoomScreen(parent: Container, rules: Rules, levels: 
   const back = textButton(rules.texts.buttons.back ?? "Назад", () => {
     layer.destroy({ children: true });
     onClose();
+    void unloadImages(rules.lazy_images.trophy);
   });
   back.position.set(W / 2, 580);
   layer.addChild(back);
@@ -634,7 +637,10 @@ export async function trophyAwardPopup(parent: Container, rules: Rules, name: st
   const text = pop(((rules.texts.medals ?? {})[`${name}_${Math.min(level, (rules.trophies?.[name]?.images ?? 1) - 1)}`] ?? "").replace(/\\n/g, "\n"), "Dialog", COLOR.black, { align: "center", wrap: 560 });
   text.anchor.set(0.5, 0);
   text.position.set(cx, 200);
-  const ok = textButton(rules.texts.buttons.ok ?? "OK", () => layer.destroy({ children: true }));
+  const ok = textButton(rules.texts.buttons.ok ?? "OK", () => {
+    layer.destroy({ children: true });
+    void unloadImages([normal]);
+  });
   ok.position.set(cx, 431);
   box.addChild(header, medal, text, ok);
   layer.addChild(box);
@@ -747,6 +753,7 @@ export async function comicsScreen(parent: Container, rules: Rules, key: string,
     const close = () => {
       if (layer.destroyed) return;
       layer.destroy({ children: true });
+      void unloadImages([`comics_${key}`]);
       resolve();
     };
     registerClose?.(close);

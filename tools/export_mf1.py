@@ -271,14 +271,26 @@ def split_images(rules, bugs, names):
                  {f"farm_bg_{n}", f"town_bg_{n}", f"box_{n}", f"box_content_{n}", f"box_mask_{n}"})
         if n == 5:
             imgs |= {"stat_panel_5", "bq_back_5"}
+        # дерево-идол и его ветки (метки marks_obstacle) нужны только своей ферме
+        imgs |= {m["image"] for m in d.get("marks_obstacle", [])}
         per[str(n)] = imgs
     helper = {i for i in names if i.startswith("bug_helper_")}
     only = set().union(*per.values()) - helper
     # то, что нужно любой локации (общие ресурсы вроде talker_hero), остаётся общим
     shared = set.intersection(*per.values())
     only -= shared
-    core = sorted((set(names) | {"comics_clean"}) - only)
-    return core, {k: sorted((v & set(names)) - set(core)) for k, v in per.items()}
+    # экранные картинки, нужные не на ферме, грузятся при открытии экрана и выгружаются при закрытии (lazy_groups, экономит память):
+    # комиксы, карта мира, таблица рекордов и комната трофеев
+    lazy = {
+        "comics": {n for n in names if n.startswith("comics")} | {"comics_clean"},
+        "map": {n for n in names if n == "global_map_back" or n.startswith("map_")},
+        "scores": {"highscores_bg"},
+        "trophy": {n for n in names if n == "trophy_back" or n.startswith("tr_")},
+    }
+    lazy = {k: sorted(v & (set(names) | {"comics_clean"})) for k, v in lazy.items()}
+    hidden = {n for v in lazy.values() for n in v}
+    core = sorted((set(names) | {"comics_clean"}) - only - hidden)
+    return core, {k: sorted((v & set(names)) - set(core) - hidden) for k, v in per.items()}, lazy
 
 
 def conditions(el):
@@ -1113,7 +1125,7 @@ def main():
     subprocess.run([sys.executable, str(Path(__file__).with_name("make_comics_clean.py")),
                     str(out_img / "comics.webp"), str(out_img / "comics_clean.webp")], check=True)
     rules["images"] = sorted([*names, "comics_clean"])
-    rules["core_images"], rules["location_images"] = split_images(rules, bugs, names)
+    rules["core_images"], rules["location_images"], rules["lazy_images"] = split_images(rules, bugs, names)
     rules["audio"] = export_audio(data_dir, web)
     # таблица рекордов по умолчанию: файл объявлен как windows-1251, но записан в cp866
     # в «Цветке Стихий» — UTF-8 с BOM и отдельные таблицы adventure_casual / adventure_hardcore: берём обычную сложность

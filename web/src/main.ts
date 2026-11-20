@@ -338,6 +338,7 @@ async function main() {
     worldTut = new Tutorial(rules, g, () => audio.options.warnings);
     build(g, g.loc);
     dropOthers(g.loc);
+    await loadImages(rules.lazy_images.map); // карта мира нужна только в игре, не в меню
     worldMap = new WorldMap(rules, g, {
       openTown: (n) => enter(g, n, "town"),
       openFarm: (n) => enter(g, n, "farm"),

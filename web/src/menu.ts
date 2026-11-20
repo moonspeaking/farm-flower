@@ -6,7 +6,7 @@ import type { Rules } from "./rules";
 import { fmt } from "./rules";
 import { comicsCaption, saveLoadScreen, selectDifficultyScreen } from "./screens";
 import type { Difficulty } from "./state";
-import { COLOR, dialog, H, image, pop, roundButton, textButton, W } from "./ui";
+import { COLOR, dialog, H, image, loadImages, pop, roundButton, textButton, unloadImages, W } from "./ui";
 
 export interface MenuEvents {
   play(fresh: boolean, difficulty?: Difficulty, slot?: number | null): void;
@@ -144,7 +144,9 @@ export class Menu extends Container {
   /** Новая игра: выбор сложности (select_difficult_screen), затем комикс. */
   private async newGame() {
     const difficulty = await selectDifficultyScreen(this.overlay, this.rules);
-    if (difficulty) this.comics(difficulty);
+    if (!difficulty) return;
+    await loadImages(["comics", "comics_clean"]);
+    this.comics(difficulty);
   }
 
   /** Комикс о письме слуги — перед началом новой игры. Кадры появляются по очереди; щелчок показывает следующий (или все оставшиеся сразу). */
@@ -170,6 +172,7 @@ export class Menu extends Container {
     layer.addChild(caption);
     const go = () => {
       layer.destroy({ children: true });
+      void unloadImages(["comics", "comics_clean"]);
       this.events.play(true, difficulty);
     };
     const ok = roundButton(this.rules.texts.buttons_menu.continue_game || "Продолжить", go);

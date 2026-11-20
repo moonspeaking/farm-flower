@@ -196,6 +196,8 @@ export interface Rules {
   images: string[];
   core_images: string[];
   location_images: Record<string, string[]>;
+  /** Экранные картинки не с фермы (комиксы, карта мира, рекорды, комната трофеев): грузятся при открытии экрана, где нужны. */
+  lazy_images: { comics: string[]; map: string[]; scores: string[]; trophy: string[] };
   quests: Record<string, Quest>;
   holders: Record<string, Place>;
   bugs: Record<string, BugDef>;
